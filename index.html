@@ -260,14 +260,34 @@
             gap: 15px;
             padding-right: 10px;
         }
+       
+        /* --- ESTILOS VISUAIS PARA OS CASOS DO DIA --- */
         .case-entry {
-            background-color: rgba(0, 0, 0, 0.25);
+            background-color: rgba(255, 255, 255, 0.05); /* Destaque subtil para temas escuros */
             border-radius: 12px;
             padding: 15px;
-            border: 1px solid var(--border-color);
+            border: 1px solid transparent;
             position: relative;
+            transition: background-color 0.3s, transform 0.2s, border-color 0.3s;
         }
-        body.theme-light .case-entry, body.theme-mint .case-entry { background-color: rgba(0, 0, 0, 0.03); }
+        
+        /* Ajustes para temas claros */
+        body.theme-light .case-entry, 
+        body.theme-mint .case-entry { 
+            background-color: rgba(0, 0, 0, 0.03);
+            border-color: rgba(0, 0, 0, 0.05);
+        }
+
+        /* Ajuste para tema Pôr do Sol */
+        body.theme-sunset .case-entry {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        /* Ajuste para tema Grafite */
+        body.theme-graphite .case-entry {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
         .case-number {
             position: absolute;
             top: 8px;
@@ -321,13 +341,33 @@
             gap: 8px;
             align-items: center;
         }
-        .field-group input { flex-grow: 1; }
         .field-group .copy-btn {
             padding: 8px 15px;
             font-size: 12px;
-            background-color: var(--secondary-button-bg);
             flex-shrink: 0;
         }
+        
+        /* Estilo unificado para inputs, textareas e selects dentro dos casos */
+        .case-entry .field-group input,
+        .case-entry .case-details-content textarea,
+        .case-entry .case-details-content select {
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 6px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .case-entry .field-group input:focus,
+        .case-entry .case-details-content textarea:focus,
+        .case-entry .case-details-content select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
         .status-indicator {
             width: 18px;
             height: 18px;
@@ -357,6 +397,7 @@
             padding: 8px 12px;
             font-size: 12px;
         }
+        /* --- FIM DOS ESTILOS DOS CASOS --- */
 
         .icon-button {
             background: var(--secondary-button-bg);
@@ -625,9 +666,12 @@ Se ainda estiver com problemas, a visita com o técnico no local será mantida p
             </div>
             <div class="meta-card">
                 <div class="card-header"><h2 id="title-projecao" data-editable="true">Projeção de Cancelamentos</h2></div>
-                <div class="card-body" style="justify-content: center; align-items: center;">
+                <div class="card-body" style="justify-content: center; align-items: center; text-align: center;">
                     <div id="projection-value" class="projection-value" style="color: var(--warning-color);">0</div>
                     <div id="projection-formula">A aguardar histórico...</div>
+                    <div id="tier-projection-container" style="margin-top: 15px; font-size: 14px; width: 100%;">
+                        <!-- Projections will be injected here by JS -->
+                    </div>
                 </div>
             </div>
             <div class="meta-card">
@@ -867,6 +911,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyListEl = document.getElementById('history-list');
     const projectionValueEl = document.getElementById('projection-value');
     const projectionFormulaEl = document.getElementById('projection-formula');
+    const tierProjectionContainer = document.getElementById('tier-projection-container');
     const trendChartCanvas = document.getElementById('trendChart');
     const categoryPieChartCanvas = document.getElementById('categoryPieChart');
     const installAppButton = document.getElementById('installAppButton');
@@ -898,6 +943,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CONSTANTES ---
     const DAILY_PROTOCOL_GOAL = 50;
     const MONTHLY_PROTOCOL_GOAL = 1300;
+    const TOTAL_WORKING_DAYS = 26;
     
     // --- ESTRUTURAS DE DADOS ---
     let metas = JSON.parse(localStorage.getItem('customMetas')) || [
@@ -907,7 +953,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let baseSalary = parseFloat(localStorage.getItem('baseSalary')) || 0;
     let history = JSON.parse(localStorage.getItem('performanceHistory')) || [];
     let categoryCounts = JSON.parse(localStorage.getItem('categoryCounts')) || {};
-    let unlockedAchievements = JSON.parse(localStorage.getItem('unlockedAchievements')) || {};
+    let unlockedAchievements = JSON.parse(localStorage.getItem('unlockedAchievements')) || [];
     let reminderSettings = JSON.parse(localStorage.getItem('reminderSettings')) || { enabled: false, time: '18:00' };
     let usedStatuses = new Set(JSON.parse(localStorage.getItem('usedStatuses')) || []);
     let usedQuickResponses = new Set(JSON.parse(localStorage.getItem('usedQuickResponses')) || []);
@@ -977,7 +1023,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (customTexts) {
             document.querySelectorAll('[data-editable="true"]').forEach(el => {
                  if (customTexts[el.id]) {
-                    // Trata o caso especial das respostas rápidas
                     if (el.classList.contains('resposta-copiavel') && typeof customTexts[el.id] === 'object') {
                         el.innerHTML = customTexts[el.id].summary;
                         el.dataset.fullText = customTexts[el.id].fullText;
@@ -992,7 +1037,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveCustomTexts = function() {
         const customTexts = {};
         document.querySelectorAll('[data-editable="true"]').forEach(el => {
-             // Trata o caso especial das respostas rápidas
              if (el.classList.contains('resposta-copiavel')) {
                 customTexts[el.id] = {
                     summary: el.innerHTML,
@@ -1122,11 +1166,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="case-fields">
                         <div class="field-group">
                             <input type="text" class="protocol-input" value="${caseItem.protocol || ''}" placeholder="Protocolo">
-                            <button class="button copy-btn copy-protocol-btn">Copiar</button>
+                            <button class="button secondary-button copy-btn copy-protocol-btn">Copiar</button>
                         </div>
                         <div class="field-group">
                             <input type="text" class="phone-input" value="${caseItem.phone || ''}" placeholder="Telefone">
-                            <button class="button copy-btn copy-phone-btn">Copiar</button>
+                            <button class="button secondary-button copy-btn copy-phone-btn">Copiar</button>
                         </div>
                     </div>
                     <div class="status-indicator status-${statusClass}" title="${caseItem.status || 'Pendente'}"></div>
@@ -1152,7 +1196,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- FUNÇÕES PRINCIPAIS DE RENDERIZAÇÃO E CÁLCULO ---
     const renderAtendimentoMetas = () => {
         metasContainer.innerHTML = '';
-        metas.forEach(meta => {
+        metas.sort((a, b) => a.target - b.target).forEach(meta => {
             const metaElement = document.createElement('div');
             metaElement.className = 'meta-item';
             metaElement.innerHTML = `<div class="meta-header"><span class="meta-label">Faixa ${meta.id}: ${meta.target} (${(meta.reward || 0) * 100}%)</span><span class="meta-percentage" id="meta${meta.id}-percent">0%</span></div><div class="progress-bar-background"><div class="progress-bar-fill" id="meta${meta.id}-fill"></div></div>`;
@@ -1240,28 +1284,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     const updateProjection = () => {
-        const monthHistory = history.map(e => ({...e, dateObj: parseDate(e.date)})).filter(e => e.dateObj.getMonth() === new Date().getMonth()).sort((a, b) => a.dateObj - b.dateObj);
+        const currentMonth = new Date().getMonth();
+        const monthHistory = history.map(e => ({...e, dateObj: parseDate(e.date)}))
+                                  .filter(e => e.dateObj.getMonth() === currentMonth)
+                                  .sort((a, b) => a.dateObj - b.dateObj);
+        
+        const daysWithEntries = new Set(monthHistory.map(h => h.date)).size;
+
+        // --- Projeção de Total no Mês ---
         if (monthHistory.length < 2) {
+            projectionValueEl.textContent = "N/A";
             projectionFormulaEl.textContent = "Guarde por pelo menos 2 dias neste mês.";
-            projectionValueEl.textContent = "N/A"; return;
+            tierProjectionContainer.innerHTML = '';
+            return;
         }
         const firstEntry = monthHistory[0];
         const lastEntry = monthHistory[monthHistory.length - 1];
-        
         const cancellationsInPeriod = lastEntry.atendimentos - firstEntry.atendimentos;
-        const daysElapsed = Math.round((lastEntry.dateObj.getTime() - firstEntry.dateObj.getTime()) / (1000 * 3600 * 24)) + 1;
 
-        if (daysElapsed <= 1 || cancellationsInPeriod < 0) {
+        if (daysWithEntries <= 1 || cancellationsInPeriod < 0) {
             projectionFormulaEl.textContent = "Dados insuficientes para projeção.";
-            projectionValueEl.textContent = "N/A"; return;
+            projectionValueEl.textContent = "N/A";
+        } else {
+            const dailyAvg = cancellationsInPeriod / (daysWithEntries - 1);
+            const projectedTotal = firstEntry.atendimentos + (dailyAvg * (TOTAL_WORKING_DAYS - 1));
+            projectionValueEl.textContent = Math.round(projectedTotal);
+            projectionFormulaEl.textContent = `Média de ${dailyAvg.toFixed(1)}/dia. Projeção para ${TOTAL_WORKING_DAYS} dias úteis.`;
         }
         
-        const dailyAvg = cancellationsInPeriod / (daysElapsed - 1);
-        const totalWorkingDays = 26;
-        const projectedTotal = (dailyAvg * totalWorkingDays);
-        
-        projectionValueEl.textContent = Math.round(projectedTotal);
-        projectionFormulaEl.textContent = `Média de ${dailyAvg.toFixed(1)}/dia. Projeção para ${totalWorkingDays} dias.`;
+        // --- Projeção para Atingir Faixas ---
+        const currentValue = parseInt(atendimentosInput.value) || 0;
+        const remainingWorkingDays = TOTAL_WORKING_DAYS - daysWithEntries;
+
+        if (remainingWorkingDays <= 0) {
+            tierProjectionContainer.innerHTML = '<p style="font-size: 12px; color: var(--text-secondary-color);">Não há mais dias úteis no mês para calcular a média necessária.</p>';
+        } else {
+            let tierHtml = `<p style="font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">Média diária necessária:</p><ul style="list-style: none; padding: 0; margin: 0; text-align: left; font-size: 13px;">`;
+            metas.forEach(meta => {
+                const remainingCancellations = meta.target - currentValue;
+                if (remainingCancellations <= 0) {
+                    tierHtml += `<li style="color: var(--success-color); margin-bottom: 4px;">✅ <strong>Faixa ${meta.id} (${meta.target}):</strong> Atingida!</li>`;
+                } else {
+                    const requiredAvg = remainingCancellations / remainingWorkingDays;
+                    tierHtml += `<li style="margin-bottom: 4px;">🎯 <strong>Faixa ${meta.id} (${meta.target}):</strong> Faltam ${remainingCancellations}. Média de <strong>${requiredAvg.toFixed(1)}/dia</strong>.</li>`;
+                }
+            });
+            tierHtml += '</ul>';
+            tierProjectionContainer.innerHTML = tierHtml;
+        }
     };
     const renderHistory = () => {
         historyListEl.innerHTML = '';
@@ -1518,7 +1588,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- EVENT LISTENERS ---
-    atendimentosInput.addEventListener('input', () => { localStorage.setItem('atendimentosCount', atendimentosInput.value); updateAtendimentoProgress(); });
+    atendimentosInput.addEventListener('input', () => { 
+        localStorage.setItem('atendimentosCount', atendimentosInput.value); 
+        updateAtendimentoProgress();
+        updateProjection(); 
+    });
     protocolosAnalisadosInput.addEventListener('input', () => { 
         localStorage.setItem('protocolosAnalisadosCount', protocolosAnalisadosInput.value);
         checkAchievements();

@@ -108,8 +108,8 @@
         }
         .page-container {
             max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
+            margin: 10px auto; /* Reduzido */
+            padding: 15px; /* Reduzido */
             background-color: rgba(0, 0, 0, 0.2);
             border: 1px solid var(--border-color);
             border-radius: 16px;
@@ -128,14 +128,23 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px; /* Reduzido */
             position: relative;
         }
-        .header-metas h1 { margin: 0; color: var(--text-color); }
+        .header-logo {
+            height: 36px;
+            width: auto;
+            margin-right: 12px;
+        }
+        .header-metas h1 { 
+            margin: 0; 
+            color: var(--text-color); 
+            font-size: 1.7rem; /* Reduzido */
+        }
         .metas-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
+            gap: 15px; /* Reduzido */
         }
         .meta-card {
             background: var(--card-bg);
@@ -148,10 +157,10 @@
             overflow: hidden;
             transition: background-color 0.3s, border-color 0.3s;
         }
-        .card-header { padding: 20px; border-bottom: 1px solid var(--border-color); }
+        .card-header { padding: 15px; border-bottom: 1px solid var(--border-color); } /* Reduzido */
         .card-header h2 { margin: 0 0 5px 0; color: var(--text-color); }
         .card-header p { margin: 0; font-size: 14px; color: var(--text-secondary-color); }
-        .card-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; }
+        .card-body { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; gap: 12px; } /* Reduzido */
         .form-group { margin-bottom: 10px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: 500; color: var(--text-secondary-color); }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; box-sizing: border-box; font-size: 14px; border-radius: 6px; background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); }
@@ -208,7 +217,7 @@
         .summary-box { padding: 15px; background-color: var(--info-background); border-left: 5px solid var(--info-color); border-radius: 4px; font-weight: bold; text-align: center; transition: all 0.3s; color: var(--text-color); }
         .summary-box.completed { background-color: var(--success-background); border-left-color: var(--success-color); }
         .indicators-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .bonus-value, .projection-value { font-size: 3rem; font-weight: bold; }
+        .bonus-value, .projection-value { font-size: 2.5rem; font-weight: bold; } /* Reduzido */
         #history-list, #category-summary-list, #achievement-list { list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; }
         #history-list li, #category-summary-list li, #achievement-list li { background-color: rgba(0,0,0,0.1); padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 14px; }
         #chart-container, #category-chart-container { position: relative; height: 220px; width: 100%; }
@@ -257,70 +266,48 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            padding-right: 10px;
+            gap: 12px; /* Reduzido */
+            padding-right: 5px;
         }
        
         /* --- ESTILOS VISUAIS PARA OS CASOS DO DIA --- */
         .case-entry {
-            background-color: rgba(255, 255, 255, 0.05); /* Destaque subtil para temas escuros */
-            border-radius: 12px;
-            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px; /* Reduzido */
+            padding: 12px; /* Reduzido */
             border: 1px solid transparent;
             position: relative;
             transition: background-color 0.3s, transform 0.2s, border-color 0.3s;
         }
         
-        /* Ajustes para temas claros */
         body.theme-light .case-entry, 
         body.theme-mint .case-entry { 
             background-color: rgba(0, 0, 0, 0.03);
             border-color: rgba(0, 0, 0, 0.05);
         }
-
-        /* Ajuste para tema Pôr do Sol */
-        body.theme-sunset .case-entry {
-            background-color: rgba(0, 0, 0, 0.2);
-        }
-
-        /* Ajuste para tema Grafite */
-        body.theme-graphite .case-entry {
-            background-color: rgba(255, 255, 255, 0.03);
-        }
+        body.theme-sunset .case-entry { background-color: rgba(0, 0, 0, 0.2); }
+        body.theme-graphite .case-entry { background-color: rgba(255, 255, 255, 0.03); }
 
         .case-number {
             position: absolute;
-            top: 8px;
-            left: 8px;
-            font-size: 12px;
-            font-weight: bold;
-            color: var(--text-secondary-color);
-            background-color: rgba(0,0,0,0.4);
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            line-height: 22px;
-            text-align: center;
+            top: 6px;
+            left: 6px;
+            font-size: 11px;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
         }
         .case-main-content {
             display: flex;
-            gap: 15px;
+            gap: 10px; /* Reduzido */
             align-items: center;
         }
         .expand-btn {
-            background: none;
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            cursor: pointer;
-            font-size: 1.8rem;
-            font-weight: bold;
-            padding: 0;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            line-height: 36px;
-            flex-shrink: 0;
-            transition: all 0.2s;
+            border-width: 1.5px;
+            font-size: 1.5rem;
+            width: 36px;
+            height: 36px;
+            line-height: 33px;
         }
         .expand-btn:hover {
             background: var(--primary-color);
@@ -334,7 +321,7 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px; /* Reduzido */
         }
         .field-group {
             display: flex;
@@ -342,16 +329,15 @@
             align-items: center;
         }
         .field-group .copy-btn {
-            padding: 8px 15px;
+            padding: 6px 12px; /* Reduzido */
             font-size: 12px;
             flex-shrink: 0;
         }
         
-        /* Estilo unificado para inputs, textareas e selects dentro dos casos */
         .case-entry .field-group input,
         .case-entry .case-details-content textarea,
         .case-entry .case-details-content select {
-            padding: 10px;
+            padding: 8px; /* Reduzido */
             font-size: 14px;
             border-radius: 6px;
             background-color: var(--input-bg);
@@ -369,8 +355,8 @@
         }
 
         .status-indicator {
-            width: 18px;
-            height: 18px;
+            width: 16px; /* Reduzido */
+            height: 16px; /* Reduzido */
             border-radius: 50%;
             flex-shrink: 0;
         }
@@ -380,21 +366,21 @@
 
         .case-details-content {
             display: none;
-            margin-top: 15px;
-            padding-top: 15px;
+            margin-top: 10px;
+            padding-top: 10px;
             border-top: 1px solid var(--border-color);
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
         .case-details-content.visible { display: flex; }
         .details-actions {
             display: flex;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 8px;
+            margin-top: 8px;
             justify-content: flex-end;
         }
         .details-actions .button {
-            padding: 8px 12px;
+            padding: 6px 10px;
             font-size: 12px;
         }
         /* --- FIM DOS ESTILOS DOS CASOS --- */
@@ -527,7 +513,8 @@
 
     <div class="page-container">
         <div class="header-metas">
-            <h1 id="main-title" data-editable="true">Suporte N2 📋</h1>
+            <img src="logo.png" alt="Logo" class="header-logo">
+            <h1 id="main-title" data-editable="true">Suporte N2</h1>
             <button id="settings-button" title="Configurar Metas">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2.82l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2.82l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>

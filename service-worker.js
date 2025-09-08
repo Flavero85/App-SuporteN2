@@ -7,7 +7,7 @@ const urlsToCache = [
   '/logo.png'
 ];
 
-// Evento de Instalação: Guarda os arquivos essenciais em cache.
+// Evento de Instalação: Guarda os ficheiros essenciais em cache.
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -34,7 +34,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Evento de Fetch: Intercepta as requisições de rede.
+// Evento de Fetch: Interceta as requisições de rede.
 // Estratégia: Cache first, caindo para a rede se não encontrar no cache.
 self.addEventListener('fetch', event => {
   event.respondWith(
@@ -67,3 +67,4 @@ self.addEventListener('fetch', event => {
       })
   );
 });
+

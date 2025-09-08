@@ -759,6 +759,7 @@ Se ainda estiver com problemas, a visita com o técnico no local será mantida p
                     <button type="button" id="importButton" class="button secondary-button">Importar Dados</button>
                     <button type="button" id="exportButton" class="button secondary-button">Exportar Dados</button>
                     <button type="button" id="installAppButton" class="button">Instalar App</button>
+                    <button type="button" id="clearCacheButton" class="button secondary-button">Limpar Cache</button>
                     <button type="button" id="resetButton" class="button reset-button">Repor Todos os Dados</button>
                 </div>
             </div>
@@ -883,6 +884,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const senhasModal = document.getElementById('senhas-modal');
     const closeSenhasModal = document.getElementById('close-senhas-modal');
     const senhasContainer = document.getElementById('senhas-container');
+    const clearCacheButton = document.getElementById('clearCacheButton');
 
     // --- VARIÁVEIS DE ESTADO ---
     let trendChart;
@@ -1351,8 +1353,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         const todayIndex = history.findIndex(entry => entry.date === date);
         if (todayIndex > -1) { 
-            // Para o total de atendimentos, não somamos, apenas atualizamos para o valor atual.
-            // Para protocolos, a lógica é que o valor no input é o total do dia.
             history[todayIndex] = newEntry;
         } else { 
             history.push(newEntry); 
@@ -1374,7 +1374,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let dailyCount = 0;
         let dailyProtocols = 0;
-        // Se a data do último uso for hoje, carrega os contadores diários
         if (todayStr === lastUsedDate) {
             dailyCount = parseInt(localStorage.getItem('dailyCancellationsCount')) || 0;
             dailyProtocols = parseInt(localStorage.getItem('protocolosAnalisadosCount')) || 0;
@@ -1384,7 +1383,6 @@ document.addEventListener('DOMContentLoaded', () => {
         protocolosAnalisadosInput.value = dailyProtocols;
         previousDailyCancellations = dailyCount;
         
-        // Atualiza a data do último uso para hoje, para resetar os contadores amanhã
         localStorage.setItem('lastUsedDate', todayStr);
 
         atendimentosInput.value = localStorage.getItem('atendimentosCount') || '';
@@ -1515,7 +1513,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (theme !== 'dark') {
             document.body.classList.add(`theme-${theme}`);
         }
-        // Atualiza a cor do gráfico para corresponder ao tema
         renderTrendChart();
         renderCategoryPieChart();
     }
@@ -1651,10 +1648,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentFullText = target.dataset.fullText;
             
             const newSummary = prompt("Edite o resumo visível (máx. 2 linhas):", currentSummary);
-            if (newSummary === null) return; // Utilizador cancelou o primeiro prompt
+            if (newSummary === null) return; 
 
             const newFullText = prompt("Edite o texto completo a ser copiado:", currentFullText);
-            if (newFullText === null) return; // Utilizador cancelou o segundo prompt
+            if (newFullText === null) return; 
 
             target.innerText = newSummary;
             target.dataset.fullText = newFullText;
@@ -1721,7 +1718,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 installAppButton.style.display = 'none';
             }
             deferredInstallPrompt = null; 
-        } else { showToast('A app já foi instalada ou não pode ser instalada neste navegador.', 'info'); }
+        } else { 
+            showToast('App já instalado. Para reinstalar, limpe os dados do site no navegador.', 'info');
+        }
+    });
+
+    clearCacheButton.addEventListener('click', () => {
+        if ('caches' in window && 'serviceWorker' in navigator) {
+            caches.keys().then(function(cacheNames) {
+                return Promise.all(
+                    cacheNames.map(function(cacheName) {
+                        return caches.delete(cacheName);
+                    })
+                );
+            }).then(() => {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for(let registration of registrations) {
+                        registration.unregister();
+                    }
+                    showToast('Cache limpo! A página será recarregada.', 'success');
+                    setTimeout(() => window.location.reload(true), 2000);
+                });
+            });
+        } else {
+            showToast('Recurso não suportado neste navegador.', 'danger');
+        }
     });
 
     themeToggleButton.addEventListener('click', () => {
@@ -1747,3 +1768,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+

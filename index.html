@@ -2009,6 +2009,9 @@ document.addEventListener('DOMContentLoaded', () => {
              // Re-render para atualizar a cor do status
              renderCases(document.querySelector('.filter-btn.active').dataset.filter, caseSearchInput.value);
         }
+        // Atualiza o resumo e as missões em tempo real
+        renderDailySummary();
+        updateDailyMission();
     });
     
     addCaseButton.addEventListener('click', () => {
@@ -2041,6 +2044,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveCasesButton.addEventListener('click', () => {
         vibrate();
         saveCases();
+        updateAll(); // Garante que tudo seja atualizado ao salvar
         showToast('Lista de casos salva com sucesso!', 'success');
     });
 
@@ -2265,4 +2269,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 

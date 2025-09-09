@@ -613,7 +613,29 @@
         
         <div id="tab-principal" class="tab-content active">
             <div class="metas-grid">
-                <!-- CONTADORES -->
+                
+                 <!-- HISTÓRICO DE CASOS -->
+                <div class="meta-card">
+                    <div class="card-header">
+                        <h2 id="title-casos" data-editable="true">Histórico de Casos</h2>
+                        <p id="subtitle-casos" data-editable="true">Pesquise e gira os seus casos.</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="case-controls">
+                            <input type="search" id="case-search-input" placeholder="Pesquisar..." class="form-group">
+                            <div class="filter-buttons-group">
+                                <button type="button" class="button secondary-button filter-btn active" data-filter="all">Todos</button>
+                                <button type="button" class="button secondary-button filter-btn" data-filter="Pendente">Pendentes</button>
+                                <button type="button" class="button secondary-button filter-btn" data-filter="Resolvido">Resolvidos</button>
+                            </div>
+                        </div>
+                        <div id="cases-list-container"></div>
+                        <div class="cases-footer-buttons">
+                            <button type="button" id="addCaseButton" class="button secondary-button">+ Adicionar Caso</button>
+                        </div>
+                    </div>
+                </div>
+<!-- CONTADORES -->
                 <div class="meta-card">
                     <div class="card-header">
                         <h2 id="title-atendimentos" data-editable="true">Contadores</h2>
@@ -653,27 +675,6 @@
                             </div>
                         </div>
                         <div id="summary-text" class="summary-box">A aguardar os seus dados...</div>
-                    </div>
-                </div>
-                 <!-- HISTÓRICO DE CASOS -->
-                <div class="meta-card">
-                    <div class="card-header">
-                        <h2 id="title-casos" data-editable="true">Histórico de Casos</h2>
-                        <p id="subtitle-casos" data-editable="true">Pesquise e gira os seus casos.</p>
-                    </div>
-                    <div class="card-body">
-                        <div class="case-controls">
-                            <input type="search" id="case-search-input" placeholder="Pesquisar..." class="form-group">
-                            <div class="filter-buttons-group">
-                                <button type="button" class="button secondary-button filter-btn active" data-filter="all">Todos</button>
-                                <button type="button" class="button secondary-button filter-btn" data-filter="Pendente">Pendentes</button>
-                                <button type="button" class="button secondary-button filter-btn" data-filter="Resolvido">Resolvidos</button>
-                            </div>
-                        </div>
-                        <div id="cases-list-container"></div>
-                        <div class="cases-footer-buttons">
-                            <button type="button" id="addCaseButton" class="button secondary-button">+ Adicionar Caso</button>
-                        </div>
                     </div>
                 </div>
                  <!-- RESPOSTAS RÁPIDAS -->

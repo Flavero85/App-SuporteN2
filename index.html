@@ -193,13 +193,13 @@
         .form-group { margin-bottom: 10px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: 500; color: var(--text-secondary-color); }
         
-        /* Estilo unificado para caixas de texto no tema tech */
-        body.theme-tech input[type="text"],
-        body.theme-tech input[type="number"],
-        body.theme-tech input[type="search"],
-        body.theme-tech input[type="time"],
-        body.theme-tech select,
-        body.theme-tech textarea {
+        /* Estilo unificado para caixas de texto */
+        input[type="text"],
+        input[type="number"],
+        input[type="search"],
+        input[type="time"],
+        select,
+        textarea {
             padding: 10px;
             font-size: 14px;
             border-radius: 8px;
@@ -210,15 +210,15 @@
             width: 100%;
             box-sizing: border-box;
         }
-        body.theme-tech input[type="text"]:focus,
-        body.theme-tech input[type="number"]:focus,
-        body.theme-tech input[type="search"]:focus,
-        body.theme-tech input[type="time"]:focus,
-        body.theme-tech select:focus,
-        body.theme-tech textarea:focus {
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="search"]:focus,
+        input[type="time"]:focus,
+        select:focus,
+        textarea:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 10px rgba(0, 198, 255, 0.5);
+            box-shadow: 0 0 8px 0px var(--primary-color);
         }
 
         #atendimentosInput, #dailyCancellationsInput, #protocolosAnalisadosInput { font-size: 2.2rem; font-weight: bold; text-align: center; }
@@ -364,15 +364,13 @@
         }
        
         .case-entry {
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 10px;
-            border: 1px solid transparent;
             position: relative;
             transition: background-color 0.3s, transform 0.2s, border-color 0.3s;
         }
-        
-        body.theme-tech .case-entry { background-color: var(--input-bg); border: 1px solid var(--border-color); }
 
         .case-number {
             position: absolute;
@@ -493,23 +491,22 @@
         .filter-btn {
             padding: 8px 10px;
             font-size: 12px;
+            background-image: none;
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 8px;
         }
         .filter-btn.active {
             background-color: var(--primary-color);
+            border-color: var(--primary-color);
             color: white;
             font-weight: bold;
         }
-        body.theme-tech .filter-btn {
-             background-image: none;
-             background-color: transparent;
-             border: 1px solid var(--border-color);
-             color: var(--text-color);
-             border-radius: 8px;
-        }
         body.theme-tech .filter-btn.active {
             background-image: linear-gradient(to right, #00c6ff 0%, #0072ff 51%, #00c6ff 100%);
+            background-color: transparent;
             border-color: transparent;
-            color: white;
         }
 
         .icon-button {
@@ -2136,4 +2133,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 

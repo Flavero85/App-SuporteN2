@@ -190,6 +190,14 @@
         .card-header h2 { margin: 0 0 5px 0; color: var(--text-color); }
         .card-header p { margin: 0; font-size: 14px; color: var(--text-secondary-color); }
         .card-body { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; gap: 12px; }
+        .card-footer { 
+            padding: 10px 15px; 
+            border-top: 1px solid var(--border-color); 
+            display: flex; 
+            justify-content: flex-end; 
+            gap: 10px;
+            margin-top: auto; /* Pushes footer to the bottom */
+        }
         .form-group { margin-bottom: 10px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: 500; color: var(--text-secondary-color); }
         
@@ -308,10 +316,9 @@
         
         .indicators-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .bonus-value, .projection-value { font-size: 2.5rem; font-weight: bold; }
-        #history-list, #category-summary-list, #achievement-list { list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; }
-        #history-list li, #category-summary-list li, #achievement-list li { background-color: rgba(0,0,0,0.1); padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 14px; }
-        body.theme-tech #history-list li, body.theme-tech #category-summary-list li, body.theme-tech #achievement-list li { background-color: var(--input-bg); border: 1px solid var(--border-color); }
-
+        #history-list, #category-summary-list, #achievement-list, #daily-summary-cases-list { list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; }
+        #history-list li, #category-summary-list li, #achievement-list li, #daily-summary-cases-list li { background-color: var(--input-bg); border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 14px; }
+        
         #chart-container, #category-chart-container { position: relative; height: 220px; width: 100%; }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
         .modal-content { background: var(--main-bg); margin: 5% auto; padding: 20px; border: 1px solid var(--border-color); width: 90%; max-width: 600px; border-radius: 12px; }
@@ -343,7 +350,7 @@
         .achievement.unlocked { opacity: 1; font-weight: bold; border-left: 3px solid var(--gold-color); transform: scale(1.02); }
         .achievement.unlocked::before { content: '🏆 '; color: var(--gold-color); }
         .action-buttons { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 30px; }
-        .cases-footer-buttons { display: flex; gap: 10px; margin-top: auto; }
+        
         .modal-actions {
             margin-top: 25px;
             padding-top: 20px;
@@ -470,7 +477,7 @@
         #daily-mission-list li::before { content: '◻️ '; font-family: monospace; }
         #daily-mission-list li.completed::before { content: '✅ '; }
         
-        #logbook-textarea { min-height: 50px; resize: vertical; }
+        #logbook-textarea { min-height: 80px; resize: vertical; }
 
         .case-controls { 
             display: flex; 
@@ -636,6 +643,7 @@
         /* --- ESTILOS DAS ABAS --- */
         .tabs-container {
             display: flex;
+            justify-content: center; /* Centraliza as abas */
             gap: 10px;
             margin-bottom: 20px;
             border-bottom: 2px solid var(--border-color);
@@ -667,6 +675,21 @@
         .tab-content.active {
             display: block;
         }
+        #tab-content-wrapper {
+            position: relative;
+        }
+
+        /* --- ESTILOS DO RESUMO DO DIA --- */
+        #daily-summary-log {
+            white-space: pre-wrap; /* Mantém a formatação do texto */
+            background-color: var(--input-bg);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
         
         /* Media Query para organização de botões em smartphones */
         @media (max-width: 600px) {
@@ -690,7 +713,7 @@
             <img src="logo.png" alt="Logo" class="header-logo">
             <h1 id="main-title" data-editable="true">Suporte N2</h1>
             <button id="settings-button" title="Configurar Metas">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2.82l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2.82l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
                     <circle cx="12" cy="12" r="3"></circle>
                 </svg>
@@ -703,215 +726,238 @@
             <button class="tab-button" data-tab="outros">Outros</button>
         </div>
         
-        <div id="tab-principal" class="tab-content active">
-            <div class="metas-grid">
-                
-                 <!-- HISTÓRICO DE CASOS -->
-                <div class="meta-card">
-                    <div class="card-header">
-                        <h2 id="title-casos" data-editable="true">Histórico de Casos</h2>
-                        <p id="subtitle-casos" data-editable="true">Pesquise e gira os seus casos.</p>
-                    </div>
-                    <div class="card-body">
-                        <div class="case-controls">
-                            <input type="search" id="case-search-input" placeholder="Pesquisar...">
-                            <div class="filter-buttons-group">
-                                <button type="button" class="button secondary-button filter-btn active" data-filter="all">Todos</button>
-                                <button type="button" class="button secondary-button filter-btn" data-filter="Pendente">Pendentes</button>
-                                <button type="button" class="button secondary-button filter-btn" data-filter="Resolvido">Resolvidos</button>
+        <div id="tab-content-wrapper">
+            <div id="tab-principal" class="tab-content active">
+                <div class="metas-grid">
+                    
+                    <!-- HISTÓRICO DE CASOS -->
+                    <div class="meta-card">
+                        <div class="card-header">
+                            <h2 id="title-casos" data-editable="true">Histórico de Casos</h2>
+                            <p id="subtitle-casos" data-editable="true">Pesquise e gira os seus casos.</p>
+                        </div>
+                        <div class="card-body">
+                            <div class="case-controls">
+                                <input type="search" id="case-search-input" placeholder="Pesquisar...">
+                                <div class="filter-buttons-group">
+                                    <button type="button" class="button filter-btn active" data-filter="all">Todos</button>
+                                    <button type="button" class="button filter-btn" data-filter="Pendente">Pendentes</button>
+                                    <button type="button" class="button filter-btn" data-filter="Resolvido">Resolvidos</button>
+                                </div>
                             </div>
+                            <div id="cases-list-container"></div>
                         </div>
-                        <div id="cases-list-container"></div>
-                        <div class="cases-footer-buttons">
-                            <button type="button" id="addCaseButton" class="button secondary-button">+ Adicionar Caso</button>
-                            <button type="button" id="clearCasesButton" class="button reset-button">Limpar Tudo</button>
+                        <div class="card-footer">
+                            <button type="button" id="addCaseButton" class="button secondary-button">+ Adicionar</button>
+                            <button type="button" id="clearCasesButton" class="button reset-button">Limpar</button>
+                            <button type="button" id="saveCasesButton" class="button save-button">Salvar Casos</button>
                         </div>
                     </div>
-                </div>
-<!-- CONTADORES -->
-                <div class="meta-card">
-                    <div class="card-header">
-                        <h2 id="title-atendimentos" data-editable="true">Contadores</h2>
-                        <p id="subtitle-atendimentos" data-editable="true">Acompanhe o seu progresso para a comissão.</p>
-                    </div>
-                    <div class="card-body">
-                        <div class="daily-counters-row">
-                            <div class="form-group">
-                                <label id="label-protocolos" for="protocolosAnalisadosInput" data-editable="true">Protocolos (Dia):</label>
-                                <div class="input-with-button-container">
-                                    <input type="number" id="protocolosAnalisadosInput" placeholder="0">
-                                    <button type="button" id="incrementProtocolosButton" class="button" style="width: 70px;">+1</button>
+                    <!-- CONTADORES -->
+                    <div class="meta-card">
+                        <div class="card-header">
+                            <h2 id="title-atendimentos" data-editable="true">Contadores</h2>
+                            <p id="subtitle-atendimentos" data-editable="true">Acompanhe o seu progresso para a comissão.</p>
+                        </div>
+                        <div class="card-body">
+                            <div class="daily-counters-row">
+                                <div class="form-group">
+                                    <label id="label-protocolos" for="protocolosAnalisadosInput" data-editable="true">Protocolos (Dia):</label>
+                                    <div class="input-with-button-container">
+                                        <input type="number" id="protocolosAnalisadosInput" placeholder="0">
+                                        <button type="button" id="incrementProtocolosButton" class="button" style="width: 70px;">+1</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label id="label-daily-cancellations" for="dailyCancellationsInput" data-editable="true">Cancelamentos (Dia):</label>
+                                    <input type="number" id="dailyCancellationsInput" placeholder="0">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label id="label-daily-cancellations" for="dailyCancellationsInput" data-editable="true">Cancelamentos (Dia):</label>
-                                <input type="number" id="dailyCancellationsInput" placeholder="0">
+                                <label id="label-atendimentos" for="atendimentosInput" data-editable="true">Total de Cancelamentos (Mês):</label>
+                                <input type="number" id="atendimentosInput" placeholder="0">
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label id="label-atendimentos" for="atendimentosInput" data-editable="true">Total de Cancelamentos (Mês):</label>
-                            <input type="number" id="atendimentosInput" placeholder="0">
-                        </div>
-                        <div id="protocol-goals-container" style="margin-top: 15px;"></div>
-                        <div id="metas-container"></div>
-                        <div class="form-group">
-                            <label id="label-category" for="categorySelect" data-editable="true">Categoria do Cancelamento:</label>
-                            <div class="input-with-button-container">
-                                <select id="categorySelect">
-                                    <option id="category-option-1" data-editable="true">Sem Sinal</option>
-                                    <option id="category-option-2" data-editable="true">Massivo</option>
-                                    <option id="category-option-3" data-editable="true">Lentidão</option>
-                                    <option id="category-option-4" data-editable="true">Quedas de Conexão</option>
-                                    <option id="category-option-5" data-editable="true">Outros</option>
-                                </select>
-                                <button type="button" id="incrementButton" class="button" style="width: 70px;">+1</button>
+                            <div id="protocol-goals-container" style="margin-top: 15px;"></div>
+                            <div id="metas-container"></div>
+                            <div class="form-group">
+                                <label id="label-category" for="categorySelect" data-editable="true">Categoria do Cancelamento:</label>
+                                <div class="input-with-button-container">
+                                    <select id="categorySelect">
+                                        <option id="category-option-1" data-editable="true">Sem Sinal</option>
+                                        <option id="category-option-2" data-editable="true">Massivo</option>
+                                        <option id="category-option-3" data-editable="true">Lentidão</option>
+                                        <option id="category-option-4" data-editable="true">Quedas de Conexão</option>
+                                        <option id="category-option-5" data-editable="true">Outros</option>
+                                    </select>
+                                    <button type="button" id="incrementButton" class="button" style="width: 70px;">+1</button>
+                                </div>
                             </div>
+                            <div id="summary-text" class="summary-box">A aguardar os seus dados...</div>
                         </div>
-                        <div id="summary-text" class="summary-box">A aguardar os seus dados...</div>
                     </div>
-                </div>
-                 <!-- RESPOSTAS RÁPIDAS -->
-                <div class="meta-card">
-                    <div class="card-header">
-                        <h2 id="title-respostas" data-editable="true">Respostas Rápidas</h2>
-                        <p id="subtitle-respostas" data-editable="true">Clique numa resposta para copiar o texto completo.</p>
+                    <!-- RESPOSTAS RÁPIDAS -->
+                    <div class="meta-card">
+                        <div class="card-header">
+                            <h2 id="title-respostas" data-editable="true">Respostas Rápidas</h2>
+                            <p id="subtitle-respostas" data-editable="true">Clique numa resposta para copiar o texto completo.</p>
+                        </div>
+                        <div class="card-body" id="respostas-container">
+                            <div id="resposta-1" class="summary-box resposta-copiavel" data-full-text="Olá, &#10;&#10;Aqui é Flávio, da empresa Desktop. Tudo bem com você?&#10;&#10;Quero te explicar sobre o reparo que estava agendado (protocolo [ XXXX ]): identificamos que a falha não está na sua residência, mas sim em um equipamento externo que leva o sinal até aí.&#10;&#10;Por isso, a visita técnica não seria eficaz e precisou ser cancelada.&#10;&#10;Mas não se preocupe! Nossa equipe já está cuidando disso e em breve você terá seu serviço restabelecido.&#10;&#10;Conte sempre com a Desktop. Estamos juntos para garantir sua melhor experiência!">Visita cancelada por falha externa. Equipa a atuar na correção.</div>
+                            <div id="resposta-2" class="summary-box resposta-copiavel" data-full-text="Olá, cliente Desktop!&#10;&#10;Meu nome é Flávio do Suporte Técnico N2 e estou entrando em contato com uma novidade incrível: identificamos uma oportunidade de melhorar ainda mais a qualidade da sua conexão com a Desktop — e o melhor, sem custo adicional!&#10;&#10;Nosso time técnico acompanha de perto o desempenho dos nossos clientes e notamos que uma atualização no seu equipamento pode proporcionar uma experiência ainda melhor.&#10;&#10;É só me informar a melhor data e horário, e cuidamos do resto!&#10;&#10;Fico no aguardo da sua resposta.&#10;&#10;Até mais!&#10;Flávio N2&#10;Equipe Desktop">Oportunidade de melhoria na conexão sem custo. Agende a atualização.</div>
+                            <div id="resposta-3" class="summary-box resposta-copiavel" data-full-text="Olá, cliente TOP!&#10;&#10;Sou o Flávio do Suporte Técnico N2, da empresa DESKTOP INTERNET!&#10;&#10;O motivo do nosso contato, é referente ao problema protocolo [ XXXX ] que estava causando falta de acesso à sua internet.&#10;Foi feita uma atualização e correção via sistema. Conseguimos resolver remotamente o seu problema.&#10;Poderia nos informar se a sua internet normalizou e se podemos cancelar sua visita?&#10;&#10;Seu protocolo de agendamento é: &#10;&#10;Se ainda estiver com problemas, a visita com o técnico no local será mantida para validação.">Problema resolvido remotamente. Confirme se a internet normalizou.</div>
+                            <div id="resposta-4" class="summary-box resposta-copiavel" data-full-text="Nesse caso vamos ter que prosseguir com a visita técnica Ok">Vamos prosseguir com a visita técnica para resolver o problema.</div>
+                            <div id="resposta-5" class="summary-box resposta-copiavel" data-full-text="A equipe N2 do suporte técnico da Desktop agradece e tudo de bom !">A equipa N2 da Desktop agradece. Tenha um ótimo dia!</div>
+                            <div id="resposta-6" class="summary-box resposta-copiavel" data-full-text="Frase reserva">Frase de reserva para uso geral em atendimentos.</div>
+                        </div>
                     </div>
-                    <div class="card-body" id="respostas-container">
-                        <div id="resposta-1" class="summary-box resposta-copiavel" data-full-text="Olá, &#10;&#10;Aqui é Flávio, da empresa Desktop. Tudo bem com você?&#10;&#10;Quero te explicar sobre o reparo que estava agendado (protocolo [ XXXX ]): identificamos que a falha não está na sua residência, mas sim em um equipamento externo que leva o sinal até aí.&#10;&#10;Por isso, a visita técnica não seria eficaz e precisou ser cancelada.&#10;&#10;Mas não se preocupe! Nossa equipe já está cuidando disso e em breve você terá seu serviço restabelecido.&#10;&#10;Conte sempre com a Desktop. Estamos juntos para garantir sua melhor experiência!">Visita cancelada por falha externa. Equipa a atuar na correção.</div>
-                        <div id="resposta-2" class="summary-box resposta-copiavel" data-full-text="Olá, cliente Desktop!&#10;&#10;Meu nome é Flávio do Suporte Técnico N2 e estou entrando em contato com uma novidade incrível: identificamos uma oportunidade de melhorar ainda mais a qualidade da sua conexão com a Desktop — e o melhor, sem custo adicional!&#10;&#10;Nosso time técnico acompanha de perto o desempenho dos nossos clientes e notamos que uma atualização no seu equipamento pode proporcionar uma experiência ainda melhor.&#10;&#10;É só me informar a melhor data e horário, e cuidamos do resto!&#10;&#10;Fico no aguardo da sua resposta.&#10;&#10;Até mais!&#10;Flávio N2&#10;Equipe Desktop">Oportunidade de melhoria na conexão sem custo. Agende a atualização.</div>
-                        <div id="resposta-3" class="summary-box resposta-copiavel" data-full-text="Olá, cliente TOP!&#10;&#10;Sou o Flávio do Suporte Técnico N2, da empresa DESKTOP INTERNET!&#10;&#10;O motivo do nosso contato, é referente ao problema protocolo [ XXXX ] que estava causando falta de acesso à sua internet.&#10;Foi feita uma atualização e correção via sistema. Conseguimos resolver remotamente o seu problema.&#10;Poderia nos informar se a sua internet normalizou e se podemos cancelar sua visita?&#10;&#10;Seu protocolo de agendamento é: &#10;&#10;Se ainda estiver com problemas, a visita com o técnico no local será mantida para validação.">Problema resolvido remotamente. Confirme se a internet normalizou.</div>
-                        <div id="resposta-4" class="summary-box resposta-copiavel" data-full-text="Nesse caso vamos ter que prosseguir com a visita técnica Ok">Vamos prosseguir com a visita técnica para resolver o problema.</div>
-                        <div id="resposta-5" class="summary-box resposta-copiavel" data-full-text="A equipe N2 do suporte técnico da Desktop agradece e tudo de bom !">A equipa N2 da Desktop agradece. Tenha um ótimo dia!</div>
-                        <div id="resposta-6" class="summary-box resposta-copiavel" data-full-text="Frase reserva">Frase de reserva para uso geral em atendimentos.</div>
+                    <!-- MISSÃO DIÁRIA -->
+                    <div class="meta-card">
+                        <div class="card-header">
+                            <h2 id="title-daily-mission" data-editable="true">Missão Diária</h2>
+                            <p id="subtitle-daily-mission" data-editable="true">Os seus objetivos para hoje.</p>
+                        </div>
+                        <div class="card-body">
+                            <ul id="daily-mission-list"></ul>
+                        </div>
                     </div>
-                </div>
-                <!-- MISSÃO DIÁRIA -->
-                <div class="meta-card">
-                    <div class="card-header">
-                        <h2 id="title-daily-mission" data-editable="true">Missão Diária</h2>
-                        <p id="subtitle-daily-mission" data-editable="true">Os seus objetivos para hoje.</p>
-                    </div>
-                    <div class="card-body">
-                        <ul id="daily-mission-list"></ul>
+                    <!-- RESUMO DO DIA -->
+                    <div class="meta-card">
+                        <div class="card-header">
+                            <h2 data-editable="true">Resumo do Dia</h2>
+                            <p data-editable="true">Suas anotações e casos de hoje.</p>
+                        </div>
+                        <div class="card-body">
+                            <h4>Anotações de Bordo:</h4>
+                            <div id="daily-summary-log">Nenhuma anotação para hoje.</div>
+                            <h4 style="margin-top: 15px;">Casos do Dia:</h4>
+                            <div id="daily-summary-cases-list"></div>
+                        </div>
+                        <div class="card-footer">
+                             <button type="button" id="dailySummaryClearButton" class="button reset-button">Limpar Resumo</button>
+                            <button type="button" id="dailySummarySaveButton" class="button save-button">Salvar</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div id="tab-cancelamentos" class="tab-content">
-             <div class="metas-grid">
-                <!-- DIÁRIO DE BORDO -->
-                <div class="meta-card">
-                    <div class="card-header">
-                        <h2 id="title-logbook" data-editable="true">Diário de Bordo</h2>
-                        <p id="subtitle-logbook" data-editable="true">Anote eventos importantes do dia.</p>
-                    </div>
-                    <div class="card-body">
-                        <textarea id="logbook-textarea" placeholder="Ex: Instabilidade massiva na região X..."></textarea>
-                    </div>
-                </div>
-                <!-- HISTÓRICO DE ENTRADAS -->
-                <div class="meta-card">
-                    <div class="card-header"><h2 id="title-historico" data-editable="true">Histórico de Entradas</h2></div>
-                    <div class="card-body">
-                        <ul id="history-list"></ul>
-                    </div>
-                </div>
-                <!-- PROJEÇÃO -->
-                <div class="meta-card">
-                    <div class="card-header"><h2 id="title-projecao" data-editable="true">Projeção de Cancelamentos</h2></div>
-                    <div class="card-body" style="justify-content: center; align-items: center; text-align: center;">
-                        <div id="projection-value" class="projection-value" style="color: var(--warning-color);">0</div>
-                        <div id="projection-formula">A aguardar histórico...</div>
-                        <div id="tier-projection-container" style="margin-top: 15px; font-size: 14px; width: 100%;"></div>
-                    </div>
-                </div>
-                <!-- RESUMO CATEGORIA -->
-                <div class="meta-card">
-                    <div class="card-header"><h2 id="title-resumo-categoria" data-editable="true">Resumo por Categoria</h2></div>
-                    <div class="card-body">
-                        <div id="category-chart-container">
-                            <canvas id="categoryPieChart"></canvas>
+            <div id="tab-cancelamentos" class="tab-content">
+                <div class="metas-grid">
+                    <!-- DIÁRIO DE BORDO -->
+                    <div class="meta-card">
+                        <div class="card-header">
+                            <h2 id="title-logbook" data-editable="true">Diário de Bordo</h2>
+                            <p id="subtitle-logbook" data-editable="true">Anote eventos importantes do dia.</p>
                         </div>
-                        <ul id="category-summary-list" style="margin-top: 15px;"></ul>
+                        <div class="card-body">
+                            <textarea id="logbook-textarea" placeholder="Ex: Instabilidade massiva na região X..."></textarea>
+                        </div>
+                        <div class="card-footer">
+                            <button type="button" id="saveLogbookButton" class="button save-button">Salvar Anotação</button>
+                        </div>
                     </div>
-                </div>
-                <!-- GRÁFICO -->
-                <div class="meta-card">
-                    <div class="card-header"><h2 id="title-grafico" data-editable="true">Gráfico de Tendência</h2></div>
-                    <div class="card-body">
-                        <div id="chart-container"><canvas id="trendChart"></canvas></div>
+                    <!-- HISTÓRICO DE ENTRADAS -->
+                    <div class="meta-card">
+                        <div class="card-header"><h2 id="title-historico" data-editable="true">Histórico de Entradas</h2></div>
+                        <div class="card-body">
+                            <ul id="history-list"></ul>
+                        </div>
+                    </div>
+                    <!-- PROJEÇÃO -->
+                    <div class="meta-card">
+                        <div class="card-header"><h2 id="title-projecao" data-editable="true">Projeção de Cancelamentos</h2></div>
+                        <div class="card-body" style="justify-content: center; align-items: center; text-align: center;">
+                            <div id="projection-value" class="projection-value" style="color: var(--warning-color);">0</div>
+                            <div id="projection-formula">A aguardar histórico...</div>
+                            <div id="tier-projection-container" style="margin-top: 15px; font-size: 14px; width: 100%;"></div>
+                        </div>
+                    </div>
+                    <!-- RESUMO CATEGORIA -->
+                    <div class="meta-card">
+                        <div class="card-header"><h2 id="title-resumo-categoria" data-editable="true">Resumo por Categoria</h2></div>
+                        <div class="card-body">
+                            <div id="category-chart-container">
+                                <canvas id="categoryPieChart"></canvas>
+                            </div>
+                            <ul id="category-summary-list" style="margin-top: 15px;"></ul>
+                        </div>
+                    </div>
+                    <!-- GRÁFICO -->
+                    <div class="meta-card">
+                        <div class="card-header"><h2 id="title-grafico" data-editable="true">Gráfico de Tendência</h2></div>
+                        <div class="card-body">
+                            <div id="chart-container"><canvas id="trendChart"></canvas></div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div id="tab-outros" class="tab-content">
-             <div class="metas-grid">
-                <!-- LINKS -->
-                <div class="meta-card">
-                    <div class="card-header">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                            <h2 id="title-links" data-editable="true">Links Úteis</h2>
-                            <button id="senhas-button" title="Ver Senhas" class="icon-button">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-                            </button>
+            
+            <div id="tab-outros" class="tab-content">
+                <div class="metas-grid">
+                    <!-- LINKS -->
+                    <div class="meta-card">
+                        <div class="card-header">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <h2 id="title-links" data-editable="true">Links Úteis</h2>
+                                <button id="senhas-button" title="Ver Senhas" class="icon-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                                </button>
+                            </div>
+                            <p id="subtitle-links" data-editable="true">Aceda a sistemas importantes com um clique.</p>
                         </div>
-                        <p id="subtitle-links" data-editable="true">Aceda a sistemas importantes com um clique.</p>
-                    </div>
-                    <div class="card-body" id="links-uteis-container-body">
-                        <div id="links-uteis-container">
-                            <a href="http://172.30.0.141:8080" target="_blank" class="link-util" id="link-text-1" data-editable="true">SIG</a>
-                            <a href="http://172.30.0.141:8080/oportunidades" target="_blank" class="link-util" id="link-text-2" data-editable="true">SIG - Oportunidades</a>
-                            <a href="https://172.30.0.141" target="_blank" class="link-util" id="link-text-3" data-editable="true">Deskpedia</a>
-                            <a href="https://desktopsa.my.salesforce.com" target="_blank" class="link-util" id="link-text-4" data-editable="true">SalesForce</a>
-                            <a href="https://desktop.matrixdobrasil.ai/Painel/login" target="_blank" class="link-util" id="link-text-5" data-editable="true">Matrix Chat</a>
-                            <a href="http://sis.desktop.com.br" target="_blank" class="link-util" id="link-text-6" data-editable="true">SIS</a>
-                            <a href="https://adm.desktop.com.br" target="_blank" class="link-util" id="link-text-7" data-editable="true">ADM</a>
-                            <a href="https://login.lg.com.br/login/desktop" target="_blank" class="link-util" id="link-text-8" data-editable="true">LG</a>
-                            <a href="https://webmail.desktop.com.br" target="_blank" class="link-util" id="link-text-9" data-editable="true">WebMail</a>
-                            <a href="https://netcore.desktop.localdomain/weboss/reprovisiona_gpon" target="_blank" class="link-util" id="link-text-10" data-editable="true">NetCore</a>
-                            <a href="https://desktopcombr.sharepoint.com/sites/EQUIPEDEPROCESSOS/repositorio_materiais/SitePages/LearningTeamHome.aspx" target="_blank" class="link-util" id="link-text-11" data-editable="true">Novo Pulpo</a>
-                            <a href="https://docs.google.com/spreadsheets/d/1zkNxgYOs8iWMSwdgtwV4-g0RxmkoI_jgdclkpGjF3Rc/edit#gid=0" target="_blank" class="link-util" id="link-text-12" data-editable="true">Cancelados COP</a>
-                            <a href="https://desktopcombr.sharepoint.com/:p:/r/sites/EQUIPEDEPROCESSOS/repositorio_materiais/_layouts/15/doc2.aspx?sourcedoc=%7BE78AE514-642A-4F46-8FBB-2C54C51C9945%7D&file=MODELOS%20DE%20EQUIPAMENTOS.pptx&action=edit&mobileredirect=true" target="_blank" class="link-util" id="link-text-13" data-editable="true">Modelos de Roteadores</a>
-                            <a href="https://www.flavioitech.com" target="_blank" class="link-util" id="link-text-14" data-editable="true">Meu Site</a>
+                        <div class="card-body" id="links-uteis-container-body">
+                            <div id="links-uteis-container">
+                                <a href="http://172.30.0.141:8080" target="_blank" class="link-util" id="link-text-1" data-editable="true">SIG</a>
+                                <a href="http://172.30.0.141:8080/oportunidades" target="_blank" class="link-util" id="link-text-2" data-editable="true">SIG - Oportunidades</a>
+                                <a href="https://172.30.0.141" target="_blank" class="link-util" id="link-text-3" data-editable="true">Deskpedia</a>
+                                <a href="https://desktopsa.my.salesforce.com" target="_blank" class="link-util" id="link-text-4" data-editable="true">SalesForce</a>
+                                <a href="https://desktop.matrixdobrasil.ai/Painel/login" target="_blank" class="link-util" id="link-text-5" data-editable="true">Matrix Chat</a>
+                                <a href="http://sis.desktop.com.br" target="_blank" class="link-util" id="link-text-6" data-editable="true">SIS</a>
+                                <a href="https://adm.desktop.com.br" target="_blank" class="link-util" id="link-text-7" data-editable="true">ADM</a>
+                                <a href="https://login.lg.com.br/login/desktop" target="_blank" class="link-util" id="link-text-8" data-editable="true">LG</a>
+                                <a href="https://webmail.desktop.com.br" target="_blank" class="link-util" id="link-text-9" data-editable="true">WebMail</a>
+                                <a href="https://netcore.desktop.localdomain/weboss/reprovisiona_gpon" target="_blank" class="link-util" id="link-text-10" data-editable="true">NetCore</a>
+                                <a href="https://desktopcombr.sharepoint.com/sites/EQUIPEDEPROCESSOS/repositorio_materiais/SitePages/LearningTeamHome.aspx" target="_blank" class="link-util" id="link-text-11" data-editable="true">Novo Pulpo</a>
+                                <a href="https://docs.google.com/spreadsheets/d/1zkNxgYOs8iWMSwdgtwV4-g0RxmkoI_jgdclkpGjF3Rc/edit#gid=0" target="_blank" class="link-util" id="link-text-12" data-editable="true">Cancelados COP</a>
+                                <a href="https://desktopcombr.sharepoint.com/:p:/r/sites/EQUIPEDEPROCESSOS/repositorio_materiais/_layouts/15/doc2.aspx?sourcedoc=%7BE78AE514-642A-4F46-8FBB-2C54C51C9945%7D&file=MODELOS%20DE%20EQUIPAMENTOS.pptx&action=edit&mobileredirect=true" target="_blank" class="link-util" id="link-text-13" data-editable="true">Modelos de Roteadores</a>
+                                <a href="https://www.flavioitech.com" target="_blank" class="link-util" id="link-text-14" data-editable="true">Meu Site</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <!-- COMISSÃO -->
-                <div class="meta-card">
-                    <div class="card-header"><h2 id="title-comissao" data-editable="true">Comissão Estimada</h2></div>
-                    <div class="card-body" style="justify-content: center; align-items: center;">
-                        <div id="bonus-value" class="bonus-value" style="color: var(--success-color);">R$ 0,00</div>
-                        <div id="bonus-formula">A aguardar dados...</div>
+                    <!-- COMISSÃO -->
+                    <div class="meta-card">
+                        <div class="card-header"><h2 id="title-comissao" data-editable="true">Comissão Estimada</h2></div>
+                        <div class="card-body" style="justify-content: center; align-items: center;">
+                            <div id="bonus-value" class="bonus-value" style="color: var(--success-color);">R$ 0,00</div>
+                            <div id="bonus-formula">A aguardar dados...</div>
+                        </div>
                     </div>
-                </div>
-                <!-- CONQUISTAS -->
-                <div class="meta-card">
-                    <div class="card-header"><h2 id="title-conquistas" data-editable="true">Conquistas 🏆</h2></div>
-                    <div class="card-body">
-                        <ul id="achievement-list">
-                            <li id="achieve-first-save" class="achievement">Guardar o progresso pela primeira vez.</li>
-                            <li id="achieve-bonus1" class="achievement">Atingir a primeira faixa de comissão.</li>
-                            <li id="achieve-max-bonus" class="achievement">Atingir a meta máxima pela primeira vez.</li>
-                            <li id="achieve-100-cancellations" class="achievement">Atingir 100 cancelamentos no mês.</li>
-                            <li id="achieve-200-cancellations" class="achievement">Atingir 200 cancelamentos no mês.</li>
-                            <li id="achieve-5day-streak" class="achievement">Guardar o progresso por 5 dias seguidos.</li>
-                            <li id="achieve-10-day-streak" class="achievement">Guardar o progresso por 10 dias seguidos.</li>
-                            <li id="achieve-30-days" class="achievement">Guardar o progresso em 30 dias diferentes.</li>
-                            <li id="achieve-first-case" class="achievement">Adicionar o seu primeiro caso.</li>
-                            <li id="achieve-10-cases" class="achievement">Registar 10 casos na lista.</li>
-                            <li id="achieve-25-cases" class="achievement">Registar 25 casos na lista.</li>
-                            <li id="achieve-all-status" class="achievement">Utilizar todos os 3 status de caso.</li>
-                            <li id="achieve-all-categories" class="achievement">Utilizar 5 categorias diferentes.</li>
-                            <li id="achieve-copy-response" class="achievement">Copiar uma resposta rápida pela primeira vez.</li>
-                            <li id="achieve-use-all-quick-responses" class="achievement">Utilizar todas as respostas rápidas.</li>
-                            <li id="achieve-customize" class="achievement">Personalizar os textos da aplicação.</li>
-                            <li id="achieve-change-theme" class="achievement">Personalizar o visual com um novo tema.</li>
-                            <li id="achieve-export" class="achievement">Fazer o primeiro backup dos seus dados.</li>
-                            <li id="achieve-50-protocols" class="achievement">Analisar 50 protocolos num dia.</li>
-                            <li id="achieve-monthly-protocol-goal" class="achievement">Atingir a meta mensal de 1300 protocolos.</li>
-                        </ul>
+                    <!-- CONQUISTAS -->
+                    <div class="meta-card">
+                        <div class="card-header"><h2 id="title-conquistas" data-editable="true">Conquistas 🏆</h2></div>
+                        <div class="card-body">
+                            <ul id="achievement-list">
+                                <li id="achieve-first-save" class="achievement">Guardar o progresso pela primeira vez.</li>
+                                <li id="achieve-bonus1" class="achievement">Atingir a primeira faixa de comissão.</li>
+                                <li id="achieve-max-bonus" class="achievement">Atingir a meta máxima pela primeira vez.</li>
+                                <li id="achieve-100-cancellations" class="achievement">Atingir 100 cancelamentos no mês.</li>
+                                <li id="achieve-200-cancellations" class="achievement">Atingir 200 cancelamentos no mês.</li>
+                                <li id="achieve-5day-streak" class="achievement">Guardar o progresso por 5 dias seguidos.</li>
+                                <li id="achieve-10-day-streak" class="achievement">Guardar o progresso por 10 dias seguidos.</li>
+                                <li id="achieve-30-days" class="achievement">Guardar o progresso em 30 dias diferentes.</li>
+                                <li id="achieve-first-case" class="achievement">Adicionar o seu primeiro caso.</li>
+                                <li id="achieve-10-cases" class="achievement">Registar 10 casos na lista.</li>
+                                <li id="achieve-25-cases" class="achievement">Registar 25 casos na lista.</li>
+                                <li id="achieve-all-status" class="achievement">Utilizar todos os 3 status de caso.</li>
+                                <li id="achieve-all-categories" class="achievement">Utilizar 5 categorias diferentes.</li>
+                                <li id="achieve-copy-response" class="achievement">Copiar uma resposta rápida pela primeira vez.</li>
+                                <li id="achieve-use-all-quick-responses" class="achievement">Utilizar todas as respostas rápidas.</li>
+                                <li id="achieve-customize" class="achievement">Personalizar os textos da aplicação.</li>
+                                <li id="achieve-change-theme" class="achievement">Personalizar o visual com um novo tema.</li>
+                                <li id="achieve-export" class="achievement">Fazer o primeiro backup dos seus dados.</li>
+                                <li id="achieve-50-protocols" class="achievement">Analisar 50 protocolos num dia.</li>
+                                <li id="achieve-monthly-protocol-goal" class="achievement">Atingir a meta mensal de 1300 protocolos.</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1089,6 +1135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const casesListContainer = document.getElementById('cases-list-container');
     const addCaseButton = document.getElementById('addCaseButton');
     const clearCasesButton = document.getElementById('clearCasesButton');
+    const saveCasesButton = document.getElementById('saveCasesButton');
     const caseSearchInput = document.getElementById('case-search-input');
     const caseFilterButtons = document.querySelectorAll('.filter-btn');
     const themeToggleButton = document.getElementById('themeToggleButton');
@@ -1099,6 +1146,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearCacheButton = document.getElementById('clearCacheButton');
     const dailyMissionList = document.getElementById('daily-mission-list');
     const logbookTextarea = document.getElementById('logbook-textarea');
+    const saveLogbookButton = document.getElementById('saveLogbookButton');
+    const dailySummaryLog = document.getElementById('daily-summary-log');
+    const dailySummaryCasesList = document.getElementById('daily-summary-cases-list');
+    const dailySummarySaveButton = document.getElementById('dailySummarySaveButton');
+    const dailySummaryClearButton = document.getElementById('dailySummaryClearButton');
+    const tabContentWrapper = document.getElementById('tab-content-wrapper');
     const tabsContainer = document.querySelector('.tabs-container');
     const tabContents = document.querySelectorAll('.tab-content');
     const tabButtons = document.querySelectorAll('.tab-button');
@@ -1113,11 +1166,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let previousDailyCancellations = 0;
     const themes = ['tech', 'dark', 'light', 'mint', 'sunset', 'graphite'];
     let dailyCopyCount = 0;
+    let touchStartX = 0;
+    let touchEndX = 0;
     
     // --- CONSTANTES ---
     const DAILY_PROTOCOL_GOAL = 50;
     const MONTHLY_PROTOCOL_GOAL = 1300;
     const TOTAL_WORKING_DAYS = 26;
+    const MIN_SWIPE_DISTANCE = 50;
     
     // --- ESTRUTURAS DE DADOS ---
     let metas = JSON.parse(localStorage.getItem('customMetas')) || [
@@ -1321,7 +1377,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- LÓGICA PARA HISTÓRICO DE CASOS ---
-    const saveCases = () => localStorage.setItem('casesList', JSON.stringify(allCases));
+    const saveCases = () => {
+        localStorage.setItem('casesList', JSON.stringify(allCases));
+    };
     const renderCases = (filter = 'all', searchTerm = '') => {
         casesListContainer.innerHTML = '';
         
@@ -1349,7 +1407,7 @@ document.addEventListener('DOMContentLoaded', () => {
             entryDiv.innerHTML = `
                 <div class="case-main-content">
                     <button class="expand-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </button>
                     <div class="case-fields">
                         <div class="field-group">
@@ -1381,32 +1439,47 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
-    // --- LÓGICA DO DIÁRIO DE BORDO E MISSÃO DIÁRIA ---
+    // --- LÓGICA DO DIÁRIO DE BORDO E RESUMO DIÁRIO ---
     const saveLogbook = () => {
         const today = getTodayDateString();
         dailyLogbook[today] = logbookTextarea.value;
         localStorage.setItem('dailyLogbook', JSON.stringify(dailyLogbook));
+        renderDailySummary();
+    };
+
+    const renderDailySummary = () => {
+        const today = getTodayDateString();
+        // Atualiza anotações
+        dailySummaryLog.textContent = dailyLogbook[today] || 'Nenhuma anotação para hoje.';
+
+        // Atualiza casos do dia
+        const todayCases = allCases.filter(c => c.date === today);
+        if (todayCases.length > 0) {
+            dailySummaryCasesList.innerHTML = todayCases.map(c => 
+                `<li><strong>${c.protocol || 'Sem Protocolo'}</strong> - ${c.status}</li>`
+            ).join('');
+        } else {
+            dailySummaryCasesList.innerHTML = '<li>Nenhum caso registado hoje.</li>';
+        }
     };
     
-    const updateDailyMission = () => {
-        const protocols = parseInt(protocolosAnalisadosInput.value) || 0;
-        const savedToday = history.some(h => h.date === getTodayDateString());
-        const dailyCancellations = parseInt(dailyCancellationsInput.value) || 0;
-        const casesAddedToday = allCases.filter(c => c.date === getTodayDateString()).length;
+    const clearDailySummary = () => {
+        vibrate();
+        if (confirm('Tem a certeza que quer limpar as anotações e casos de hoje?')) {
+            const today = getTodayDateString();
+            // Limpa logbook
+            logbookTextarea.value = '';
+            delete dailyLogbook[today];
+            localStorage.setItem('dailyLogbook', JSON.stringify(dailyLogbook));
 
-        const missions = [
-            { id: 'mission-protocols', text: `Analisar ${DAILY_PROTOCOL_GOAL} protocolos`, completed: protocols >= DAILY_PROTOCOL_GOAL },
-            { id: 'mission-daily-cancellations', text: `Registar 6 cancelamentos hoje (${dailyCancellations}/6)`, completed: dailyCancellations >= 6 },
-            { id: 'mission-copy-responses', text: `Copiar 20 respostas (${dailyCopyCount}/20)`, completed: dailyCopyCount >= 20 },
-            { id: 'mission-new-cases', text: `Adicionar 3 novos casos (${casesAddedToday}/3)`, completed: casesAddedToday >= 3 },
-            { id: 'mission-save', text: 'Guardar o progresso de hoje', completed: savedToday }
-        ];
-
-        dailyMissionList.innerHTML = missions.map(mission => 
-            `<li id="${mission.id}" class="${mission.completed ? 'completed' : ''}">${mission.text}</li>`
-        ).join('');
+            // Limpa casos de hoje
+            allCases = allCases.filter(c => c.date !== today);
+            saveCases();
+            
+            updateAll();
+            showToast('Resumo do dia limpo!', 'danger');
+        }
     };
-
 
     // --- FUNÇÕES PRINCIPAIS DE RENDERIZAÇÃO E CÁLCULO ---
     const renderAtendimentoMetas = () => {
@@ -1567,7 +1640,22 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             trendChart = new Chart(trendChartCanvas, {
                 type: 'line', data: { labels, datasets: [{ label: 'Cancelamentos (Total)', data, fill: true, backgroundColor: `${primaryColor}33`, borderColor: primaryColor, tension: 0.4, pointBackgroundColor: '#fff', pointBorderColor: primaryColor }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { ticks: { color: textColor } }, x: { ticks: { color: textColor } } }, plugins: { legend: { display: false } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    scales: { 
+                        y: { 
+                            ticks: { color: textColor, stepSize: 1 },
+                            beginAtZero: true
+                        }, 
+                        x: { 
+                            ticks: { color: textColor } 
+                        } 
+                    }, 
+                    plugins: { 
+                        legend: { display: false } 
+                    } 
+                }
             });
         } catch (e) { console.error("Falha ao renderizar o gráfico de tendência:", e); }
     };
@@ -1628,6 +1716,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTrendChart();
         renderCategoryPieChart();
         renderCases(document.querySelector('.filter-btn.active')?.dataset.filter || 'all', caseSearchInput.value);
+        renderDailySummary();
     }
     function saveData() {
         const date = getTodayDateString();
@@ -1651,7 +1740,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('categoryCounts', JSON.stringify(categoryCounts));
         localStorage.setItem('dailyCancellationsCount', dailyCancellationsInput.value);
         localStorage.setItem('dailyCopyCount', dailyCopyCount);
-        saveLogbook();
+        
         unlockAchievement('achieve-first-save', 'Primeiro progresso guardado!');
         updateAll();
         showToast('Progresso guardado com sucesso!', 'success');
@@ -1696,6 +1785,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function exportData() {
         unlockAchievement('achieve-export', 'Primeiro backup realizado!');
         vibrate();
+
+        const currentMonth = new Date().getMonth();
+        const monthlyProtocols = history
+            .filter(h => parseDate(h.date).getMonth() === currentMonth)
+            .reduce((sum, h) => sum + (h.protocols || 0), 0);
+
         const dataToExport = {
             savedProgress: { 
                 atendimentos: localStorage.getItem('atendimentosCount'),
@@ -1726,7 +1821,8 @@ document.addEventListener('DOMContentLoaded', () => {
         txtContent += `--- DADOS GERAIS ---\n`;
         txtContent += `Total de Cancelamentos (Mês): ${atendimentosInput.value || 0}\n`;
         txtContent += `Cancelamentos do Dia: ${dailyCancellationsInput.value || 0}\n`;
-        txtContent += `Protocolos Analisados (Dia): ${protocolosAnalisadosInput.value || 0}\n\n`;
+        txtContent += `Protocolos Analisados (Dia): ${protocolosAnalisadosInput.value || 0}\n`;
+        txtContent += `Total de Protocolos (Mês): ${monthlyProtocols}\n\n`;
         txtContent += `--- DIÁRIO DE BORDO ---\n`;
         txtContent += `${logbookTextarea.value || 'Nenhuma nota hoje.'}\n\n`;
         txtContent += `--- HISTÓRICO DE CASOS (${allCases.length}) ---\n`;
@@ -1850,7 +1946,11 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCategorySummary();
         renderCategoryPieChart();
     });
-    logbookTextarea.addEventListener('input', saveLogbook);
+    saveLogbookButton.addEventListener('click', () => {
+        vibrate();
+        saveLogbook();
+        showToast('Anotação salva com sucesso!', 'success');
+    });
 
     incrementProtocolosButton.addEventListener('click', () => {
         vibrate();
@@ -1883,8 +1983,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target.closest('.remove-case-btn')) { 
             if (confirm('Tem a certeza de que quer excluir este caso?')) {
                 allCases = allCases.filter(c => c.id !== caseId);
-                saveCases();
                 renderCases(document.querySelector('.filter-btn.active').dataset.filter, caseSearchInput.value);
+                renderDailySummary();
                 vibrate();
             }
         }
@@ -1906,9 +2006,9 @@ document.addEventListener('DOMContentLoaded', () => {
              allCases[caseIndex].status = target.value;
              usedStatuses.add(target.value);
              localStorage.setItem('usedStatuses', JSON.stringify(Array.from(usedStatuses)));
+             // Re-render para atualizar a cor do status
              renderCases(document.querySelector('.filter-btn.active').dataset.filter, caseSearchInput.value);
         }
-        saveCases();
     });
     
     addCaseButton.addEventListener('click', () => {
@@ -1922,9 +2022,9 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         allCases.unshift(newCase);
         unlockAchievement('achieve-first-case', 'Primeiro caso adicionado!');
-        saveCases();
         renderCases();
         updateDailyMission();
+        renderDailySummary();
         vibrate();
     });
 
@@ -1932,10 +2032,16 @@ document.addEventListener('DOMContentLoaded', () => {
         vibrate();
         if (confirm('Tem certeza de que quer excluir TODOS os casos? Esta ação é irreversível.')) {
             allCases = [];
-            saveCases();
             renderCases();
+            renderDailySummary();
             showToast('Todos os casos foram excluídos!', 'danger');
         }
+    });
+
+    saveCasesButton.addEventListener('click', () => {
+        vibrate();
+        saveCases();
+        showToast('Lista de casos salva com sucesso!', 'success');
     });
 
     caseSearchInput.addEventListener('input', () => {
@@ -1952,6 +2058,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     saveButton.addEventListener('click', () => { vibrate(); saveData(); });
+    dailySummarySaveButton.addEventListener('click', () => { vibrate(); saveData(); });
+    dailySummaryClearButton.addEventListener('click', clearDailySummary);
     resetButton.addEventListener('click', resetData);
     exportButton.addEventListener('click', exportData);
     importButton.addEventListener('click', importData);
@@ -2103,23 +2211,47 @@ document.addEventListener('DOMContentLoaded', () => {
     
     tabsContainer.addEventListener('click', (e) => {
         if (e.target.tagName !== 'BUTTON') return;
-
         const tabId = e.target.dataset.tab;
+        switchTab(tabId);
+    });
 
-        tabButtons.forEach(button => button.classList.remove('active'));
-        e.target.classList.add('active');
-
-        tabContents.forEach(content => {
-            if (content.id === `tab-${tabId}`) {
-                content.classList.add('active');
-            } else {
-                content.classList.remove('active');
-            }
+    function switchTab(tabId) {
+        tabButtons.forEach(button => {
+            button.classList.toggle('active', button.dataset.tab === tabId);
         });
-
-        // Re-render charts when their tab is shown
+        tabContents.forEach(content => {
+            content.classList.toggle('active', content.id === `tab-${tabId}`);
+        });
         renderTrendChart();
         renderCategoryPieChart();
+    }
+
+    // --- LÓGICA DE SWIPE PARA ABAS ---
+    function handleSwipe() {
+        const swipeDistance = touchEndX - touchStartX;
+        if (Math.abs(swipeDistance) < MIN_SWIPE_DISTANCE) return;
+
+        const currentActive = document.querySelector('.tab-button.active');
+        const buttonArray = Array.from(tabButtons);
+        const currentIndex = buttonArray.indexOf(currentActive);
+        let nextIndex;
+
+        if (swipeDistance < 0) { // Swipe para a esquerda
+            nextIndex = (currentIndex + 1) % buttonArray.length;
+        } else { // Swipe para a direita
+            nextIndex = (currentIndex - 1 + buttonArray.length) % buttonArray.length;
+        }
+        
+        buttonArray[nextIndex].click();
+    }
+
+    tabContentWrapper.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+
+    tabContentWrapper.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
     });
 
 
@@ -2133,5 +2265,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
 

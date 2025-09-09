@@ -1,7 +1,7 @@
 {
-  "name": "Suporte N2 - Metas e Ferramentas",
-  "short_name": "Suporte N2",
-  "description": "Aplicativo de acompanhamento de metas e ferramentas para Suporte N2.",
+  "name": "Suporte N2 Metas",
+  "short_name": "Metas N2",
+  "description": "Aplicativo de acompanhamento de metas e ferramentas para o Suporte N2.",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#00261e",

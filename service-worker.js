@@ -1,14 +1,22 @@
-const CACHE_NAME = 'suporte-n2-cache-v2';
+const CACHE_NAME = 'suporte-n2-metas-cache-v1.8'; // increment version for updates
 const urlsToCache = [
-  '/',
-  '/index.html',
-  'https://cdn.jsdelivr.net/npm/chart.js',
-  '/icons/icon-192x192.png',
-  '/logo.png'
+  './',
+  './index.html',
+  './logo.png',
+  './icons/icon-72x72.png',
+  './icons/icon-96x96.png',
+  './icons/icon-128x128.png',
+  './icons/icon-144x144.png',
+  './icons/icon-152x152.png',
+  './icons/icon-192x192.png',
+  './icons/icon-384x384.png',
+  './icons/icon-512x512.png',
+  'https://cdn.jsdelivr.net/npm/chart.js'
 ];
 
-// Evento de Instalação: Guarda os ficheiros essenciais em cache.
+// Evento de Instalação
 self.addEventListener('install', event => {
+  self.skipWaiting(); 
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -18,42 +26,46 @@ self.addEventListener('install', event => {
   );
 });
 
-// Evento de Ativação: Limpa caches antigos para evitar conflitos.
+// Evento de Ativação
 self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
+        cacheNames.filter(cacheName => {
+          // Apaga caches antigos
+          return cacheName !== CACHE_NAME;
+        }).map(cacheName => {
+          return caches.delete(cacheName);
         })
       );
     })
   );
 });
 
-// Evento de Fetch: Interceta as requisições de rede.
-// Estratégia: Cache first, caindo para a rede se não encontrar no cache.
+// Evento de Fetch
 self.addEventListener('fetch', event => {
+  // Ignora requisições que não são GET
+  if (event.request.method !== 'GET') {
+    return;
+  }
+  
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Se a resposta estiver no cache, retorna-a
+        // Se encontrar no cache, retorna
         if (response) {
           return response;
         }
 
-        // Caso contrário, faz a requisição à rede
+        // Caso contrário, busca na rede
         return fetch(event.request).then(
           networkResponse => {
-            // Verifica se a resposta da rede é válida
+            // Verifica se a resposta é válida
             if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
               return networkResponse;
             }
 
-            // Clona a resposta para poder guardá-la em cache e retorná-la
+            // Clona a resposta para poder guardar no cache e retornar
             const responseToCache = networkResponse.clone();
 
             caches.open(CACHE_NAME)
@@ -63,7 +75,10 @@ self.addEventListener('fetch', event => {
 
             return networkResponse;
           }
-        );
+        ).catch(() => {
+            // Se a rede falhar, você pode retornar uma página offline padrão, se tiver uma
+            // Ex: return caches.match('/offline.html');
+        });
       })
   );
 });

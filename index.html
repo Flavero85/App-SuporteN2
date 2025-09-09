@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Suporte N2</title>
-    <meta name="theme-color" content="#004d40"/>
+    <meta name="theme-color" content="#0B021D"/>
     <meta name="description" content="Aplicativo de acompanhamento de metas para Suporte N2."/>
     <link rel="apple-touch-icon" href="icons/logo.png">
     <link rel="manifest" href="manifest.json">
@@ -32,6 +32,25 @@
             --card-border: #3f51b5;
             --input-bg: rgba(0, 0, 0, 0.2);
             --toast-bg: #333;
+        }
+
+        /* TEMA TECH (MODIFICADO) */
+        body.theme-tech {
+            --primary-color: #00c6ff;
+            --primary-color-hover: #0072ff;
+            --main-bg: #0B021D;
+            --card-bg: rgba(28, 14, 57, 0.5);
+            --card-border: #2a1a5e;
+            --text-color: #f0f0f0;
+            --text-secondary-color: #a0a0a0;
+            --input-bg: #1D103B;
+            --border-color: rgba(74, 44, 143, 0.5);
+            --info-color: #8A2BE2;
+            --info-background: rgba(138, 43, 226, 0.15);
+            --success-color: #1FF2FF;
+            --success-background: rgba(31, 242, 255, 0.15);
+            --toast-bg: #1D103B;
+            --toast-color: #f0f0f0;
         }
 
         /* TEMA CLARO (LIGHT) */
@@ -117,11 +136,17 @@
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
             text-align: center;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, border 0.3s, box-shadow 0.3s, backdrop-filter 0.3s;
         }
         body.theme-light .page-container,
         body.theme-mint .page-container {
              background-color: rgba(255, 255, 255, 0.2);
+        }
+        body.theme-tech .page-container {
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+            backdrop-filter: none;
         }
 
         .header-metas {
@@ -155,7 +180,11 @@
             flex-direction: column;
             text-align: left;
             overflow: hidden;
-            transition: background-color 0.3s, border-color 0.3s;
+            transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+        body.theme-tech .meta-card {
+            box-shadow: none;
+            border-radius: 16px;
         }
         .card-header { padding: 15px; border-bottom: 1px solid var(--border-color); }
         .card-header h2 { margin: 0 0 5px 0; color: var(--text-color); }
@@ -163,23 +192,82 @@
         .card-body { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; gap: 12px; }
         .form-group { margin-bottom: 10px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: 500; color: var(--text-secondary-color); }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; box-sizing: border-box; font-size: 14px; border-radius: 6px; background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); }
-        #atendimentosInput, #dailyCancellationsInput, #protocolosAnalisadosInput { font-size: 2.2rem; font-weight: bold; text-align: center; color: var(--text-color); background-color: rgba(0, 0, 0, 0.1); border: 2px solid var(--border-color); }
-        #atendimentosInput:focus, #dailyCancellationsInput:focus, #protocolosAnalisadosInput:focus { outline: none; border-color: var(--primary-color); }
+        
+        /* Estilo unificado para caixas de texto no tema tech */
+        body.theme-tech input[type="text"],
+        body.theme-tech input[type="number"],
+        body.theme-tech input[type="search"],
+        body.theme-tech input[type="time"],
+        body.theme-tech select,
+        body.theme-tech textarea {
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 8px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        body.theme-tech input[type="text"]:focus,
+        body.theme-tech input[type="number"]:focus,
+        body.theme-tech input[type="search"]:focus,
+        body.theme-tech input[type="time"]:focus,
+        body.theme-tech select:focus,
+        body.theme-tech textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 198, 255, 0.5);
+        }
+
+        #atendimentosInput, #dailyCancellationsInput, #protocolosAnalisadosInput { font-size: 2.2rem; font-weight: bold; text-align: center; }
+        
         .input-with-button-container { display: flex; gap: 8px; align-items: stretch; }
         .input-with-button-container input { flex-grow: 1; }
-        .button { background-color: var(--primary-color); color: white; padding: 10px 15px; border: none; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
-        body.theme-mint .button { color: #f0fdf4; }
-        .button:hover { background-color: var(--primary-color-hover); }
-        .button.save-button { background-color: var(--success-color); }
-        .button.save-button:hover { background-color: #55a058; }
-        .button.reset-button { background-color: var(--danger-color); }
-        .button.reset-button:hover { background-color: var(--danger-color-hover); }
-        .button.secondary-button { background-color: var(--secondary-button-bg); color: var(--text-color); }
-        .button.secondary-button:hover { background-color: rgba(0, 0, 0, 0.1); }
-        body.light-theme .button.secondary-button:hover,
-        body.theme-mint .button.secondary-button:hover { background-color: rgba(0, 0, 0, 0.1); }
         
+        .button { background-color: var(--primary-color); color: white; padding: 10px 15px; border: none; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        .button:hover { background-color: var(--primary-color-hover); }
+
+        /* Estilo unificado para botões no tema tech */
+        body.theme-tech .button {
+            background-image: linear-gradient(to right, #00c6ff 0%, #0072ff 51%, #00c6ff 100%);
+            background-size: 200% auto;
+            color: white;
+            border-radius: 8px;
+            padding: 12px 25px;
+            border: none;
+            transition: background-position 0.5s, transform 0.2s;
+        }
+        body.theme-tech .button:hover {
+            background-position: right center;
+            transform: scale(1.05);
+        }
+        
+        .button.save-button { background-color: var(--success-color); }
+        body.theme-tech .button.save-button {
+             background-image: linear-gradient(to right, #00b09b 0%, #96c93d 51%, #00b09b 100%);
+        }
+        
+        .button.reset-button { background-color: var(--danger-color); }
+        body.theme-tech .button.reset-button {
+             background-image: linear-gradient(to right, #e52d27 0%, #b31217 51%, #e52d27 100%);
+        }
+        
+        .button.secondary-button { background-color: var(--secondary-button-bg); color: var(--text-color); }
+        body.theme-tech .button.secondary-button {
+            background-image: none;
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+        body.theme-tech .button.secondary-button:hover {
+            background-image: linear-gradient(to right, #00c6ff 0%, #0072ff 51%, #00c6ff 100%);
+            background-position: right center;
+            color: white;
+            border-color: transparent;
+        }
+
         .daily-counters-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -216,23 +304,29 @@
         .progress-bar-fill.completed { background-color: var(--success-color); }
         .summary-box { padding: 15px; background-color: var(--info-background); border-left: 5px solid var(--info-color); border-radius: 4px; font-weight: bold; text-align: center; transition: all 0.3s; color: var(--text-color); }
         .summary-box.completed { background-color: var(--success-background); border-left-color: var(--success-color); }
+        body.theme-tech .summary-box { border-left-width: 0; border: 1px solid var(--border-color); border-radius: 8px; }
+        
         .indicators-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .bonus-value, .projection-value { font-size: 2.5rem; font-weight: bold; }
         #history-list, #category-summary-list, #achievement-list { list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; }
         #history-list li, #category-summary-list li, #achievement-list li { background-color: rgba(0,0,0,0.1); padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 14px; }
+        body.theme-tech #history-list li, body.theme-tech #category-summary-list li, body.theme-tech #achievement-list li { background-color: var(--input-bg); border: 1px solid var(--border-color); }
+
         #chart-container, #category-chart-container { position: relative; height: 220px; width: 100%; }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
         .modal-content { background: var(--main-bg); margin: 5% auto; padding: 20px; border: 1px solid var(--border-color); width: 90%; max-width: 600px; border-radius: 12px; }
         .modal-body { max-height: 70vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; }
         .close-button { color: var(--text-secondary-color); font-size: 28px; font-weight: bold; cursor: pointer; }
+        
         #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .toast { background-color: var(--toast-bg); color: var(--toast-color, #fff); padding: 12px 20px; border-radius: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); opacity: 0; transform: translateY(20px); transition: opacity 0.3s, transform 0.3s; font-size: 14px; }
+        .toast { background-color: var(--toast-bg); color: var(--toast-color, #fff); padding: 12px 20px; border-radius: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); opacity: 0; transform: translateY(20px); transition: opacity 0.3s, transform 0.3s; font-size: 14px; border: 1px solid var(--border-color); }
         .toast.show { opacity: 1; transform: translateY(0); }
-        .toast.success { background-color: var(--success-color); color: #fff; } 
+        .toast.success { background-color: var(--success-color); color: #0B021D; } 
         .toast.danger { background-color: var(--danger-color); color: #fff;} 
         .toast.info { background-color: var(--info-color); color: #fff;}
         .toast.gold { background: linear-gradient(45deg, #f0c72d, #d4a01d); color: #333; font-weight: bold; }
+        
         [data-editable="true"][contenteditable="true"] { outline: 2px dashed var(--info-color); background-color: rgba(41, 182, 246, 0.1); border-radius: 4px; padding: 2px 4px; }
         .resposta-copiavel {
             cursor: pointer;
@@ -278,13 +372,7 @@
             transition: background-color 0.3s, transform 0.2s, border-color 0.3s;
         }
         
-        body.theme-light .case-entry, 
-        body.theme-mint .case-entry { 
-            background-color: rgba(0, 0, 0, 0.03);
-            border-color: rgba(0, 0, 0, 0.05);
-        }
-        body.theme-sunset .case-entry { background-color: rgba(0, 0, 0, 0.2); }
-        body.theme-graphite .case-entry { background-color: rgba(255, 255, 255, 0.03); }
+        body.theme-tech .case-entry { background-color: var(--input-bg); border: 1px solid var(--border-color); }
 
         .case-number {
             position: absolute;
@@ -329,7 +417,8 @@
             color: white;
             transform: scale(1.1);
         }
-        body.theme-mint .expand-btn:hover { color: #f0fdf4; }
+        body.theme-tech .expand-btn:hover { color: #0B021D; }
+
         .case-fields {
             flex-grow: 1;
             display: flex;
@@ -347,26 +436,6 @@
             flex-shrink: 0;
         }
         
-        .case-entry .field-group input,
-        .case-entry .case-details-content textarea,
-        .case-entry .case-details-content select {
-            padding: 7px;
-            font-size: 14px;
-            border-radius: 6px;
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            transition: border-color 0.2s;
-            box-sizing: border-box;
-        }
-
-        .case-entry .field-group input:focus,
-        .case-entry .case-details-content textarea:focus,
-        .case-entry .case-details-content select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
         .status-indicator {
             width: 16px;
             height: 16px;
@@ -430,6 +499,18 @@
             color: white;
             font-weight: bold;
         }
+        body.theme-tech .filter-btn {
+             background-image: none;
+             background-color: transparent;
+             border: 1px solid var(--border-color);
+             color: var(--text-color);
+             border-radius: 8px;
+        }
+        body.theme-tech .filter-btn.active {
+            background-image: linear-gradient(to right, #00c6ff 0%, #0072ff 51%, #00c6ff 100%);
+            border-color: transparent;
+            color: white;
+        }
 
         .icon-button {
             background: var(--secondary-button-bg);
@@ -448,10 +529,6 @@
             background-color: rgba(255, 255, 255, 0.2);
             color: var(--primary-color);
         }
-        .icon-button svg {
-            width: 20px;
-            height: 20px;
-        }
         #links-uteis-container {
             display: flex;
             flex-direction: column;
@@ -465,21 +542,21 @@
             border-radius: 6px;
             text-decoration: none;
             font-weight: 500;
-            transition: background-color 0.2s, transform 0.2s;
+            transition: background-color 0.2s, transform 0.2s, border-color 0.2s;
             text-align: center;
         }
         .link-util:hover {
             background-color: rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
         }
-        body.theme-light .link-util,
-        body.theme-mint .link-util {
-            background-color: rgba(0, 0, 0, 0.05);
+        body.theme-tech .link-util {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
         }
-        body.theme-light .link-util:hover,
-        body.theme-mint .link-util:hover {
-            background-color: rgba(0, 0, 0, 0.1);
-        }
+         body.theme-tech .link-util:hover {
+            background-color: var(--card-bg);
+            border-color: var(--primary-color);
+         }
         
         #senhas-container {
             text-align: left;
@@ -492,6 +569,10 @@
             padding: 15px;
             border-radius: 8px;
             border-left: 3px solid var(--primary-color);
+        }
+        body.theme-tech .senha-item {
+            background-color: var(--input-bg);
+            border-left: 3px solid var(--info-color);
         }
         .senha-item h4 {
             margin-top: 0;
@@ -509,7 +590,7 @@
         }
         .copyable-credential:hover {
             background-color: var(--primary-color);
-            color: white;
+            color: #0B021D;
         }
 
         .app-footer {
@@ -531,6 +612,9 @@
             flex-wrap: wrap;
             z-index: 500;
             border-top: 1px solid var(--border-color);
+        }
+        body.theme-tech .app-footer {
+            background-color: #0B021D;
         }
         .footer-link {
             color: var(--text-secondary-color);
@@ -586,7 +670,18 @@
         .tab-content.active {
             display: block;
         }
-
+        
+        /* Media Query para organização de botões em smartphones */
+        @media (max-width: 600px) {
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .action-buttons .button {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
 
     </style>
 </head>
@@ -599,7 +694,7 @@
             <h1 id="main-title" data-editable="true">Suporte N2</h1>
             <button id="settings-button" title="Configurar Metas">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2.82l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2.82l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2.82l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2.82l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
                     <circle cx="12" cy="12" r="3"></circle>
                 </svg>
             </button>
@@ -622,7 +717,7 @@
                     </div>
                     <div class="card-body">
                         <div class="case-controls">
-                            <input type="search" id="case-search-input" placeholder="Pesquisar..." class="form-group">
+                            <input type="search" id="case-search-input" placeholder="Pesquisar...">
                             <div class="filter-buttons-group">
                                 <button type="button" class="button secondary-button filter-btn active" data-filter="all">Todos</button>
                                 <button type="button" class="button secondary-button filter-btn" data-filter="Pendente">Pendentes</button>
@@ -632,6 +727,7 @@
                         <div id="cases-list-container"></div>
                         <div class="cases-footer-buttons">
                             <button type="button" id="addCaseButton" class="button secondary-button">+ Adicionar Caso</button>
+                            <button type="button" id="clearCasesButton" class="button reset-button">Limpar Tudo</button>
                         </div>
                     </div>
                 </div>
@@ -714,7 +810,7 @@
                         <p id="subtitle-logbook" data-editable="true">Anote eventos importantes do dia.</p>
                     </div>
                     <div class="card-body">
-                        <textarea id="logbook-textarea" class="form-group" placeholder="Ex: Instabilidade massiva na região X..."></textarea>
+                        <textarea id="logbook-textarea" placeholder="Ex: Instabilidade massiva na região X..."></textarea>
                     </div>
                 </div>
                 <!-- HISTÓRICO DE ENTRADAS -->
@@ -873,10 +969,10 @@
                 </form>
 
                 <div class="modal-actions">
-                    <button type="button" id="importButton" class="button secondary-button">Importar Dados</button>
-                    <button type="button" id="exportButton" class="button secondary-button">Exportar Dados</button>
+                    <button type="button" id="importButton" class="button">Importar Dados</button>
+                    <button type="button" id="exportButton" class="button">Exportar Dados</button>
                     <button type="button" id="installAppButton" class="button">Instalar App</button>
-                    <button type="button" id="clearCacheButton" class="button secondary-button">Limpar Cache</button>
+                    <button type="button" id="clearCacheButton" class="button reset-button">Limpar Cache</button>
                     <button type="button" id="resetButton" class="button reset-button">Repor Todos os Dados</button>
                 </div>
             </div>
@@ -995,6 +1091,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const reminderTimeInput = document.getElementById('reminderTime');
     const casesListContainer = document.getElementById('cases-list-container');
     const addCaseButton = document.getElementById('addCaseButton');
+    const clearCasesButton = document.getElementById('clearCasesButton');
     const caseSearchInput = document.getElementById('case-search-input');
     const caseFilterButtons = document.querySelectorAll('.filter-btn');
     const themeToggleButton = document.getElementById('themeToggleButton');
@@ -1017,7 +1114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isEditMode = false;
     let notificationTimeout;
     let previousDailyCancellations = 0;
-    const themes = ['dark', 'light', 'mint', 'sunset', 'graphite'];
+    const themes = ['tech', 'dark', 'light', 'mint', 'sunset', 'graphite'];
     let dailyCopyCount = 0;
     
     // --- CONSTANTES ---
@@ -1469,9 +1566,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const labels = history.map(e => e.date);
         const data = history.map(e => e.atendimentos);
         const textColor = getComputedStyle(document.body).getPropertyValue('--text-secondary-color');
+        const primaryColor = getComputedStyle(document.body).getPropertyValue('--primary-color').trim();
         try {
             trendChart = new Chart(trendChartCanvas, {
-                type: 'line', data: { labels, datasets: [{ label: 'Cancelamentos (Total)', data, fill: true, backgroundColor: 'rgba(0, 191, 165, 0.2)', borderColor: 'rgba(0, 191, 165, 1)', tension: 0.4, pointBackgroundColor: '#fff', pointBorderColor: 'rgba(0, 191, 165, 1)' }] },
+                type: 'line', data: { labels, datasets: [{ label: 'Cancelamentos (Total)', data, fill: true, backgroundColor: `${primaryColor}33`, borderColor: primaryColor, tension: 0.4, pointBackgroundColor: '#fff', pointBorderColor: primaryColor }] },
                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { ticks: { color: textColor } }, x: { ticks: { color: textColor } } }, plugins: { legend: { display: false } } }
             });
         } catch (e) { console.error("Falha ao renderizar o gráfico de tendência:", e); }
@@ -1495,7 +1593,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     datasets: [{
                         label: 'Cancelamentos por Categoria',
                         data: data,
-                        backgroundColor: ['#e73444', '#ffa726', '#29b6f6', '#66bb6a', '#a78bfa', '#facc15'],
+                        backgroundColor: ['#e73444', '#ffa726', '#1FF2FF', '#66bb6a', '#a78bfa', '#facc15'],
                         borderColor: getComputedStyle(document.body).getPropertyValue('--card-bg'),
                         borderWidth: 2
                     }]
@@ -1712,12 +1810,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function applyTheme(theme) {
-        document.body.classList.remove(...themes.map(t => `theme-${t}`));
-        if (theme !== 'dark') {
-            document.body.classList.add(`theme-${theme}`);
-        }
-        renderTrendChart();
-        renderCategoryPieChart();
+        document.body.className = ''; // Limpa todas as classes do body
+        document.body.classList.add(`theme-${theme}`);
+        
+        // Corrige o bug do chart.js ao mudar de tema
+        setTimeout(() => {
+            renderTrendChart();
+            renderCategoryPieChart();
+        }, 50); // Um pequeno delay para garantir que as variáveis CSS foram aplicadas
     }
 
     // --- EVENT LISTENERS ---
@@ -1767,6 +1867,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const caseEntry = target.closest('.case-entry');
         if (!caseEntry) return;
 
+        const caseId = caseEntry.dataset.id;
+        const caseItem = allCases.find(c => c.id === caseId);
+
+        if (!caseItem) return;
+
         const expandButton = target.closest('.expand-btn');
         if (expandButton) {
             const details = caseEntry.querySelector('.case-details-content');
@@ -1774,11 +1879,6 @@ document.addEventListener('DOMContentLoaded', () => {
             expandButton.classList.toggle('expanded');
             return; 
         }
-
-        const caseId = caseEntry.dataset.id;
-        const caseItem = allCases.find(c => c.id === caseId);
-
-        if (!caseItem) return;
 
         if (target.closest('.copy-protocol-btn')) copyToClipboard(caseEntry.querySelector('.protocol-input').value, 'Protocolo copiado!');
         if (target.closest('.copy-phone-btn')) copyToClipboard(caseEntry.querySelector('.phone-input').value, 'Telefone copiado!');
@@ -1829,6 +1929,16 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCases();
         updateDailyMission();
         vibrate();
+    });
+
+    clearCasesButton.addEventListener('click', () => {
+        vibrate();
+        if (confirm('Tem certeza de que quer excluir TODOS os casos? Esta ação é irreversível.')) {
+            allCases = [];
+            saveCases();
+            renderCases();
+            showToast('Todos os casos foram excluídos!', 'danger');
+        }
     });
 
     caseSearchInput.addEventListener('input', () => {
@@ -1983,7 +2093,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     themeToggleButton.addEventListener('click', () => {
-        const currentTheme = localStorage.getItem('appTheme') || 'dark';
+        const currentTheme = document.body.className.replace('theme-','');
         const currentIndex = themes.indexOf(currentTheme);
         const nextIndex = (currentIndex + 1) % themes.length;
         const newTheme = themes[nextIndex];
@@ -2017,7 +2127,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- INICIALIZAÇÃO ---
-    const savedTheme = localStorage.getItem('appTheme') || 'dark';
+    const savedTheme = localStorage.getItem('appTheme') || 'tech';
     applyTheme(savedTheme);
     loadCustomTexts();
     loadData();

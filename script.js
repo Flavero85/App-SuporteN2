@@ -4,45 +4,39 @@ import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gsta
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // --- INICIALIZAÇÃO DO FIREBASE ---
+// Configuração real do projeto Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyCdQYNKJdTYEeOaejZy_ZxU9tVq7bF1x34",
+  apiKey: "AIzaSyCdNKJdTYEeOaejZy_ZxU9tVq7bF1x34",
   authDomain: "app-suporte-n2.firebaseapp.com",
   projectId: "app-suporte-n2",
-  storageBucket: "app-suporte-n2.appspot.com",
+  storageBucket: "app-suporte-n2.firebasestorage.app",
   messagingSenderId: "257470368604",
   appId: "1:257470368604:web:42fcc4973851eb02b78f99"
 };
 
-// --- VARIÁVEIS GLOBAIS ---
-let app, auth, db, userId = null;
-let trendChart, categoryPieChart;
+// Inicializa o Firebase e seus serviços
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+let userId = null; // Será preenchido após a autenticação
 
-// --- ESTRUTURAS DE DADOS (Estado local) ---
-let metas = [], allCases = [], history = [], categoryCounts = {}, unlockedAchievements = {}, dailyLogbook = {};
-let baseSalary = 0;
-let reminderSettings = { enabled: false, time: '18:00' };
-let usedStatuses = new Set(), usedQuickResponses = new Set();
-let previousDailyCancellations = 0, dailyCopyCount = 0;
-let isEditMode = false;
-let deferredInstallPrompt;
+document.addEventListener('DOMContentLoaded', () => {
 
-// --- CONSTANTES ---
-const DAILY_PROTOCOL_GOAL = 50;
-const MONTHLY_PROTOCOL_GOAL = 1300;
-const TOTAL_WORKING_DAYS = 26;
-const MIN_SWIPE_DISTANCE = 50;
-const THEMES = ['tech', 'dark', 'light', 'mint', 'sunset', 'graphite'];
+    // --- LÓGICA PWA ---
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./service-worker.js')
+                .then(reg => console.log('ServiceWorker registrado:', reg.scope))
+                .catch(err => console.error('Falha no registro do ServiceWorker:', err));
+        });
+    }
 
-// --- FUNÇÃO PRINCIPAL E PONTO DE ENTRADA ---
-document.addEventListener('DOMContentLoaded', main);
-
-function main() {
     // --- SELETORES DE ELEMENTOS ---
     const loadingOverlay = document.getElementById('loading-overlay');
-    const appContainer = document.getElementById('app-container');
     const dailyCancellationsInput = document.getElementById('dailyCancellationsInput');
     const atendimentosInput = document.getElementById('atendimentosInput');
     const protocolosAnalisadosInput = document.getElementById('protocolosAnalisadosInput');
+    const protocolGoalsContainer = document.getElementById('protocol-goals-container');
     const incrementProtocolosButton = document.getElementById('incrementProtocolosButton');
     const metasContainer = document.getElementById('metas-container');
     const summaryText = document.getElementById('summary-text');
@@ -91,6 +85,14 @@ function main() {
     const tabContentWrapper = document.getElementById('tab-content-wrapper');
     const tabsContainer = document.querySelector('.tabs-container');
     const tabButtons = document.querySelectorAll('.tab-button');
+    const pinLockScreen = document.getElementById('pin-lock-screen');
+    const pinContainer = pinLockScreen.querySelector('.pin-container');
+    const pinTitle = document.getElementById('pin-title');
+    const pinSubtitle = document.getElementById('pin-subtitle');
+    const pinInputs = pinLockScreen.querySelectorAll('.pin-digit');
+    const pinError = document.getElementById('pin-error');
+    const appContainer = document.getElementById('app-container');
+    const pinResetButton = document.getElementById('pin-reset-button');
     const reportMonthSelect = document.getElementById('report-month-select');
     const exportPdfButton = document.getElementById('export-pdf-button');
     const currentMonthSummaryEl = document.getElementById('current-month-summary');
@@ -98,6 +100,40 @@ function main() {
     const currentMonthTitleEl = document.getElementById('current-month-title');
     const previousMonthTitleEl = document.getElementById('previous-month-title');
 
+    // --- VARIÁVEIS DE ESTADO ---
+    let trendChart;
+    let categoryPieChart;
+    let deferredInstallPrompt;
+    let isEditMode = false;
+    let notificationTimeout;
+    let previousDailyCancellations = 0;
+    const themes = ['tech', 'dark', 'light', 'mint', 'sunset', 'graphite'];
+    let dailyCopyCount = 0;
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let pinSetupStep = 1;
+    let firstPin = "";
+    let inactivityTimer;
+
+    // --- CONSTANTES ---
+    const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutos
+    const DAILY_PROTOCOL_GOAL = 50;
+    const MONTHLY_PROTOCOL_GOAL = 1300;
+    const TOTAL_WORKING_DAYS = 26;
+    const MIN_SWIPE_DISTANCE = 50;
+
+    // --- ESTRUTURAS DE DADOS (Estado local) ---
+    let metas = [];
+    let allCases = [];
+    let baseSalary = 0;
+    let history = [];
+    let categoryCounts = {};
+    let unlockedAchievements = {};
+    let reminderSettings = { enabled: false, time: '18:00' };
+    let usedStatuses = new Set();
+    let usedQuickResponses = new Set();
+    let dailyLogbook = {};
+    
     // --- FUNÇÕES DE UTILIDADE ---
     const vibrate = () => { if ('vibrate' in navigator) navigator.vibrate(50); };
     function showToast(message, type = 'info') {
@@ -120,42 +156,135 @@ function main() {
         }
     };
     const getTodayDateString = () => new Date().toLocaleDateString('pt-BR');
-    
+
     // --- LÓGICA DE CARREGAMENTO E AUTENTICAÇÃO ---
     function showLoading(message) {
         loadingOverlay.querySelector('p').textContent = message;
         loadingOverlay.style.display = 'flex';
     }
     function hideLoading() {
-        loadingOverlay.style.opacity = '0';
-        setTimeout(() => {
-            loadingOverlay.style.display = 'none';
-        }, 500);
-        appContainer.style.visibility = 'visible';
+        loadingOverlay.style.display = 'none';
     }
 
-    try {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                userId = user.uid;
-                await loadDataFromFirebase();
-            } else {
-                showLoading("Conectando ao servidor...");
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            userId = user.uid;
+            console.log("Usuário autenticado:", userId);
+            checkPin();
+        } else {
+            try {
                 await signInAnonymously(auth);
+            } catch (error) {
+                console.error("Erro na autenticação anônima:", error);
+                alert("Não foi possível conectar. Verifique sua conexão e atualize a página.");
             }
+        }
+    });
+
+    // --- LÓGICA DE PIN E INATIVIDADE ---
+    function lockApp() {
+        pinLockScreen.style.visibility = 'visible';
+        pinLockScreen.style.opacity = '1';
+        appContainer.style.visibility = 'hidden';
+        clearTimeout(inactivityTimer);
+        clearPinInputs();
+        pinInputs[0].focus();
+    }
+
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(lockApp, INACTIVITY_TIMEOUT);
+        localStorage.setItem('lastActiveTimestamp', Date.now());
+    }
+
+    async function unlockApp() {
+        pinLockScreen.style.opacity = '0';
+        pinLockScreen.style.visibility = 'hidden';
+        appContainer.style.visibility = 'visible';
+        
+        await loadDataFromFirebase();
+        
+        resetInactivityTimer();
+        ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            window.addEventListener(event, resetInactivityTimer, { passive: true });
         });
-    } catch (error) {
-        console.error("Falha CRÍTICA ao inicializar o Firebase.", error);
-        alert("Erro grave na configuração do Firebase. O aplicativo não pode iniciar.");
     }
     
+    async function handlePinInput() {
+        const pin = Array.from(pinInputs).map(input => input.value).join('');
+        if (pin.length !== 4) return;
+
+        const storedPin = localStorage.getItem('appPin');
+
+        if (!storedPin) {
+            if (pinSetupStep === 1) {
+                firstPin = pin;
+                pinSetupStep = 2;
+                pinTitle.textContent = "Confirme o seu PIN";
+                pinSubtitle.textContent = "Introduza novamente o PIN de 4 dígitos.";
+                clearPinInputs();
+            } else {
+                if (pin === firstPin) {
+                    localStorage.setItem('appPin', pin);
+                    showToast('PIN criado com sucesso!', 'success');
+                    await unlockApp();
+                } else {
+                    pinError.textContent = "Os PINs não coincidem. Tente novamente.";
+                    pinContainer.classList.add('shake');
+                    setTimeout(() => pinContainer.classList.remove('shake'), 500);
+                    clearPinInputs();
+                    pinSetupStep = 1;
+                    pinTitle.textContent = "Criar PIN de Acesso";
+                    pinSubtitle.textContent = "Crie um PIN de 4 dígitos para proteger seus dados.";
+                    firstPin = "";
+                }
+            }
+        } else {
+            if (pin === storedPin) {
+                await unlockApp();
+            } else {
+                pinError.textContent = "PIN incorreto. Tente novamente.";
+                pinContainer.classList.add('shake');
+                setTimeout(() => pinContainer.classList.remove('shake'), 500);
+                clearPinInputs();
+            }
+        }
+    }
+
+    function clearPinInputs() {
+        pinInputs.forEach(input => input.value = '');
+        if(pinInputs.length > 0) pinInputs[0].focus();
+        pinError.textContent = "";
+    }
+    
+    async function checkPin() {
+        showLoading("Verificando segurança...");
+        const storedPin = localStorage.getItem('appPin');
+        hideLoading();
+        
+        if (!storedPin) {
+            lockApp();
+            return;
+        }
+
+        pinTitle.textContent = "Introduza o seu PIN";
+        pinSubtitle.textContent = "Introduza o seu PIN de 4 dígitos para aceder.";
+        pinResetButton.style.display = 'block';
+
+        const lastActive = parseInt(localStorage.getItem('lastActiveTimestamp')) || 0;
+        if (Date.now() - lastActive > INACTIVITY_TIMEOUT) {
+            lockApp();
+        } else {
+            await unlockApp();
+        }
+    }
+
     // --- SINCRONIZAÇÃO COM FIREBASE ---
     async function loadDataFromFirebase() {
-        if (!userId) { showToast("Erro de autenticação.", "danger"); return; }
+        if (!userId) {
+            showToast("Erro de autenticação.", "danger");
+            return;
+        }
         showLoading("Sincronizando dados...");
         const docRef = doc(db, "users", userId);
         try {
@@ -176,8 +305,8 @@ function main() {
                 metas = [{ id: 1, target: 10, reward: 0.24 }];
             }
         } catch (error) {
-            console.error("Erro ao carregar dados do Firestore:", error);
-            showToast(`Falha ao carregar dados: ${error.message}`, "danger");
+            console.error("Erro ao carregar dados:", error);
+            showToast("Falha ao carregar dados da nuvem.", "danger");
         } finally {
             loadLocalData();
             updateAll();
@@ -186,9 +315,13 @@ function main() {
     }
 
     async function saveDataToFirebase() {
-        if (!userId) { showToast("Erro de autenticação.", "danger"); return; }
+        if (!userId) {
+            showToast("Erro de autenticação. Não é possível salvar.", "danger");
+            return;
+        }
         showLoading("Sincronizando...");
         saveDailyState();
+        const docRef = doc(db, "users", userId);
         const dataToSave = {
             metas, allCases, baseSalary, history, categoryCounts,
             unlockedAchievements, reminderSettings, dailyLogbook,
@@ -197,7 +330,7 @@ function main() {
             lastUpdated: serverTimestamp()
         };
         try {
-            await setDoc(doc(db, "users", userId), dataToSave, { merge: true });
+            await setDoc(docRef, dataToSave, { merge: true });
             showToast("Progresso sincronizado com a nuvem!", "success");
         } catch (error) {
             console.error("Erro ao salvar dados:", error);
@@ -207,17 +340,23 @@ function main() {
         }
     }
     
-    // --- LÓGICA DE DADOS LOCAIS (Progresso do dia) ---
+    // --- DADOS LOCAIS (PROGRESSO DO DIA) ---
     function loadLocalData() {
         const todayStr = getTodayDateString();
         const lastUsedDate = localStorage.getItem('lastUsedDate');
-        let dailyCount = 0, dailyProtocols = 0;
+        
+        let dailyCount = 0;
+        let dailyProtocols = 0;
         dailyCopyCount = 0;
 
         if (todayStr === lastUsedDate) {
             dailyCount = parseInt(localStorage.getItem('dailyCancellationsCount')) || 0;
             dailyProtocols = parseInt(localStorage.getItem('protocolosAnalisadosCount')) || 0;
             dailyCopyCount = parseInt(localStorage.getItem('dailyCopyCount')) || 0;
+        } else {
+            localStorage.removeItem('dailyCancellationsCount');
+            localStorage.removeItem('protocolosAnalisadosCount');
+            localStorage.removeItem('dailyCopyCount');
         }
         
         dailyCancellationsInput.value = dailyCount;
@@ -225,11 +364,12 @@ function main() {
         previousDailyCancellations = dailyCount;
         
         localStorage.setItem('lastUsedDate', todayStr);
-        const lastHistoryEntry = history.length > 0 ? history[history.length - 1] : { atendimentos: 0 };
-        atendimentosInput.value = history.find(h => h.date === todayStr)?.atendimentos || lastHistoryEntry.atendimentos;
+
+        atendimentosInput.value = history.length > 0 ? history[history.length - 1].atendimentos : 0;
         baseSalaryInput.value = baseSalary > 0 ? baseSalary : '';
         reminderEnabledInput.checked = reminderSettings.enabled;
         reminderTimeInput.value = reminderSettings.time;
+
         logbookTextarea.value = dailyLogbook[todayStr] || '';
     }
     
@@ -243,28 +383,222 @@ function main() {
         };
         
         const todayIndex = history.findIndex(entry => entry.date === date);
-        if (todayIndex > -1) { history[todayIndex] = newEntry; } 
-        else { history.push(newEntry); }
+        if (todayIndex > -1) { 
+            history[todayIndex] = newEntry;
+        } else { 
+            history.push(newEntry); 
+        }
         history.sort((a, b) => parseDate(a.date) - parseDate(b.date));
         
-        localStorage.setItem('protocolosAnalisadosCount', newEntry.protocols);
-        localStorage.setItem('dailyCancellationsCount', newEntry.dailyCancellations);
+        localStorage.setItem('protocolosAnalisadosCount', protocolosAnalisadosInput.value);
+        localStorage.setItem('dailyCancellationsCount', dailyCancellationsInput.value);
         localStorage.setItem('dailyCopyCount', dailyCopyCount);
-        unlockAchievement('achieve-first-save', 'Primeiro progresso guardado!');
+
+        unlockAchievement('achieve-first-save', 'Primeiro progresso sincronizado!');
+    }
+
+    // --- MÓDULO DE RELATÓRIOS ---
+    function populateMonthSelector() {
+        const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        const availableMonths = new Set();
+        history.forEach(h => {
+            const date = parseDate(h.date);
+            const monthKey = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`;
+            availableMonths.add(monthKey);
+        });
+
+        if (availableMonths.size === 0) {
+            const now = new Date();
+            const monthKey = `${now.getFullYear()}-${String(now.getMonth()).padStart(2, '0')}`;
+            availableMonths.add(monthKey);
+        }
+
+        const sortedMonths = Array.from(availableMonths).sort().reverse();
+        reportMonthSelect.innerHTML = sortedMonths.map(key => {
+            const [year, month] = key.split('-');
+            const monthName = monthNames[parseInt(month)];
+            return `<option value="${key}">${monthName} de ${year}</option>`;
+        }).join('');
+        generateReport();
+    }
+    
+    function generateReport() {
+        const selectedKey = reportMonthSelect.value;
+        if (!selectedKey) {
+            currentMonthSummaryEl.innerHTML = "<p>Nenhum dado para o período selecionado.</p>";
+            previousMonthComparisonEl.innerHTML = "";
+            return;
+        }
+    
+        const [year, month] = selectedKey.split('-').map(Number);
+    
+        const currentMonthData = getMonthData(year, month);
+        const previousMonthData = getMonthData(year, month - 1);
+    
+        currentMonthTitleEl.textContent = `Resumo de ${reportMonthSelect.options[reportMonthSelect.selectedIndex].text}`;
+        previousMonthTitleEl.textContent = `Comparativo com ${getMonthName(month - 1, year)}`;
+    
+        renderReportSection(currentMonthSummaryEl, currentMonthData);
+        renderComparisonSection(previousMonthComparisonEl, currentMonthData, previousMonthData);
+    }
+    
+    function getMonthData(year, month) {
+        let prevYear = year;
+        let prevMonth = month - 1;
+        if (prevMonth < 0) {
+            prevMonth = 11;
+            prevYear -= 1;
+        }
+
+        const monthHistory = history.filter(h => {
+            const date = parseDate(h.date);
+            return date.getFullYear() === year && date.getMonth() === month;
+        });
+    
+        if (monthHistory.length === 0) return { totalCancellations: 0, totalProtocols: 0, avgProtocols: 0, mostFrequentCategory: "N/A", daysWorked: 0 };
+    
+        const lastDayOfMonth = monthHistory[monthHistory.length - 1];
+        
+        const historyOfPreviousMonth = history.filter(h => {
+            const date = parseDate(h.date);
+            return date.getFullYear() === prevYear && date.getMonth() === prevMonth;
+        });
+
+        const lastDayOfPreviousMonth = historyOfPreviousMonth.length > 0 ? historyOfPreviousMonth[historyOfPreviousMonth.length-1] : {atendimentos: 0};
+        
+        const totalCancellations = lastDayOfMonth.atendimentos - lastDayOfPreviousMonth.atendimentos;
+        const totalProtocols = monthHistory.reduce((sum, h) => sum + h.protocols, 0);
+        const daysWorked = monthHistory.length;
+        const avgProtocols = daysWorked > 0 ? (totalProtocols / daysWorked).toFixed(1) : 0;
+    
+        const monthCategories = { ...categoryCounts }; // Simplificado para usar todas as categorias
+        const mostFrequentCategory = Object.keys(monthCategories).length > 0
+            ? Object.entries(monthCategories).sort((a, b) => b[1] - a[1])[0][0]
+            : "N/A";
+    
+        return { totalCancellations, totalProtocols, avgProtocols, mostFrequentCategory, daysWorked };
+    }
+    
+    function renderReportSection(element, data) {
+        element.innerHTML = `
+            ${createSummaryItem("Cancelamentos no Mês", data.totalCancellations)}
+            ${createSummaryItem("Protocolos no Mês", data.totalProtocols)}
+            ${createSummaryItem("Média Diária de Protocolos", data.avgProtocols)}
+            ${createSummaryItem("Dias Trabalhados", data.daysWorked)}
+            ${createSummaryItem("Categoria Frequente", data.mostFrequentCategory, false)}
+        `;
+    }
+
+    function renderComparisonSection(element, current, previous) {
+         if (previous.daysWorked === 0) {
+            element.innerHTML = "<p>Sem dados do mês anterior para comparar.</p>";
+            return;
+        }
+        element.innerHTML = `
+            ${createSummaryItem("Cancelamentos", getComparison(current.totalCancellations, previous.totalCancellations), true)}
+            ${createSummaryItem("Protocolos", getComparison(current.totalProtocols, previous.totalProtocols), true)}
+            ${createSummaryItem("Média de Protocolos", getComparison(current.avgProtocols, previous.avgProtocols), true)}
+            ${createSummaryItem("Dias Trabalhados", getComparison(current.daysWorked, previous.daysWorked), true)}
+        `;
+    }
+
+    function createSummaryItem(label, value, isComparison = false) {
+        if(isComparison){
+            return `
+                <div class="summary-item">
+                    <div class="label">${label}</div>
+                    <div class="value ${value.class}">${value.text}</div>
+                    <div class="comparison neutral">(vs ${value.previous})</div>
+                </div>
+            `;
+        }
+        return `
+            <div class="summary-item">
+                <div class="label">${label}</div>
+                <div class="value">${value}</div>
+            </div>
+        `;
+    }
+
+    function getComparison(current, previous) {
+        const currentNum = parseFloat(current);
+        const previousNum = parseFloat(previous);
+        const diff = currentNum - previousNum;
+        let percentage = 0;
+        if (previousNum !== 0) {
+            percentage = (diff / previousNum) * 100;
+        } else if (currentNum > 0) {
+            percentage = 100;
+        }
+
+        let text, cssClass;
+        if (diff > 0) {
+            text = `+${diff.toFixed(1)} (${percentage.toFixed(0)}%)`;
+            cssClass = "positive";
+        } else if (diff < 0) {
+            text = `${diff.toFixed(1)} (${percentage.toFixed(0)}%)`;
+            cssClass = "negative";
+        } else {
+            text = "0 (0%)";
+            cssClass = "neutral";
+        }
+        return { text: text, class: cssClass, previous: previousNum.toFixed(1) };
+    }
+
+    function getMonthName(monthIndex, year) {
+        const date = new Date(year, monthIndex, 1);
+        return date.toLocaleString('pt-BR', { month: 'long' });
+    }
+
+    async function exportReportAsPDF() {
+        showLoading("Gerando PDF...");
+        const reportContent = document.getElementById('report-content');
+        const canvas = await html2canvas(reportContent, {
+            scale: 2,
+            backgroundColor: getComputedStyle(document.body).getPropertyValue('--main-bg').trim()
+        });
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`relatorio_${reportMonthSelect.value}.pdf`);
+        hideLoading();
+    }
+    
+    // --- FUNÇÕES DE ATUALIZAÇÃO E RENDERIZAÇÃO (O RESTO) ---
+    // (Omitido por brevidade - cole o resto das suas funções aqui)
+    function updateAll() {
+        //...
     }
     
     // --- EVENT LISTENERS ---
-    saveButton.addEventListener('click', saveDataToFirebase);
-    // Adicione aqui todos os outros event listeners do seu aplicativo
-    // Exemplo:
-    incrementButton.addEventListener('click', () => {
-        // ...lógica...
+    pinInputs.forEach((input, index) => {
+        input.addEventListener('input', () => {
+            if (input.value && index < pinInputs.length - 1) {
+                pinInputs[index + 1].focus();
+            }
+            handlePinInput();
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === "Backspace" && !input.value && index > 0) {
+                pinInputs[index - 1].focus();
+            }
+        });
+    });
+
+    pinResetButton.addEventListener('click', () => {
+        if (confirm("Tem a certeza que quer redefinir o seu PIN? Esta ação irá apagar TODOS os dados da aplicação no seu dispositivo (NÃO afeta a nuvem).")) {
+            localStorage.clear();
+            window.location.reload();
+        }
     });
     
-    // Todas as outras funções (renderização, relatórios, etc.) vão aqui...
-    function updateAll() {
-        // ...código...
-    }
-    updateAll(); // Chame para renderizar o estado inicial
-}
+    saveButton.addEventListener('click', saveDataToFirebase);
+    reportMonthSelect.addEventListener('change', generateReport);
+    exportPdfButton.addEventListener('click', exportReportAsPDF);
+    // ... adicione o resto dos event listeners aqui
+});
 

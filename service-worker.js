@@ -1,4 +1,4 @@
-const CACHE_NAME = 'suporte-n2-cache-v3'; // Versão do cache incrementada
+const CACHE_NAME = 'suporte-n2-cache-v2'; // Versão do cache atualizada
 const urlsToCache = [
   '/',
   'index.html',
@@ -8,8 +8,12 @@ const urlsToCache = [
   'icon-192.png',
   'icon-512.png',
   'https://cdn.jsdelivr.net/npm/chart.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'
+  // URLs do Firebase SDK
+  "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js",
+  "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js",
+  "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"
 ];
 
 self.addEventListener('install', event => {
@@ -45,4 +49,3 @@ self.addEventListener('activate', event => {
     })
   );
 });
-

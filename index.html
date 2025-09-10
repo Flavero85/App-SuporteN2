@@ -9,33 +9,48 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
-
     <!-- Bibliotecas para Gráficos e PDF -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-    <!-- Overlay de Carregamento -->
-    <div id="loading-overlay">
-        <div class="spinner"></div>
-        <p>A carregar...</p>
+    <!-- Tela de Bloqueio por PIN -->
+    <div id="pin-lock-screen">
+        <div class="pin-container">
+            <img src="logo.png" alt="Logo" class="pin-logo">
+            <h2 id="pin-title">Criar PIN de Acesso</h2>
+            <p id="pin-subtitle">Crie um PIN de 4 dígitos para proteger seus dados.</p>
+            <div id="pin-input-area" class="pin-input-area">
+                <input type="password" class="pin-digit" maxlength="1" inputmode="numeric">
+                <input type="password" class="pin-digit" maxlength="1" inputmode="numeric">
+                <input type="password" class="pin-digit" maxlength="1" inputmode="numeric">
+                <input type="password" class="pin-digit" maxlength="1" inputmode="numeric">
+            </div>
+            <p id="pin-error" class="pin-error-message"></p>
+            <button id="pin-reset-button" class="button reset-button" style="display: none;">Esqueci o PIN</button>
+        </div>
     </div>
     
     <div id="toast-container"></div>
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Sincronizando dados...</p>
+    </div>
 
-    <!-- Conteúdo Principal do App -->
+
     <div id="app-container" class="page-container" style="visibility: hidden;">
-        <!-- Header -->
         <div class="header-metas">
             <img src="logo.png" alt="Logo" class="header-logo">
             <h1 id="main-title" data-editable="true">Suporte N2</h1>
             <button id="settings-button" title="Configurar Metas">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2.82l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2.82l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2.82l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2.82l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
             </button>
         </div>
         
-        <!-- Abas de Navegação -->
         <div class="tabs-container">
             <button class="tab-button active" data-tab="principal">Principal</button>
             <button class="tab-button" data-tab="cancelamentos">Cancelamentos</button>
@@ -43,12 +58,10 @@
             <button class="tab-button" data-tab="outros">Outros</button>
         </div>
         
-        <!-- Conteúdo das Abas -->
         <div id="tab-content-wrapper">
-            <!-- Aba Principal -->
+            <!-- ABA PRINCIPAL -->
             <div id="tab-principal" class="tab-content active">
                 <div class="metas-grid">
-                    
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-casos" data-editable="true">Histórico de Casos</h2>
@@ -67,10 +80,9 @@
                         </div>
                         <div class="card-footer">
                             <button type="button" id="addCaseButton" class="button secondary-button">+ Adicionar</button>
-                            <button type="button" id="clearCasesButton" class="button reset-button">Limpar</button>
+                            <button type="button" id="clearCasesButton" class="button reset-button">Limpar Casos</button>
                         </div>
                     </div>
-                    
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-atendimentos" data-editable="true">Contadores</h2>
@@ -112,7 +124,6 @@
                             <div id="summary-text" class="summary-box">A aguardar os seus dados...</div>
                         </div>
                     </div>
-                    
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-respostas" data-editable="true">Respostas Rápidas</h2>
@@ -127,7 +138,6 @@
                             <div id="resposta-6" class="summary-box resposta-copiavel" data-full-text="Frase reserva">Frase de reserva para uso geral em atendimentos.</div>
                         </div>
                     </div>
-                    
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-daily-mission" data-editable="true">Missão Diária</h2>
@@ -140,6 +150,7 @@
                 </div>
             </div>
 
+            <!-- ABA CANCELAMENTOS -->
             <div id="tab-cancelamentos" class="tab-content">
                 <div class="metas-grid">
                     <div class="meta-card">
@@ -185,31 +196,33 @@
                     </div>
                 </div>
             </div>
-
+            
+            <!-- ABA RELATÓRIOS -->
             <div id="tab-relatorios" class="tab-content">
-                <div class="metas-grid">
-                    <div class="meta-card" id="report-card">
-                        <div class="card-header">
-                            <h2 data-editable="true">Relatório de Desempenho</h2>
-                            <div class="report-controls">
-                                <select id="report-month-select"></select>
-                                <button id="export-pdf-button" class="button">Exportar PDF</button>
-                            </div>
+                <div class="meta-card" id="report-card">
+                    <div class="card-header">
+                        <h2>Relatório de Desempenho</h2>
+                        <div class="report-controls">
+                            <label for="report-month-select">Selecione o Mês:</label>
+                            <select id="report-month-select"></select>
+                            <button id="export-pdf-button" class="button">Exportar PDF</button>
                         </div>
-                        <div class="card-body report-body">
-                            <div class="report-section">
-                                <h3 id="current-month-title">Resumo do Mês</h3>
-                                <div id="current-month-summary" class="summary-grid"></div>
-                            </div>
-                            <div class="report-section">
-                                <h3 id="previous-month-title">Comparativo</h3>
-                                <div id="previous-month-comparison" class="summary-grid"></div>
-                            </div>
+                    </div>
+                    <div class="card-body" id="report-content">
+                        <div class="report-section">
+                            <h3 id="current-month-title">Resumo do Mês</h3>
+                            <div id="current-month-summary" class="report-summary-grid"></div>
+                        </div>
+                        <hr>
+                        <div class="report-section">
+                            <h3 id="previous-month-title">Comparativo com Mês Anterior</h3>
+                            <div id="previous-month-comparison" class="report-summary-grid"></div>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
+            <!-- ABA OUTROS -->
             <div id="tab-outros" class="tab-content">
                 <div class="metas-grid">
                     <div class="meta-card">
@@ -280,12 +293,25 @@
         </div>
 
         <div class="action-buttons">
-            <button type="button" id="saveButton" class="button save-button">Sincronizar com a Nuvem</button>
+            <button type="button" id="saveButton" class="button save-button">Sincronizar</button>
             <button type="button" id="editButton" class="button secondary-button">✏️ Editar Textos</button>
             <button type="button" id="themeToggleButton" class="button">Mudar Tema</button>
         </div>
     </div>
-    
+
+    <footer class="app-footer">
+        <a href="https://www.flavioitech.com" target="_blank" class="footer-link">
+            <img src="logo.png" alt="Logo" class="footer-logo" id="footer-logo-img">
+            <span id="footer-site-text" data-editable="true">Meu Site</span>
+        </a>
+        <a href="https://wa.me/5519998821845" target="_blank" class="footer-link">
+            <svg class="footer-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor">
+                <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 221.9-99.6 221.9-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.8 0-67.6-9.5-97.8-27.2l-6.9-4.1-72.7 19.1L48.4 358s-4.4-7.2-12.1-99.6c0-11.4 2.9-22.5 8.4-32.9l16.4-30.3c34.9-64.4 106.4-104.1 180.1-104.1 32.5 0 63.8 12.8 86.8 35.7 23 22.9 35.9 54.1 35.9 86.6 0 92.8-74.9 167.8-167.7 167.8zm118.9-194.3c-4.1-2-24.5-12.1-28.4-13.5-3.9-1.4-6.7-2-9.5 2-2.8 4-10.8 13.5-13.2 16.2-2.4 2.8-4.8 3.1-8.9 1.1-4.1-2-17.4-6.4-33.1-20.4-12.2-10.8-20.4-24.1-22.8-28.2-2.4-4.1-.2-6.3 1.8-8.3 1.8-1.8 4.1-4.8 6.1-7.1 2-2.3 2.7-4.1 4.1-6.9 1.4-2.8.7-5.1-1.4-7.1s-9.5-22.8-13-31.1c-3.5-8.3-7.1-7.1-9.5-7.1-2.4 0-5.1 0-7.8 0-2.8 0-7.1 1.1-10.8 5.1-3.7 4-14.2 13.9-14.2 33.9 0 20 14.5 39.3 16.5 41.7 2 2.4 28.4 43.4 69.1 60.9 9.8 4.2 17.5 6.7 23.4 8.6 5.9 1.9 11.2 1.6 15.5 1 4.8-.6 15.1-6.2 17.2-12.1 2.1-5.9 2.1-11 1.4-12.1-0.7-1.1-2.8-1.8-5.9-3.8z"/>
+            </svg>
+            <span id="footer-whatsapp-text" data-editable="true">19 99882-1845</span>
+        </a>
+    </footer>
+
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -298,11 +324,13 @@
                     <div class="form-group">
                          <input type="number" id="baseSalaryInput" placeholder="Ex: 2500.00" step="0.01">
                     </div>
-                    <hr>
+                    <hr style="border-color: var(--border-color); margin: 20px 0;">
+
                     <h4 id="subtitle-modal-metas" data-editable="true">Metas de Cancelamento</h4>
-                    <p id="desc-modal-metas" data-editable="true">Defina a quantidade de cancelamentos e a comissão em percentagem (%) do salário.</p>
+                    <p style="font-size: 12px; color: var(--text-secondary-color); margin-top: -10px;" id="desc-modal-metas" data-editable="true">Defina a quantidade de cancelamentos e a comissão em percentagem (%) do salário.</p>
                     <div id="settings-metas-container"></div>
-                    <hr>
+                    <hr style="border-color: var(--border-color); margin: 20px 0;">
+                    
                     <h4 id="subtitle-modal-notificacoes" data-editable="true">Notificações</h4>
                     <div class="form-group" style="display: flex; align-items: center; gap: 15px; justify-content: center;">
                         <input type="checkbox" id="reminderEnabled" style="width: auto;">
@@ -313,11 +341,11 @@
                 </form>
 
                 <div class="modal-actions">
-                    <button type="button" id="importButton" class="button">Importar Backup</button>
-                    <button type="button" id="exportButton" class="button">Exportar Backup</button>
+                    <button type="button" id="importButton" class="button">Importar Dados</button>
+                    <button type="button" id="exportButton" class="button">Exportar Dados</button>
                     <button type="button" id="installAppButton" class="button">Instalar App</button>
                     <button type="button" id="clearCacheButton" class="button reset-button">Limpar Cache</button>
-                    <button type="button" id="resetButton" class="button reset-button">Repor Dados da App</button>
+                    <button type="button" id="resetButton" class="button reset-button">Repor Dados Locais</button>
                 </div>
             </div>
         </div>
@@ -331,309 +359,13 @@
             </div>
             <div class="modal-body">
                 <div id="senhas-container">
-                    <div class="senha-item"><h4 id="senha-sistema-1" data-editable="true">SIG</h4><p><strong id="senha-label-user-1" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-1" data-editable="true">flavio.cardozo@desktop.tec.br</span></p><p><strong id="senha-label-pass-1" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-1" data-editable="true">Suporte N2</span></p></div>
-                    <div class="senha-item"><h4 id="senha-sistema-2" data-editable="true">SalesForce</h4><p><strong id="senha-label-user-2" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-2" data-editable="true">flavio.cardozo@desktop.tec.br</span></p><p><strong id="senha-label-pass-2" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-2" data-editable="true">@Flavero85</span></p></div>
-                    <div class="senha-item"><h4 id="senha-sistema-3" data-editable="true">Matrix Chat</h4><p><strong id="senha-label-user-3" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-3" data-editable="true">flavio.cardozo@desktop.tec.br</span></p><p><strong id="senha-label-pass-3" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-3" data-editable="true">Fb5!ji</span></p></div>
-                    <div class="senha-item"><h4 id="senha-sistema-4" data-editable="true">SIS</h4><p><strong id="senha-label-user-4" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-4" data-editable="true">flavio.cardozo</span></p><p><strong id="senha-label-pass-4" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-4" data-editable="true">@PSLk869</span></p></div>
-                    <div class="senha-item"><h4 id="senha-sistema-5" data-editable="true">ADM</h4><p><strong id="senha-label-user-5" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-5" data-editable="true">flavio.cardozo@desktop.tec.br</span></p><p><strong id="senha-label-pass-5" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-5" data-editable="true">Flavero1609</span></p></div>
-                    <div class="senha-item"><h4 id="senha-sistema-6" data-editable="true">LG</h4><p><strong id="senha-label-user-6" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-6" data-editable="true">34792557879</span></p><p><strong id="senha-label-pass-6" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-6" data-editable="true">@Flavero85</span></p></div>
-                    <div class="senha-item"><h4 id="senha-sistema-7" data-editable="true">WebMail</h4><p><strong id="senha-label-user-7" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-7" data-editable="true">flavio.cardozo@desktop.tec.br</span></p><p><strong id="senha-label-pass-7" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-7" data-editable="true">eWJBP[ar8V</span></p></div>
-                    <div class="senha-item"><h4 id="senha-sistema-8" data-editable="true">NetCore</h4><p><strong id="senha-label-user-8" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-8" data-editable="true">flavio.cardozo@desktop.tec.br</span></p><p><strong id="senha-label-pass-8" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-8" data-editable="true">Flavero1609</span></p></div>
-                    <div class="senha-item"><h4 id="senha-sistema-9" data-editable="true">URA</h4><p><strong id="senha-label-user-9" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-9" data-editable="true">agent/11271 9323 RAMAL 2589</span></p><p><strong id="senha-label-pass-9" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-9" data-editable="true">mvjYsE1</span></p></div>
-                    <div class="senha-item"><h4 id="senha-sistema-10" data-editable="true">Reserva</h4><p><strong id="senha-label-user-10" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-10" data-editable="true">flavio.cardozo</span></p><p><strong id="senha-label-pass-10" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-10" data-editable="true">senha123</span></p></div>
-                </div>
+                    </div>
             </div>
         </div>
     </div>
-
-    <footer class="app-footer">
-        <a href="https://www.flavioitech.com" target="_blank" class="footer-link">
-            <img src="logo.png" alt="Logo" class="footer-logo" id="footer-logo-img">
-            <span id="footer-site-text" data-editable="true">Meu Site</span>
-        </a>
-        <a href="https://wa.me/5519998821845" target="_blank" class="footer-link">
-            <svg class="footer-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 221.9-99.6 221.9-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.8 0-67.6-9.5-97.8-27.2l-6.9-4.1-72.7 19.1L48.4 358s-4.4-7.2-12.1-99.6c0-11.4 2.9-22.5 8.4-32.9l16.4-30.3c34.9-64.4 106.4-104.1 180.1-104.1 32.5 0 63.8 12.8 86.8 35.7 23 22.9 35.9 54.1 35.9 86.6 0 92.8-74.9 167.8-167.7 167.8zm118.9-194.3c-4.1-2-24.5-12.1-28.4-13.5-3.9-1.4-6.7-2-9.5 2-2.8 4-10.8 13.5-13.2 16.2-2.4 2.8-4.8 3.1-8.9 1.1-4.1-2-17.4-6.4-33.1-20.4-12.2-10.8-20.4-24.1-22.8-28.2-2.4-4.1-.2-6.3 1.8-8.3 1.8-1.8 4.1-4.8 6.1-7.1 2-2.3 2.7-4.1 4.1-6.9 1.4-2.8.7-5.1-1.4-7.1s-9.5-22.8-13-31.1c-3.5-8.3-7.1-7.1-9.5-7.1-2.4 0-5.1 0-7.8 0-2.8 0-7.1 1.1-10.8 5.1-3.7 4-14.2 13.9-14.2 33.9 0 20 14.5 39.3 16.5 41.7 2 2.4 28.4 43.4 69.1 60.9 9.8 4.2 17.5 6.7 23.4 8.6 5.9 1.9 11.2 1.6 15.5 1 4.8-.6 15.1-6.2 17.2-12.1 2.1-5.9 2.1-11 1.4-12.1-0.7-1.1-2.8-1.8-5.9-3.8z"/></svg>
-            <span id="footer-whatsapp-text" data-editable="true">19 99882-1845</span>
-        </a>
-    </footer>
     
+    <!-- Módulos do Firebase -->
     <script type="module" src="script.js"></script>
+
 </body>
 </html>
-```
-
-### 2. Script do Aplicativo (Versão Estável e sem PIN)
-
-Este é o `script.js` reestruturado para ser mais robusto e sem a lógica do PIN.
-
-```javascript
-// Importação dos módulos do Firebase 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-// --- INICIALIZAÇÃO DO FIREBASE ---
-const firebaseConfig = {
-  apiKey: "AIzaSyCdQYNKJdTYEeOaejZy_ZxU9tVq7bF1x34",
-  authDomain: "app-suporte-n2.firebaseapp.com",
-  projectId: "app-suporte-n2",
-  storageBucket: "app-suporte-n2.appspot.com",
-  messagingSenderId: "257470368604",
-  appId: "1:257470368604:web:42fcc4973851eb02b78f99"
-};
-
-// --- VARIÁVEIS GLOBAIS ---
-let app, auth, db, userId = null;
-let trendChart, categoryPieChart;
-
-// --- ESTRUTURAS DE DADOS (Estado local) ---
-let metas = [], allCases = [], history = [], categoryCounts = {}, unlockedAchievements = {}, dailyLogbook = {};
-let baseSalary = 0;
-let reminderSettings = { enabled: false, time: '18:00' };
-let usedStatuses = new Set(), usedQuickResponses = new Set();
-let previousDailyCancellations = 0, dailyCopyCount = 0;
-let isEditMode = false;
-let deferredInstallPrompt;
-
-// --- CONSTANTES ---
-const DAILY_PROTOCOL_GOAL = 50;
-const MONTHLY_PROTOCOL_GOAL = 1300;
-const TOTAL_WORKING_DAYS = 26;
-const MIN_SWIPE_DISTANCE = 50;
-const THEMES = ['tech', 'dark', 'light', 'mint', 'sunset', 'graphite'];
-
-// --- FUNÇÃO PRINCIPAL E PONTO DE ENTRADA ---
-document.addEventListener('DOMContentLoaded', main);
-
-function main() {
-    // --- SELETORES DE ELEMENTOS ---
-    const loadingOverlay = document.getElementById('loading-overlay');
-    const appContainer = document.getElementById('app-container');
-    const dailyCancellationsInput = document.getElementById('dailyCancellationsInput');
-    const atendimentosInput = document.getElementById('atendimentosInput');
-    const protocolosAnalisadosInput = document.getElementById('protocolosAnalisadosInput');
-    const incrementProtocolosButton = document.getElementById('incrementProtocolosButton');
-    const metasContainer = document.getElementById('metas-container');
-    const summaryText = document.getElementById('summary-text');
-    const incrementButton = document.getElementById('incrementButton');
-    const categorySelect = document.getElementById('categorySelect');
-    const categorySummaryList = document.getElementById('category-summary-list');
-    const achievementList = document.getElementById('achievement-list');
-    const saveButton = document.getElementById('saveButton');
-    const resetButton = document.getElementById('resetButton');
-    const exportButton = document.getElementById('exportButton');
-    const importButton = document.getElementById('importButton');
-    const settingsButton = document.getElementById('settings-button');
-    const settingsModal = document.getElementById('settings-modal');
-    const closeSettingsModal = document.getElementById('close-settings-modal');
-    const settingsForm = document.getElementById('settings-form');
-    const baseSalaryInput = document.getElementById('baseSalaryInput');
-    const settingsMetasContainer = document.getElementById('settings-metas-container');
-    const bonusValueEl = document.getElementById('bonus-value');
-    const bonusFormulaEl = document.getElementById('bonus-formula');
-    const historyListEl = document.getElementById('history-list');
-    const projectionValueEl = document.getElementById('projection-value');
-    const projectionFormulaEl = document.getElementById('projection-formula');
-    const tierProjectionContainer = document.getElementById('tier-projection-container');
-    const trendChartCanvas = document.getElementById('trendChart');
-    const categoryPieChartCanvas = document.getElementById('categoryPieChart');
-    const installAppButton = document.getElementById('installAppButton');
-    const toastContainer = document.getElementById('toast-container');
-    const editButton = document.getElementById('editButton');
-    const respostasContainer = document.getElementById('respostas-container');
-    const reminderEnabledInput = document.getElementById('reminderEnabled');
-    const reminderTimeInput = document.getElementById('reminderTime');
-    const casesListContainer = document.getElementById('cases-list-container');
-    const addCaseButton = document.getElementById('addCaseButton');
-    const clearCasesButton = document.getElementById('clearCasesButton');
-    const caseSearchInput = document.getElementById('case-search-input');
-    const caseFilterButtons = document.querySelectorAll('.filter-btn');
-    const themeToggleButton = document.getElementById('themeToggleButton');
-    const senhasButton = document.getElementById('senhas-button');
-    const senhasModal = document.getElementById('senhas-modal');
-    const closeSenhasModal = document.getElementById('close-senhas-modal');
-    const senhasContainer = document.getElementById('senhas-container');
-    const clearCacheButton = document.getElementById('clearCacheButton');
-    const dailyMissionList = document.getElementById('daily-mission-list');
-    const logbookTextarea = document.getElementById('logbook-textarea');
-    const saveLogbookButton = document.getElementById('saveLogbookButton');
-    const tabContentWrapper = document.getElementById('tab-content-wrapper');
-    const tabsContainer = document.querySelector('.tabs-container');
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const reportMonthSelect = document.getElementById('report-month-select');
-    const exportPdfButton = document.getElementById('export-pdf-button');
-    const currentMonthSummaryEl = document.getElementById('current-month-summary');
-    const previousMonthComparisonEl = document.getElementById('previous-month-comparison');
-    const currentMonthTitleEl = document.getElementById('current-month-title');
-    const previousMonthTitleEl = document.getElementById('previous-month-title');
-
-    // --- FUNÇÕES DE UTILIDADE ---
-    const vibrate = () => { if ('vibrate' in navigator) navigator.vibrate(50); };
-    function showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = message;
-        toastContainer.appendChild(toast);
-        setTimeout(() => toast.classList.add('show'), 10);
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 3000);
-        }, 3000);
-    }
-    const parseDate = (str) => {
-        try {
-            const [day, month, year] = str.split('/').map(Number);
-            return new Date(year, month - 1, day);
-        } catch (e) {
-            return new Date();
-        }
-    };
-    const getTodayDateString = () => new Date().toLocaleDateString('pt-BR');
-    
-    // --- LÓGICA DE CARREGAMENTO E AUTENTICAÇÃO ---
-    function showLoading(message) {
-        loadingOverlay.querySelector('p').textContent = message;
-        loadingOverlay.style.display = 'flex';
-    }
-    function hideLoading() {
-        loadingOverlay.style.opacity = '0';
-        setTimeout(() => {
-            loadingOverlay.style.display = 'none';
-        }, 500);
-        appContainer.style.visibility = 'visible';
-    }
-
-    try {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                userId = user.uid;
-                await loadDataFromFirebase();
-            } else {
-                showLoading("Conectando ao servidor...");
-                await signInAnonymously(auth);
-            }
-        });
-    } catch (error) {
-        console.error("Falha CRÍTICA ao inicializar o Firebase.", error);
-        alert("Erro grave na configuração do Firebase. O aplicativo não pode iniciar.");
-    }
-    
-    // --- SINCRONIZAÇÃO COM FIREBASE ---
-    async function loadDataFromFirebase() {
-        if (!userId) { showToast("Erro de autenticação.", "danger"); return; }
-        showLoading("Sincronizando dados...");
-        const docRef = doc(db, "users", userId);
-        try {
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                metas = data.metas || [{ id: 1, target: 10, reward: 0.24 }];
-                allCases = data.allCases || [];
-                baseSalary = data.baseSalary || 0;
-                history = data.history || [];
-                categoryCounts = data.categoryCounts || {};
-                unlockedAchievements = data.unlockedAchievements || {};
-                reminderSettings = data.reminderSettings || { enabled: false, time: '18:00' };
-                usedStatuses = new Set(data.usedStatuses || []);
-                usedQuickResponses = new Set(data.usedQuickResponses || []);
-                dailyLogbook = data.dailyLogbook || {};
-            } else {
-                metas = [{ id: 1, target: 10, reward: 0.24 }];
-            }
-        } catch (error) {
-            console.error("Erro ao carregar dados do Firestore:", error);
-            showToast(`Falha ao carregar dados: ${error.message}`, "danger");
-        } finally {
-            loadLocalData();
-            updateAll();
-            hideLoading();
-        }
-    }
-
-    async function saveDataToFirebase() {
-        if (!userId) { showToast("Erro de autenticação.", "danger"); return; }
-        showLoading("Sincronizando...");
-        saveDailyState();
-        const dataToSave = {
-            metas, allCases, baseSalary, history, categoryCounts,
-            unlockedAchievements, reminderSettings, dailyLogbook,
-            usedStatuses: Array.from(usedStatuses),
-            usedQuickResponses: Array.from(usedQuickResponses),
-            lastUpdated: serverTimestamp()
-        };
-        try {
-            await setDoc(doc(db, "users", userId), dataToSave, { merge: true });
-            showToast("Progresso sincronizado com a nuvem!", "success");
-        } catch (error) {
-            console.error("Erro ao salvar dados:", error);
-            showToast("Falha ao sincronizar.", "danger");
-        } finally {
-            hideLoading();
-        }
-    }
-    
-    // --- LÓGICA DE DADOS LOCAIS (Progresso do dia) ---
-    function loadLocalData() {
-        const todayStr = getTodayDateString();
-        const lastUsedDate = localStorage.getItem('lastUsedDate');
-        let dailyCount = 0, dailyProtocols = 0;
-        dailyCopyCount = 0;
-
-        if (todayStr === lastUsedDate) {
-            dailyCount = parseInt(localStorage.getItem('dailyCancellationsCount')) || 0;
-            dailyProtocols = parseInt(localStorage.getItem('protocolosAnalisadosCount')) || 0;
-            dailyCopyCount = parseInt(localStorage.getItem('dailyCopyCount')) || 0;
-        }
-        
-        dailyCancellationsInput.value = dailyCount;
-        protocolosAnalisadosInput.value = dailyProtocols;
-        previousDailyCancellations = dailyCount;
-        
-        localStorage.setItem('lastUsedDate', todayStr);
-        const lastHistoryEntry = history.length > 0 ? history[history.length - 1] : { atendimentos: 0 };
-        atendimentosInput.value = history.find(h => h.date === todayStr)?.atendimentos || lastHistoryEntry.atendimentos;
-        baseSalaryInput.value = baseSalary > 0 ? baseSalary : '';
-        reminderEnabledInput.checked = reminderSettings.enabled;
-        reminderTimeInput.value = reminderSettings.time;
-        logbookTextarea.value = dailyLogbook[todayStr] || '';
-    }
-    
-    function saveDailyState() {
-        const date = getTodayDateString();
-        const newEntry = { 
-            date, 
-            atendimentos: parseInt(atendimentosInput.value) || 0,
-            dailyCancellations: parseInt(dailyCancellationsInput.value) || 0,
-            protocols: parseInt(protocolosAnalisadosInput.value) || 0
-        };
-        
-        const todayIndex = history.findIndex(entry => entry.date === date);
-        if (todayIndex > -1) { history[todayIndex] = newEntry; } 
-        else { history.push(newEntry); }
-        history.sort((a, b) => parseDate(a.date) - parseDate(b.date));
-        
-        localStorage.setItem('protocolosAnalisadosCount', newEntry.protocols);
-        localStorage.setItem('dailyCancellationsCount', newEntry.dailyCancellations);
-        localStorage.setItem('dailyCopyCount', dailyCopyCount);
-        unlockAchievement('achieve-first-save', 'Primeiro progresso guardado!');
-    }
-    
-    // --- EVENT LISTENERS ---
-    saveButton.addEventListener('click', saveDataToFirebase);
-    // Adicione aqui todos os outros event listeners do seu aplicativo
-    // Exemplo:
-    incrementButton.addEventListener('click', () => {
-        // ...lógica...
-    });
-    
-    // Todas as outras funções (renderização, relatórios, etc.) vão aqui...
-    function updateAll() {
-        // ...código...
-    }
-    updateAll(); // Chame para renderizar o estado inicial
-}
-

@@ -308,29 +308,198 @@ function renderReportSummary(stats) {
   out.appendChild(wrap);
 }
 
+// ATENÇÃO: Substitua a função exportReportPdf inteira por esta versão melhorada.
 async function exportReportPdf(month, year) {
-  if (!jsPDF) { mostrarToast("jsPDF não carregado", "danger"); return; }
+  if (!jsPDF) {
+    mostrarToast("jsPDF não carregado", "danger");
+    return;
+  }
+  if (!Chart) {
+    mostrarToast("Chart.js não carregado", "danger");
+    return;
+  }
+
+  mostrarToast("Gerando relatório, aguarde...", "info");
+
   const stats = getMonthStats(month, year);
   const doc = new jsPDF();
-  doc.setFontSize(16); doc.text("Relatório Mensal - Suporte N2", 14, 20);
-  doc.setFontSize(12); doc.text(`Período: ${month}/${year}`, 14, 30);
-  doc.text(`Total de cancelamentos: ${stats.totalCancelamentos}`, 14, 40);
-  doc.text(`Média diária de protocolos: ${stats.mediaDiariaProtocolos}`, 14, 48);
-  doc.text(`Categoria mais frequente: ${stats.topCategoria}`, 14, 56);
-  doc.setFontSize(11);
-  doc.text("Entradas:", 14, 70);
-  let y = 78;
-  stats.entries.slice(-20).reverse().forEach(e=>{
-    const line = `${new Date(e.date).toLocaleDateString()} - C:${e.cancelamentos || 0} P:${e.protocolos || 0} Cat:${e.categoria || "-"}`;
-    if (y > 270) { doc.addPage(); y = 20; }
-    doc.text(line, 14, y); y += 8;
-  });
-  doc.save(`relatorio_${year}_${String(month).padStart(2,"0")}.pdf`);
-  mostrarToast("PDF gerado", "success");
-}
 
+  // --- PASSO 1: Preparar Logo e Gráficos (convertidos para imagem) ---
+
+  // Para o logo, o ideal é convertê-lo para Base64 e colar aqui para evitar problemas de carregamento.
+  // Você pode usar um site como 'base64-image.de' para converter seu 'logo.png'.
+  const logoBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAA//8DAEkoYhggAAAABJRU5ErkJggg=='; // <-- COLOQUE O BASE64 DO SEU LOGO AQUI
+
+  // Preparar dados para os gráficos
+  const categoryCounts = {};
+  stats.entries.forEach(e => {
+    if (e.categoria) {
+      categoryCounts[e.categoria] = (categoryCounts[e.categoria] || 0) + (e.cancelamentos || 0);
+    }
+  });
+
+  const trendLabels = stats.entries.map(e => new Date(e.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }));
+  const trendCancellations = stats.entries.map(e => e.cancelamentos || 0);
+  const trendProtocols = stats.entries.map(e => e.protocolos || 0);
+
+  // Criar canvases temporários e escondidos para renderizar os gráficos
+  const chartContainer = document.createElement('div');
+  chartContainer.style.position = 'absolute';
+  chartContainer.style.left = '-9999px';
+  chartContainer.innerHTML = `
+    <canvas id="tempPieChart" width="400" height="400"></canvas>
+    <canvas id="tempLineChart" width="800" height="400"></canvas>
+  `;
+  document.body.appendChild(chartContainer);
+
+  // Renderizar Gráfico de Pizza
+  const pieCtx = document.getElementById('tempPieChart').getContext('2d');
+  const pieChart = new Chart(pieCtx, {
+    type: 'pie',
+    data: {
+      labels: Object.keys(categoryCounts).length > 0 ? Object.keys(categoryCounts) : ['Nenhuma Categoria'],
+      datasets: [{
+        data: Object.keys(categoryCounts).length > 0 ? Object.values(categoryCounts) : [1],
+        backgroundColor: ['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6'],
+      }]
+    },
+    options: {
+      responsive: false,
+      animation: { duration: 0 },
+       plugins: {
+        legend: { position: 'right' }
+      }
+    }
+  });
+
+  // Renderizar Gráfico de Linha
+  const lineCtx = document.getElementById('tempLineChart').getContext('2d');
+  const lineChart = new Chart(lineCtx, {
+    type: 'line',
+    data: {
+      labels: trendLabels,
+      datasets: [{
+        label: 'Cancelamentos',
+        data: trendCancellations,
+        borderColor: 'rgba(231, 52, 68, 1)',
+        backgroundColor: 'rgba(231, 52, 68, 0.2)',
+        fill: true,
+        tension: 0.3
+      }, {
+        label: 'Protocolos',
+        data: trendProtocols,
+        borderColor: 'rgba(41, 182, 246, 1)',
+        backgroundColor: 'rgba(41, 182, 246, 0.2)',
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: false,
+      animation: { duration: 0 },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+  
+  // Aguardar a renderização dos gráficos antes de capturar a imagem
+  await new Promise(resolve => setTimeout(resolve, 500)); 
+
+  const pieChartImg = document.getElementById('tempPieChart').toDataURL('image/png');
+  const lineChartImg = document.getElementById('tempLineChart').toDataURL('image/png');
+
+  // Limpar os elementos temporários
+  document.body.removeChild(chartContainer);
+
+
+  // --- PASSO 2: Construir o PDF ---
+  
+  const addHeader = () => {
+    doc.addImage(logoBase64, 'PNG', 14, 8, 25, 25);
+    
+    doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
+    doc.text("Relatório Mensal de Desempenho", 105, 20, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Período de Referência: ${String(month).padStart(2,"0")}/${year}`, 105, 28, { align: 'center' });
+    doc.setDrawColor(180, 180, 180);
+    doc.line(14, 40, 196, 40);
+  };
+  
+  const addFooter = () => {
+    const pageCount = doc.internal.getNumberOfPages();
+    doc.setFontSize(8);
+    doc.setTextColor(150);
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.text(`Página ${i} de ${pageCount}`, 196, 285, { align: 'right' });
+    }
+  };
+
+  // Página 1
+  addHeader();
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text("Resumo Geral do Mês", 14, 50);
+
+  // Cards de resumo
+  doc.autoTable({
+      startY: 55,
+      body: [
+          [
+              { content: `Total de Cancelamentos\n${stats.totalCancelamentos}`, styles: { halign: 'center', fontSize: 11, fontStyle: 'bold' } },
+              { content: `Média Diária de Protocolos\n${stats.mediaDiariaProtocolos}`, styles: { halign: 'center', fontSize: 11, fontStyle: 'bold' } },
+              { content: `Categoria Mais Frequente\n${stats.topCategoria}`, styles: { halign: 'center', fontSize: 11, fontStyle: 'bold' } },
+          ],
+      ],
+      theme: 'grid',
+      styles: { cellPadding: 8, }
+  });
+
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text("Gráficos de Desempenho", 14, 95);
+  
+  doc.addImage(pieChartImg, 'PNG', 14, 100, 80, 80);
+  doc.addImage(lineChartImg, 'PNG', 100, 100, 96, 48);
+
+  doc.addPage();
+  addHeader();
+
+  // Tabela de Entradas
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text("Registros Diários", 14, 50);
+
+  const tableData = stats.entries.map(e => [
+      new Date(e.date).toLocaleDateString('pt-BR'),
+      e.cancelamentos || '0',
+      e.protocolos || '0',
+      e.categoria || '-',
+      e.note || ''
+  ]);
+
+  doc.autoTable({
+    startY: 55,
+    head: [['Data', 'Cancel.', 'Prot.', 'Categoria', 'Anotação']],
+    body: tableData,
+    headStyles: { fillColor: [0, 77, 64] },
+    columnStyles: {
+        0: { cellWidth: 25 },
+        1: { cellWidth: 20, halign: 'center' },
+        2: { cellWidth: 20, halign: 'center' },
+        3: { cellWidth: 35 },
+        4: { cellWidth: 'auto' },
+    }
+  });
+
+  addFooter();
+  doc.save(`Relatorio_Suporte_N2_${year}_${String(month).padStart(2,"0")}.pdf`);
+  mostrarToast("PDF gerado com sucesso!", "success");
+}
 // ---------------- FCM (notificações)
-const VAPID_KEY = "SUA_VAPID_KEY_AQUI"; // <- substitua pela sua VAPID key pública
+const VAPID_KEY = "BI0b8-7QbFHrkXEa5vGfivhd5fO4vo3BFqmnZAVxeFdcq8-kqdGMDGYGw6GxAS-6PB1piLRTYKFJcHflbdZCA1M";
 
 async function solicitarPermissaoNotificacoes() {
   if (!messaging) { mostrarToast("FCM não disponível", "danger"); return; }

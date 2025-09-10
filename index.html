@@ -8,17 +8,38 @@
     <meta name="description" content="Aplicativo de acompanhamento de metas para Suporte N2."/>
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="manifest" href="manifest.json">
-
-    <!-- Chamada para o arquivo de estilos CSS -->
     <link rel="stylesheet" href="style.css">
-
+    <!-- Bibliotecas para Gráficos e PDF -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+    <!-- Tela de Bloqueio por PIN -->
+    <div id="pin-lock-screen">
+        <div class="pin-container">
+            <img src="logo.png" alt="Logo" class="pin-logo">
+            <h2 id="pin-title">Criar PIN de Acesso</h2>
+            <p id="pin-subtitle">Crie um PIN de 4 dígitos para proteger seus dados.</p>
+            <div id="pin-input-area" class="pin-input-area">
+                <input type="password" class="pin-digit" maxlength="1" inputmode="numeric">
+                <input type="password" class="pin-digit" maxlength="1" inputmode="numeric">
+                <input type="password" class="pin-digit" maxlength="1" inputmode="numeric">
+                <input type="password" class="pin-digit" maxlength="1" inputmode="numeric">
+            </div>
+            <p id="pin-error" class="pin-error-message"></p>
+            <button id="pin-reset-button" class="button reset-button" style="display: none;">Esqueci o PIN</button>
+        </div>
+    </div>
     
     <div id="toast-container"></div>
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Sincronizando dados...</p>
+    </div>
 
-    <div id="app-container" class="page-container">
+
+    <div id="app-container" class="page-container" style="visibility: hidden;">
         <div class="header-metas">
             <img src="logo.png" alt="Logo" class="header-logo">
             <h1 id="main-title" data-editable="true">Suporte N2</h1>
@@ -33,14 +54,14 @@
         <div class="tabs-container">
             <button class="tab-button active" data-tab="principal">Principal</button>
             <button class="tab-button" data-tab="cancelamentos">Cancelamentos</button>
+            <button class="tab-button" data-tab="relatorios">Relatórios</button>
             <button class="tab-button" data-tab="outros">Outros</button>
         </div>
         
         <div id="tab-content-wrapper">
+            <!-- ABA PRINCIPAL -->
             <div id="tab-principal" class="tab-content active">
                 <div class="metas-grid">
-                    
-                    <!-- HISTÓRICO DE CASOS -->
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-casos" data-editable="true">Histórico de Casos</h2>
@@ -59,11 +80,9 @@
                         </div>
                         <div class="card-footer">
                             <button type="button" id="addCaseButton" class="button secondary-button">+ Adicionar</button>
-                            <button type="button" id="clearCasesButton" class="button reset-button">Limpar</button>
-                            <button type="button" id="saveCasesButton" class="button save-button">Salvar Casos</button>
+                            <button type="button" id="clearCasesButton" class="button reset-button">Limpar Casos</button>
                         </div>
                     </div>
-                    <!-- CONTADORES -->
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-atendimentos" data-editable="true">Contadores</h2>
@@ -105,7 +124,6 @@
                             <div id="summary-text" class="summary-box">A aguardar os seus dados...</div>
                         </div>
                     </div>
-                    <!-- RESPOSTAS RÁPIDAS -->
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-respostas" data-editable="true">Respostas Rápidas</h2>
@@ -120,7 +138,6 @@
                             <div id="resposta-6" class="summary-box resposta-copiavel" data-full-text="Frase reserva">Frase de reserva para uso geral em atendimentos.</div>
                         </div>
                     </div>
-                    <!-- MISSÃO DIÁRIA -->
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-daily-mission" data-editable="true">Missão Diária</h2>
@@ -130,29 +147,12 @@
                             <ul id="daily-mission-list"></ul>
                         </div>
                     </div>
-                    <!-- RESUMO DO DIA -->
-                    <div class="meta-card">
-                        <div class="card-header">
-                            <h2 data-editable="true">Resumo do Dia</h2>
-                            <p data-editable="true">Suas anotações e casos de hoje.</p>
-                        </div>
-                        <div class="card-body">
-                            <h4>Anotações de Bordo:</h4>
-                            <div id="daily-summary-log">Nenhuma anotação para hoje.</div>
-                            <h4 style="margin-top: 15px;">Casos do Dia:</h4>
-                            <div id="daily-summary-cases-list"></div>
-                        </div>
-                        <div class="card-footer">
-                             <button type="button" id="dailySummaryClearButton" class="button reset-button">Limpar Anotação</button>
-                            <button type="button" id="dailySummarySaveButton" class="button save-button">Salvar</button>
-                        </div>
-                    </div>
                 </div>
             </div>
 
+            <!-- ABA CANCELAMENTOS -->
             <div id="tab-cancelamentos" class="tab-content">
                 <div class="metas-grid">
-                    <!-- DIÁRIO DE BORDO -->
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-logbook" data-editable="true">Diário de Bordo</h2>
@@ -165,14 +165,12 @@
                             <button type="button" id="saveLogbookButton" class="button save-button">Salvar Anotação</button>
                         </div>
                     </div>
-                    <!-- HISTÓRICO DE ENTRADAS -->
                     <div class="meta-card">
                         <div class="card-header"><h2 id="title-historico" data-editable="true">Histórico de Entradas</h2></div>
                         <div class="card-body">
                             <ul id="history-list"></ul>
                         </div>
                     </div>
-                    <!-- PROJEÇÃO -->
                     <div class="meta-card">
                         <div class="card-header"><h2 id="title-projecao" data-editable="true">Projeção de Cancelamentos</h2></div>
                         <div class="card-body" style="justify-content: center; align-items: center; text-align: center;">
@@ -181,7 +179,6 @@
                             <div id="tier-projection-container"></div>
                         </div>
                     </div>
-                    <!-- RESUMO CATEGORIA -->
                     <div class="meta-card">
                         <div class="card-header"><h2 id="title-resumo-categoria" data-editable="true">Resumo por Categoria</h2></div>
                         <div class="card-body">
@@ -191,7 +188,6 @@
                             <ul id="category-summary-list" style="margin-top: 15px;"></ul>
                         </div>
                     </div>
-                    <!-- GRÁFICO -->
                     <div class="meta-card">
                         <div class="card-header"><h2 id="title-grafico" data-editable="true">Gráfico de Tendência</h2></div>
                         <div class="card-body">
@@ -201,9 +197,34 @@
                 </div>
             </div>
             
+            <!-- ABA RELATÓRIOS -->
+            <div id="tab-relatorios" class="tab-content">
+                <div class="meta-card" id="report-card">
+                    <div class="card-header">
+                        <h2>Relatório de Desempenho</h2>
+                        <div class="report-controls">
+                            <label for="report-month-select">Selecione o Mês:</label>
+                            <select id="report-month-select"></select>
+                            <button id="export-pdf-button" class="button">Exportar PDF</button>
+                        </div>
+                    </div>
+                    <div class="card-body" id="report-content">
+                        <div class="report-section">
+                            <h3 id="current-month-title">Resumo do Mês</h3>
+                            <div id="current-month-summary" class="report-summary-grid"></div>
+                        </div>
+                        <hr>
+                        <div class="report-section">
+                            <h3 id="previous-month-title">Comparativo com Mês Anterior</h3>
+                            <div id="previous-month-comparison" class="report-summary-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ABA OUTROS -->
             <div id="tab-outros" class="tab-content">
                 <div class="metas-grid">
-                    <!-- LINKS -->
                     <div class="meta-card">
                         <div class="card-header">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
@@ -233,7 +254,6 @@
                             </div>
                         </div>
                     </div>
-                    <!-- COMISSÃO -->
                     <div class="meta-card">
                         <div class="card-header"><h2 id="title-comissao" data-editable="true">Comissão Estimada</h2></div>
                         <div class="card-body" style="justify-content: center; align-items: center;">
@@ -241,19 +261,18 @@
                             <div id="bonus-formula">A aguardar dados...</div>
                         </div>
                     </div>
-                    <!-- CONQUISTAS -->
                     <div class="meta-card">
                         <div class="card-header"><h2 id="title-conquistas" data-editable="true">Conquistas 🏆</h2></div>
                         <div class="card-body">
                             <ul id="achievement-list">
-                                <li id="achieve-first-save" class="achievement">Guardar o progresso pela primeira vez.</li>
+                                <li id="achieve-first-save" class="achievement">Sincronizar pela primeira vez.</li>
                                 <li id="achieve-bonus1" class="achievement">Atingir a primeira faixa de comissão.</li>
                                 <li id="achieve-max-bonus" class="achievement">Atingir a meta máxima pela primeira vez.</li>
                                 <li id="achieve-100-cancellations" class="achievement">Atingir 100 cancelamentos no mês.</li>
                                 <li id="achieve-200-cancellations" class="achievement">Atingir 200 cancelamentos no mês.</li>
-                                <li id="achieve-5day-streak" class="achievement">Guardar o progresso por 5 dias seguidos.</li>
-                                <li id="achieve-10-day-streak" class="achievement">Guardar o progresso por 10 dias seguidos.</li>
-                                <li id="achieve-30-days" class="achievement">Guardar o progresso em 30 dias diferentes.</li>
+                                <li id="achieve-5day-streak" class="achievement">Sincronizar por 5 dias seguidos.</li>
+                                <li id="achieve-10-day-streak" class="achievement">Sincronizar por 10 dias seguidos.</li>
+                                <li id="achieve-30-days" class="achievement">Sincronizar em 30 dias diferentes.</li>
                                 <li id="achieve-first-case" class="achievement">Adicionar o seu primeiro caso.</li>
                                 <li id="achieve-10-cases" class="achievement">Registar 10 casos na lista.</li>
                                 <li id="achieve-25-cases" class="achievement">Registar 25 casos na lista.</li>
@@ -274,7 +293,7 @@
         </div>
 
         <div class="action-buttons">
-            <button type="button" id="saveButton" class="button save-button">Guardar Progresso</button>
+            <button type="button" id="saveButton" class="button save-button">Sincronizar</button>
             <button type="button" id="editButton" class="button secondary-button">✏️ Editar Textos</button>
             <button type="button" id="themeToggleButton" class="button">Mudar Tema</button>
         </div>
@@ -326,7 +345,7 @@
                     <button type="button" id="exportButton" class="button">Exportar Dados</button>
                     <button type="button" id="installAppButton" class="button">Instalar App</button>
                     <button type="button" id="clearCacheButton" class="button reset-button">Limpar Cache</button>
-                    <button type="button" id="resetButton" class="button reset-button">Repor Todos os Dados</button>
+                    <button type="button" id="resetButton" class="button reset-button">Repor Dados Locais</button>
                 </div>
             </div>
         </div>
@@ -340,62 +359,14 @@
             </div>
             <div class="modal-body">
                 <div id="senhas-container">
-                    <div class="senha-item">
-                        <h4 id="senha-sistema-1" data-editable="true">SIG</h4>
-                        <p><strong id="senha-label-user-1" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-1" data-editable="true">flavio.cardozo@desktop.tec.br</span></p>
-                        <p><strong id="senha-label-pass-1" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-1" data-editable="true">Suporte N2</span></p>
                     </div>
-                     <div class="senha-item">
-                        <h4 id="senha-sistema-2" data-editable="true">SalesForce</h4>
-                        <p><strong id="senha-label-user-2" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-2" data-editable="true">flavio.cardozo@desktop.tec.br</span></p>
-                        <p><strong id="senha-label-pass-2" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-2" data-editable="true">@Flavero85</span></p>
-                    </div>
-                    <div class="senha-item">
-                        <h4 id="senha-sistema-3" data-editable="true">Matrix Chat</h4>
-                        <p><strong id="senha-label-user-3" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-3" data-editable="true">flavio.cardozo@desktop.tec.br</span></p>
-                        <p><strong id="senha-label-pass-3" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-3" data-editable="true">Fb5!ji</span></p>
-                    </div>
-                    <div class="senha-item">
-                        <h4 id="senha-sistema-4" data-editable="true">SIS</h4>
-                        <p><strong id="senha-label-user-4" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-4" data-editable="true">flavio.cardozo</span></p>
-                        <p><strong id="senha-label-pass-4" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-4" data-editable="true">@PSLk869</span></p>
-                    </div>
-                    <div class="senha-item">
-                        <h4 id="senha-sistema-5" data-editable="true">ADM</h4>
-                        <p><strong id="senha-label-user-5" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-5" data-editable="true">flavio.cardozo@desktop.tec.br</span></p>
-                        <p><strong id="senha-label-pass-5" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-5" data-editable="true">Flavero1609</span></p>
-                    </div>
-                     <div class="senha-item">
-                        <h4 id="senha-sistema-6" data-editable="true">LG</h4>
-                        <p><strong id="senha-label-user-6" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-6" data-editable="true">34792557879</span></p>
-                        <p><strong id="senha-label-pass-6" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-6" data-editable="true">@Flavero85</span></p>
-                    </div>
-                     <div class="senha-item">
-                        <h4 id="senha-sistema-7" data-editable="true">WebMail</h4>
-                        <p><strong id="senha-label-user-7" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-7" data-editable="true">flavio.cardozo@desktop.tec.br</span></p>
-                        <p><strong id="senha-label-pass-7" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-7" data-editable="true">eWJBP[ar8V</span></p>
-                    </div>
-                    <div class="senha-item">
-                        <h4 id="senha-sistema-8" data-editable="true">NetCore</h4>
-                        <p><strong id="senha-label-user-8" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-8" data-editable="true">flavio.cardozo@desktop.tec.br</span></p>
-                        <p><strong id="senha-label-pass-8" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-8" data-editable="true">Flavero1609</span></p>
-                    </div>
-                    <div class="senha-item">
-                        <h4 id="senha-sistema-9" data-editable="true">URA</h4>
-                        <p><strong id="senha-label-user-9" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-9" data-editable="true">agent/11271 9323 RAMAL 2589</span></p>
-                        <p><strong id="senha-label-pass-9" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-9" data-editable="true">mvjYsE1</span></p>
-                    </div>
-                    <div class="senha-item">
-                        <h4 id="senha-sistema-10" data-editable="true">Reserva</h4>
-                        <p><strong id="senha-label-user-10" data-editable="true">Utilizador:</strong> <span class="copyable-credential" id="senha-user-10" data-editable="true">flavio.cardozo</span></p>
-                        <p><strong id="senha-label-pass-10" data-editable="true">Senha:</strong> <span class="copyable-credential" id="senha-pass-10" data-editable="true">senha123</span></p>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
+    
+    <!-- Módulos do Firebase -->
+    <script type="module" src="script.js"></script>
 
-    <!-- Chamada para o arquivo JavaScript -->
-    <script src="script.js"></script>
 </body>
 </html>
+

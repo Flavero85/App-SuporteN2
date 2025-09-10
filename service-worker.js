@@ -1,4 +1,4 @@
-const CACHE_NAME = 'suporte-n2-cache-v3'; // Versão do cache atualizada para forçar a atualização
+const CACHE_NAME = 'suporte-n2-cache-v4'; // Versão do cache atualizada para forçar a atualização
 const urlsToCache = [
   '/',
   'index.html',
@@ -17,6 +17,7 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', event => {
+  self.skipWaiting(); // Força a ativação do novo service worker
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -30,7 +31,7 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Cache-First: Tenta servir do cache, se falhar, vai à rede.
+        // Tenta servir do cache, se falhar, vai à rede.
         return response || fetch(event.request);
       })
   );

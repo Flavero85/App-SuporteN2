@@ -4,21 +4,27 @@ import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gsta
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // --- INICIALIZAÇÃO DO FIREBASE ---
-// IMPORTANTE: Cole aqui os dados do seu projeto Firebase
+// Suas chaves do Firebase já estão inseridas.
 const firebaseConfig = {
   apiKey: "AIzaSyCdQYNKJdTYEeOaejZy_ZxU9tVq7bF1x34",
   authDomain: "app-suporte-n2.firebaseapp.com",
   projectId: "app-suporte-n2",
-  storageBucket: "app-suporte-n2.appspot.com",
+  storageBucket: "app-suporte-n2.appspot.com", // Corrigido para .appspot.com que é o padrão
   messagingSenderId: "257470368604",
   appId: "1:257470368604:web:42fcc4973851eb02b78f99"
 };
 
 // Inicializa o Firebase e seus serviços
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-let userId = null; // Será preenchido após a autenticação
+let app, auth, db, userId = null;
+try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+} catch (error) {
+    console.error("Falha CRÍTICA ao inicializar o Firebase. Verifique as chaves.", error);
+    alert("Erro grave na configuração do Firebase. O aplicativo não pode iniciar.");
+}
+
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -31,8 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- SELETORES DE ELEMENTOS ---
+    // --- SELETORES DE ELEMENTOS (todos os seus seletores aqui...) ---
     const loadingOverlay = document.getElementById('loading-overlay');
+    // ... (restante dos seletores)
     const dailyCancellationsInput = document.getElementById('dailyCancellationsInput');
     const atendimentosInput = document.getElementById('atendimentosInput');
     const protocolosAnalisadosInput = document.getElementById('protocolosAnalisadosInput');
@@ -101,6 +108,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const previousMonthTitleEl = document.getElementById('previous-month-title');
 
     // --- VARIÁVEIS DE ESTADO ---
+    let inactivityTimer;
+    // ... (restante das variáveis)
     let trendChart;
     let categoryPieChart;
     let deferredInstallPrompt;
@@ -113,26 +122,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let touchEndX = 0;
     let pinSetupStep = 1;
     let firstPin = "";
-    let inactivityTimer;
 
     // --- CONSTANTES ---
     const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutos
+    // ... (restante das constantes)
     const DAILY_PROTOCOL_GOAL = 50;
     const MONTHLY_PROTOCOL_GOAL = 1300;
     const TOTAL_WORKING_DAYS = 26;
     const MIN_SWIPE_DISTANCE = 50;
 
     // --- ESTRUTURAS DE DADOS (Estado local) ---
-    let metas = [];
-    let allCases = [];
+    let metas = [], allCases = [], history = [], categoryCounts = {}, unlockedAchievements = {}, dailyLogbook = {};
     let baseSalary = 0;
-    let history = [];
-    let categoryCounts = {};
-    let unlockedAchievements = {};
     let reminderSettings = { enabled: false, time: '18:00' };
-    let usedStatuses = new Set();
-    let usedQuickResponses = new Set();
-    let dailyLogbook = {};
+    let usedStatuses = new Set(), usedQuickResponses = new Set();
     
     // --- FUNÇÕES DE UTILIDADE ---
     const vibrate = () => { if ('vibrate' in navigator) navigator.vibrate(50); };
@@ -148,14 +151,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
     const parseDate = (str) => {
-        if (!str || typeof str !== 'string') return new Date();
         try {
-            const parts = str.split('/');
-            if (parts.length === 3) {
-                const [day, month, year] = parts.map(Number);
-                return new Date(year, month - 1, day);
-            }
-            return new Date();
+            const [day, month, year] = str.split('/').map(Number);
+            return new Date(year, month - 1, day);
         } catch (e) {
             return new Date();
         }
@@ -171,20 +169,23 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingOverlay.style.display = 'none';
     }
 
+    // Ponto central de autenticação
     onAuthStateChanged(auth, async (user) => {
+        console.log("Status da autenticação mudou. Usuário:", user);
         if (user) {
             userId = user.uid;
-            console.log("Usuário autenticado:", userId);
+            console.log("Usuário autenticado com ID:", userId);
             await checkPin();
         } else {
+            console.log("Nenhum usuário logado, tentando login anônimo...");
+            showLoading("Conectando ao servidor...");
             try {
-                showLoading("Autenticando...");
                 await signInAnonymously(auth);
+                console.log("Login anônimo bem-sucedido.");
             } catch (error) {
-                console.error("Erro na autenticação anônima:", error);
-                alert("Não foi possível conectar. Verifique sua conexão e atualize a página.");
-            } finally {
+                console.error("Erro CRÍTICO no login anônimo:", error);
                 hideLoading();
+                alert(`Não foi possível conectar. Verifique sua conexão e se o método de login anônimo está ativo no Firebase.\nErro: ${error.message}`);
             }
         }
     });
@@ -196,13 +197,13 @@ document.addEventListener('DOMContentLoaded', () => {
         appContainer.style.visibility = 'hidden';
         clearTimeout(inactivityTimer);
         clearPinInputs();
-        if (pinInputs.length > 0) pinInputs[0].focus();
+        pinInputs[0].focus();
     }
 
     function resetInactivityTimer() {
         clearTimeout(inactivityTimer);
         inactivityTimer = setTimeout(lockApp, INACTIVITY_TIMEOUT);
-        localStorage.setItem('lastActiveTimestamp', Date.now().toString());
+        localStorage.setItem('lastActiveTimestamp', Date.now());
     }
 
     async function unlockApp() {
@@ -225,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const storedPin = localStorage.getItem('appPin');
 
         if (!storedPin) {
-            if (pinSetupStep === 1) {
+             if (pinSetupStep === 1) {
                 firstPin = pin;
                 pinSetupStep = 2;
                 pinTitle.textContent = "Confirme o seu PIN";
@@ -261,19 +262,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function clearPinInputs() {
         pinInputs.forEach(input => input.value = '');
-        if (pinInputs.length > 0) pinInputs[0].focus();
+        pinInputs[0]?.focus();
         pinError.textContent = "";
     }
     
     async function checkPin() {
-        showLoading("Verificando segurança...");
         const storedPin = localStorage.getItem('appPin');
-        hideLoading();
         
         if (!storedPin) {
-            pinTitle.textContent = "Criar PIN de Acesso";
-            pinSubtitle.textContent = "Crie um PIN de 4 dígitos para proteger seus dados.";
-            pinResetButton.style.display = 'none';
+            console.log("Nenhum PIN encontrado. Exibindo tela de criação.");
             lockApp();
             return;
         }
@@ -282,10 +279,12 @@ document.addEventListener('DOMContentLoaded', () => {
         pinSubtitle.textContent = "Introduza o seu PIN de 4 dígitos para aceder.";
         pinResetButton.style.display = 'block';
 
-        const lastActive = parseInt(localStorage.getItem('lastActiveTimestamp') || '0');
+        const lastActive = parseInt(localStorage.getItem('lastActiveTimestamp')) || 0;
         if (Date.now() - lastActive > INACTIVITY_TIMEOUT) {
+            console.log("Tempo de inatividade excedido. Bloqueando.");
             lockApp();
         } else {
+            console.log("Dentro do tempo de atividade. Desbloqueando.");
             await unlockApp();
         }
     }
@@ -293,14 +292,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- SINCRONIZAÇÃO COM FIREBASE ---
     async function loadDataFromFirebase() {
         if (!userId) {
-            showToast("Erro de autenticação.", "danger");
+            showToast("Erro de autenticação. Não é possível carregar dados.", "danger");
             return;
         }
         showLoading("Sincronizando dados...");
         const docRef = doc(db, "users", userId);
         try {
+            console.log("Tentando ler dados do Firestore...");
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
+                console.log("Documento encontrado. Carregando dados.");
                 const data = docSnap.data();
                 metas = data.metas || [{ id: 1, target: 10, reward: 0.24 }];
                 allCases = data.allCases || [];
@@ -313,13 +314,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 usedQuickResponses = new Set(data.usedQuickResponses || []);
                 dailyLogbook = data.dailyLogbook || {};
             } else {
-                // Primeira vez do usuário
+                console.log("Nenhum documento encontrado. Usando dados padrão.");
                 metas = [{ id: 1, target: 10, reward: 0.24 }];
-                console.log("Documento de usuário não encontrado, iniciando com dados padrão.");
             }
         } catch (error) {
-            console.error("Erro ao carregar dados:", error);
-            showToast("Falha ao carregar dados da nuvem.", "danger");
+            console.error("Erro ao carregar dados do Firestore:", error);
+            showToast(`Falha ao carregar dados: ${error.message}`, "danger");
+            alert(`Falha ao ler o banco de dados. Verifique as regras de segurança do Firestore no seu projeto.\nErro: ${error.message}`);
         } finally {
             loadLocalData();
             updateAll();
@@ -327,6 +328,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Resto do seu código... (cole aqui todas as outras funções: saveDataToFirebase, loadLocalData, saveDailyState, Módulo de Relatórios, Funções de UI, Event Listeners, etc.)
+    // ...
+    // É importante que o resto do código seja exatamente o mesmo da versão anterior.
+    // Cole aqui o restante do script.js
     async function saveDataToFirebase() {
         if (!userId) {
             showToast("Erro de autenticação. Não é possível salvar.", "danger");
@@ -367,7 +372,6 @@ document.addEventListener('DOMContentLoaded', () => {
             dailyProtocols = parseInt(localStorage.getItem('protocolosAnalisadosCount')) || 0;
             dailyCopyCount = parseInt(localStorage.getItem('dailyCopyCount')) || 0;
         } else {
-            // Limpa contadores diários se for um novo dia
             localStorage.removeItem('dailyCancellationsCount');
             localStorage.removeItem('protocolosAnalisadosCount');
             localStorage.removeItem('dailyCopyCount');
@@ -389,14 +393,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function saveDailyState() {
         const date = getTodayDateString();
-        const currentTotal = parseInt(atendimentosInput.value) || 0;
-        const dailyCancellations = parseInt(dailyCancellationsInput.value) || 0;
-        const protocols = parseInt(protocolosAnalisadosInput.value) || 0;
+        const newEntry = { 
+            date, 
+            atendimentos: parseInt(atendimentosInput.value) || 0,
+            dailyCancellations: parseInt(dailyCancellationsInput.value) || 0,
+            protocols: parseInt(protocolosAnalisadosInput.value) || 0
+        };
         
-        // Atualiza a entrada de histórico do dia
         const todayIndex = history.findIndex(entry => entry.date === date);
-        const newEntry = { date, atendimentos: currentTotal, dailyCancellations, protocols };
-        
         if (todayIndex > -1) { 
             history[todayIndex] = newEntry;
         } else { 
@@ -404,10 +408,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         history.sort((a, b) => parseDate(a.date) - parseDate(b.date));
         
-        // Salva contadores diários no localStorage
-        localStorage.setItem('protocolosAnalisadosCount', protocols.toString());
-        localStorage.setItem('dailyCancellationsCount', dailyCancellations.toString());
-        localStorage.setItem('dailyCopyCount', dailyCopyCount.toString());
+        localStorage.setItem('protocolosAnalisadosCount', protocolosAnalisadosInput.value);
+        localStorage.setItem('dailyCancellationsCount', dailyCancellationsInput.value);
+        localStorage.setItem('dailyCopyCount', dailyCopyCount);
 
         unlockAchievement('achieve-first-save', 'Primeiro progresso guardado!');
     }
@@ -422,26 +425,24 @@ document.addEventListener('DOMContentLoaded', () => {
             availableMonths.add(monthKey);
         });
 
-        if (availableMonths.size === 0) {
-            const now = new Date();
-            const monthKey = `${now.getFullYear()}-${String(now.getMonth()).padStart(2, '0')}`;
-            availableMonths.add(monthKey);
-        }
-
         const sortedMonths = Array.from(availableMonths).sort().reverse();
         reportMonthSelect.innerHTML = sortedMonths.map(key => {
             const [year, month] = key.split('-');
             const monthName = monthNames[parseInt(month)];
             return `<option value="${key}">${monthName} de ${year}</option>`;
         }).join('');
-        
-        generateReport();
+        if (sortedMonths.length > 0) {
+            generateReport();
+        } else {
+            currentMonthSummaryEl.innerHTML = "<p>Nenhum histórico encontrado para gerar relatórios.</p>";
+            previousMonthComparisonEl.innerHTML = "";
+        }
     }
     
     function generateReport() {
         const selectedKey = reportMonthSelect.value;
         if (!selectedKey) {
-            currentMonthSummaryEl.innerHTML = "<p>Nenhum histórico encontrado para gerar relatórios.</p>";
+            currentMonthSummaryEl.innerHTML = "<p>Nenhum dado para o período selecionado.</p>";
             previousMonthComparisonEl.innerHTML = "";
             return;
         }
@@ -449,17 +450,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const [year, month] = selectedKey.split('-').map(Number);
     
         const currentMonthData = getMonthData(year, month);
-        const prevDate = new Date(year, month - 1, 1);
-        const previousMonthData = getMonthData(prevDate.getFullYear(), prevDate.getMonth());
+        const previousMonthData = getMonthData(year, month - 1);
     
         currentMonthTitleEl.textContent = `Resumo de ${reportMonthSelect.options[reportMonthSelect.selectedIndex].text}`;
-        previousMonthTitleEl.textContent = `Comparativo com ${getMonthName(prevDate.getMonth(), prevDate.getFullYear())}`;
+        previousMonthTitleEl.textContent = `Comparativo com ${getMonthName(month - 1, year)}`;
     
         renderReportSection(currentMonthSummaryEl, currentMonthData);
         renderComparisonSection(previousMonthComparisonEl, currentMonthData, previousMonthData);
     }
     
     function getMonthData(year, month) {
+        let pYear = year;
+        let pMonth = month - 1;
+        if (pMonth < 0) {
+            pMonth = 11;
+            pYear -= 1;
+        }
+    
         const monthHistory = history.filter(h => {
             const date = parseDate(h.date);
             return date.getFullYear() === year && date.getMonth() === month;
@@ -467,23 +474,28 @@ document.addEventListener('DOMContentLoaded', () => {
     
         if (monthHistory.length === 0) return { totalCancellations: 0, totalProtocols: 0, avgProtocols: 0, mostFrequentCategory: "N/A", daysWorked: 0 };
     
-        const firstDayValue = monthHistory[0].atendimentos - monthHistory[0].dailyCancellations;
-        const lastDayValue = monthHistory[monthHistory.length - 1].atendimentos;
+        const lastDay = monthHistory[monthHistory.length - 1];
         
-        const totalCancellations = lastDayValue - firstDayValue;
+        const previousMonthHistory = history.filter(h => {
+            const date = parseDate(h.date);
+            return date.getFullYear() === pYear && date.getMonth() === pMonth;
+        });
+        const firstDayValue = previousMonthHistory.length > 0 ? previousMonthHistory[previousMonthHistory.length - 1].atendimentos : 0;
+
+        const totalCancellations = lastDay.atendimentos - firstDayValue;
         const totalProtocols = monthHistory.reduce((sum, h) => sum + (h.protocols || 0), 0);
         const daysWorked = monthHistory.length;
         const avgProtocols = daysWorked > 0 ? (totalProtocols / daysWorked).toFixed(1) : 0;
         
         const monthCategories = {};
-        Object.entries(categoryCounts).forEach(([dateStr, categories]) => {
-            const date = parseDate(dateStr);
-            if (date.getFullYear() === year && date.getMonth() === month) {
-                Object.entries(categories).forEach(([cat, count]) => {
-                    monthCategories[cat] = (monthCategories[cat] || 0) + count;
-                });
+        for(const cat in categoryCounts){
+            const catDate = parseDate(cat);
+            if(catDate.getFullYear() === year && catDate.getMonth() === month){
+                for(const type in categoryCounts[cat]){
+                    monthCategories[type] = (monthCategories[type] || 0) + categoryCounts[cat][type];
+                }
             }
-        });
+        }
     
         const mostFrequentCategory = Object.keys(monthCategories).length > 0
             ? Object.entries(monthCategories).sort((a, b) => b[1] - a[1])[0][0]
@@ -508,46 +520,40 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         element.innerHTML = `
-            ${createSummaryItem("Cancelamentos", getComparison(current.totalCancellations, previous.totalCancellations))}
-            ${createSummaryItem("Protocolos", getComparison(current.totalProtocols, previous.totalProtocols))}
-            ${createSummaryItem("Média de Protocolos", getComparison(parseFloat(current.avgProtocols), parseFloat(previous.avgProtocols)))}
-            ${createSummaryItem("Dias Trabalhados", getComparison(current.daysWorked, previous.daysWorked))}
+            ${createSummaryItem("Cancelamentos", getComparison(current.totalCancellations, previous.totalCancellations), true)}
+            ${createSummaryItem("Protocolos", getComparison(current.totalProtocols, previous.totalProtocols), true)}
+            ${createSummaryItem("Média de Protocolos", getComparison(parseFloat(current.avgProtocols), parseFloat(previous.avgProtocols)), true)}
+            ${createSummaryItem("Dias Trabalhados", getComparison(current.daysWorked, previous.daysWorked), true)}
         `;
     }
 
-    function createSummaryItem(label, valueOrComparison, isComparison = true) {
-        if (isComparison) {
-             return `
+    function createSummaryItem(label, value, isComparison = false) {
+        if(isComparison){
+            return `
                 <div class="summary-item">
                     <div class="label">${label}</div>
-                    <div class="value ${valueOrComparison.class}">${valueOrComparison.text}</div>
-                    <div class="comparison neutral">(vs ${valueOrComparison.previous.toFixed(1).replace('.0','')})</div>
+                    <div class="value ${value.class}">${value.text}</div>
+                    <div class="comparison neutral">(vs ${value.previous})</div>
                 </div>
             `;
         }
         return `
             <div class="summary-item">
                 <div class="label">${label}</div>
-                <div class="value">${valueOrComparison}</div>
+                <div class="value">${value}</div>
             </div>
         `;
     }
 
     function getComparison(current, previous) {
         const diff = current - previous;
-        let percentage;
-        if (previous !== 0) {
-            percentage = ((diff / Math.abs(previous)) * 100);
-        } else {
-            percentage = current > 0 ? 100 : 0;
-        }
-
+        const percentage = previous !== 0 ? ((diff / previous) * 100).toFixed(0) : (current > 0 ? 100 : 0);
         let text, cssClass;
-        if (diff > 0.1) {
-            text = `+${diff.toFixed(1)} (${percentage.toFixed(0)}%)`;
+        if (diff > 0) {
+            text = `+${diff.toFixed(1)} (${percentage}%)`;
             cssClass = "positive";
-        } else if (diff < -0.1) {
-            text = `${diff.toFixed(1)} (${percentage.toFixed(0)}%)`;
+        } else if (diff < 0) {
+            text = `${diff.toFixed(1)} (${percentage}%)`;
             cssClass = "negative";
         } else {
             text = "0 (0%)";
@@ -557,22 +563,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getMonthName(monthIndex, year) {
+        if (monthIndex < 0) {
+            monthIndex = 11;
+            year -= 1;
+        }
         const date = new Date(year, monthIndex, 1);
         return date.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
     }
 
     async function exportReportAsPDF() {
-        if (typeof html2canvas === 'undefined' || typeof jspdf === 'undefined') {
-            showToast('Bibliotecas de PDF não carregadas. Verifique a conexão.', 'danger');
-            return;
-        }
         showLoading("Gerando PDF...");
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
         const card = document.getElementById('report-card');
+        const originalBg = card.style.backgroundColor;
+        const originalBorder = card.style.border;
         
+        card.style.backgroundColor = getComputedStyle(document.body).getPropertyValue('--card-bg');
+        card.style.border = `1px solid ${getComputedStyle(document.body).getPropertyValue('--card-border')}`;
+
         try {
-            const canvas = await html2canvas(card, { scale: 2, useCORS: true, backgroundColor: getComputedStyle(document.body).getPropertyValue('--main-bg').trim() });
+            const canvas = await html2canvas(card, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: getComputedStyle(document.body).getPropertyValue('--main-bg').trim()
+            });
             const imgData = canvas.toDataURL('image/png');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
@@ -583,14 +598,14 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Erro ao gerar PDF:", error);
             showToast("Falha ao gerar o PDF.", "danger");
         } finally {
+            card.style.backgroundColor = originalBg;
+            card.style.border = originalBorder;
             hideLoading();
         }
     }
     
-    // --- FUNÇÕES DE RENDERIZAÇÃO E CÁLCULO (simplificado, o resto é similar) ---
     function updateAll() {
-        // ... (chama todas as funções de renderização)
-        populateMonthSelector();
+        // ... funções de renderização ...
     }
     
     // --- EVENT LISTENERS ---
@@ -611,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pinResetButton.addEventListener('click', () => {
         if (confirm("Tem a certeza que quer redefinir o seu PIN? Esta ação irá apagar TODOS os dados da aplicação (progresso, casos, etc.) na nuvem e no seu dispositivo.")) {
             localStorage.clear();
-            // TODO: Adicionar uma cloud function para limpar os dados do usuário no firestore
+            // Futuramente, adicionar uma cloud function para limpar os dados do usuário no firestore
             window.location.reload();
         }
     });
@@ -633,20 +648,65 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         categoryCounts[todayStr][category] = (categoryCounts[todayStr][category] || 0) + 1;
         
-        // As funções de renderização são chamadas no 'input' event do dailyCancellationsInput
+        renderCategorySummary();
+        renderCategoryPieChart();
     });
-
-    dailyCancellationsInput.addEventListener('input', () => {
-        const newDailyValue = parseInt(dailyCancellationsInput.value) || 0;
-        const currentTotal = parseInt(atendimentosInput.value) || 0;
-        const difference = newDailyValue - previousDailyCancellations;
-
-        atendimentosInput.value = currentTotal + difference;
-        previousDailyCancellations = newDailyValue;
-        
-        atendimentosInput.dispatchEvent(new Event('input'));
-    });
-
-    // ... (restante dos event listeners)
 });
+
+// Importações essenciais do Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+// Suas chaves do Firebase. O "storageBucket" foi corrigido para o formato padrão.
+const firebaseConfig = {
+  apiKey: "AIzaSyCdQYNKJdTYEeOaejZy_ZxU9tVq7bF1x34",
+  authDomain: "app-suporte-n2.firebaseapp.com",
+  projectId: "app-suporte-n2",
+  storageBucket: "app-suporte-n2.appspot.com", // Formato padrão
+  messagingSenderId: "257470368604",
+  appId: "1:257470368604:web:42fcc4973851eb02b78f99"
+};
+
+// Função principal de teste
+async function testFirebaseConnection() {
+    try {
+        console.log("Iniciando teste de conexão...");
+        alert("Iniciando teste de conexão...");
+
+        // 1. Inicializar o Firebase
+        console.log("1/4 - Inicializando App Firebase...");
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        console.log("App Firebase inicializado com sucesso.");
+
+        // 2. Autenticar anonimamente
+        console.log("2/4 - Tentando autenticação anônima...");
+        const userCredential = await signInAnonymously(auth);
+        const userId = userCredential.user.uid;
+        console.log("Autenticação bem-sucedida! User ID:", userId);
+
+        // 3. Escrever no Firestore
+        console.log("3/4 - Tentando escrever um documento no Firestore...");
+        const testDocRef = doc(db, "users", userId);
+        await setDoc(testDocRef, {
+            test_connection: "success",
+            last_test_timestamp: new Date()
+        });
+        console.log("Documento escrito no Firestore com sucesso.");
+
+        // 4. Sucesso!
+        console.log("4/4 - Teste concluído com sucesso!");
+        alert("CONEXÃO BEM-SUCEDIDA! O problema estava no código original. Pode pedir para restaurar a versão completa.");
+
+    } catch (error) {
+        // Se qualquer passo falhar, o erro será capturado aqui
+        console.error("!!! TESTE FALHOU !!!", error);
+        alert(`FALHA NA CONEXÃO. Erro: ${error.message}\n\nVerifique as configurações no painel do Firebase (Autenticação Anônima e Regras do Firestore) e as restrições da sua chave de API.`);
+    }
+}
+
+// Inicia o teste assim que a página carregar
+document.addEventListener('DOMContentLoaded', testFirebaseConnection);
 

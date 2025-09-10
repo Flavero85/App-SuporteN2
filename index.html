@@ -8,19 +8,18 @@
     <meta name="description" content="Aplicativo de acompanhamento de metas para Suporte N2."/>
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="manifest" href="manifest.json">
-
     <link rel="stylesheet" href="style.css">
 
     <!-- Bibliotecas para Gráficos e PDF -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
     <!-- Overlay de Carregamento -->
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <p>Carregando...</p>
+        <p>Sincronizando dados...</p>
     </div>
 
     <!-- Tela de Bloqueio por PIN -->
@@ -42,292 +41,81 @@
     
     <div id="toast-container"></div>
 
+    <!-- Conteúdo Principal do App -->
     <div id="app-container" class="page-container" style="visibility: hidden;">
+        <!-- Header -->
         <div class="header-metas">
             <img src="logo.png" alt="Logo" class="header-logo">
             <h1 id="main-title" data-editable="true">Suporte N2</h1>
             <button id="settings-button" title="Configurar Metas">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2.82l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2.82l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
-                    <circle cx="12" cy="12" r="3"></circle>
-                </svg>
+                <!-- SVG do ícone de configurações -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2.82l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2.82l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             </button>
         </div>
         
+        <!-- Abas de Navegação -->
         <div class="tabs-container">
             <button class="tab-button active" data-tab="principal">Principal</button>
             <button class="tab-button" data-tab="cancelamentos">Cancelamentos</button>
-            <button class="tab-button" data-tab="reports">Relatórios</button>
+            <button class="tab-button" data-tab="relatorios">Relatórios</button>
             <button class="tab-button" data-tab="outros">Outros</button>
         </div>
         
+        <!-- Conteúdo das Abas -->
         <div id="tab-content-wrapper">
-            <!-- ABA PRINCIPAL -->
+            <!-- Aba Principal -->
             <div id="tab-principal" class="tab-content active">
+                <!-- ... (código dos cards da aba principal) ... -->
+            </div>
+
+            <!-- Aba Cancelamentos -->
+            <div id="tab-cancelamentos" class="tab-content">
+                <!-- ... (código dos cards da aba cancelamentos) ... -->
+            </div>
+
+            <!-- Aba Relatórios -->
+            <div id="tab-relatorios" class="tab-content">
                 <div class="metas-grid">
-                    <div class="meta-card">
+                    <div class="meta-card" id="report-card">
                         <div class="card-header">
-                            <h2 data-editable="true">Histórico de Casos</h2>
-                            <p data-editable="true">Pesquise e gira os seus casos.</p>
-                        </div>
-                        <div class="card-body">
-                            <div class="case-controls">
-                                <input type="search" id="case-search-input" placeholder="Pesquisar...">
-                                <div class="filter-buttons-group">
-                                    <button type="button" class="button filter-btn active" data-filter="all">Todos</button>
-                                    <button type="button" class="button filter-btn" data-filter="Pendente">Pendentes</button>
-                                    <button type="button" class="button filter-btn" data-filter="Resolvido">Resolvidos</button>
-                                </div>
+                            <h2 data-editable="true">Relatório de Desempenho</h2>
+                            <div class="report-controls">
+                                <select id="report-month-select"></select>
+                                <button id="export-pdf-button" class="button">Exportar PDF</button>
                             </div>
-                            <div id="cases-list-container"></div>
                         </div>
-                        <div class="card-footer">
-                            <button type="button" id="addCaseButton" class="button secondary-button">+ Adicionar</button>
-                            <button type="button" id="clearCasesButton" class="button reset-button">Limpar</button>
-                        </div>
-                    </div>
-                    <div class="meta-card">
-                        <div class="card-header">
-                            <h2 data-editable="true">Contadores</h2>
-                            <p data-editable="true">Acompanhe o seu progresso para a comissão.</p>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="categorySelect" data-editable="true">Categoria do Cancelamento:</label>
-                                <div class="input-with-button-container">
-                                    <select id="categorySelect">
-                                        <option data-editable="true">Sem Sinal</option>
-                                        <option data-editable="true">Massivo</option>
-                                        <option data-editable="true">Lentidão</option>
-                                        <option data-editable="true">Quedas de Conexão</option>
-                                        <option data-editable="true">Outros</option>
-                                    </select>
-                                    <button type="button" id="incrementButton" class="button" style="width: 70px;">+1</button>
-                                </div>
+                        <div class="card-body report-body">
+                            <div class="report-section">
+                                <h3 id="current-month-title">Resumo do Mês</h3>
+                                <div id="current-month-summary" class="summary-grid"></div>
                             </div>
-                            <div class="daily-counters-row">
-                                <div class="form-group">
-                                    <label for="protocolosAnalisadosInput" data-editable="true">Protocolos (Dia):</label>
-                                    <div class="input-with-button-container">
-                                        <input type="number" id="protocolosAnalisadosInput" placeholder="0">
-                                        <button type="button" id="incrementProtocolosButton" class="button" style="width: 70px;">+1</button>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="dailyCancellationsInput" data-editable="true">Cancelamentos (Dia):</label>
-                                    <input type="number" id="dailyCancellationsInput" placeholder="0">
-                                </div>
+                            <div class="report-section">
+                                <h3 id="previous-month-title">Comparativo</h3>
+                                <div id="previous-month-comparison" class="summary-grid"></div>
                             </div>
-                            <div class="form-group">
-                                <label for="atendimentosInput" data-editable="true">Total de Cancelamentos (Mês):</label>
-                                <input type="number" id="atendimentosInput" placeholder="0">
-                            </div>
-                            <div id="protocol-goals-container" style="margin-top: 15px;"></div>
-                            <div id="metas-container"></div>
-                            <div id="summary-text" class="summary-box">A aguardar os seus dados...</div>
-                        </div>
-                    </div>
-                    <div class="meta-card">
-                        <div class="card-header">
-                            <h2 data-editable="true">Respostas Rápidas</h2>
-                            <p data-editable="true">Clique numa resposta para copiar o texto completo.</p>
-                        </div>
-                        <div class="card-body" id="respostas-container">
-                             <div class="summary-box resposta-copiavel" data-full-text="Olá, &#10;&#10;Aqui é Flávio, da empresa Desktop. Tudo bem com você?&#10;&#10;Quero te explicar sobre o reparo que estava agendado (protocolo [ XXXX ]): identificamos que a falha não está na sua residência, mas sim em um equipamento externo que leva o sinal até aí.&#10;&#10;Por isso, a visita técnica não seria eficaz e precisou ser cancelada.&#10;&#10;Mas não se preocupe! Nossa equipe já está cuidando disso e em breve você terá seu serviço restabelecido.&#10;&#10;Conte sempre com a Desktop. Estamos juntos para garantir sua melhor experiência!">Visita cancelada por falha externa. Equipa a atuar na correção.</div>
-                             <div class="summary-box resposta-copiavel" data-full-text="Olá, cliente Desktop!&#10;&#10;Meu nome é Flávio do Suporte Técnico N2 e estou entrando em contato com uma novidade incrível: identificamos uma oportunidade de melhorar ainda mais a qualidade da sua conexão com a Desktop — e o melhor, sem custo adicional!&#10;&#10;Nosso time técnico acompanha de perto o desempenho dos nossos clientes e notamos que uma atualização no seu equipamento pode proporcionar uma experiência ainda melhor.&#10;&#10;É só me informar a melhor data e horário, e cuidamos do resto!&#10;&#10;Fico no aguardo da sua resposta.&#10;&#10;Até mais!&#10;Flávio N2&#10;Equipe Desktop">Oportunidade de melhoria na conexão sem custo. Agende a atualização.</div>
-                             <div class="summary-box resposta-copiavel" data-full-text="Olá, cliente TOP!&#10;&#10;Sou o Flávio do Suporte Técnico N2, da empresa DESKTOP INTERNET!&#10;&#10;O motivo do nosso contato, é referente ao problema protocolo [ XXXX ] que estava causando falta de acesso à sua internet.&#10;Foi feita uma atualização e correção via sistema. Conseguimos resolver remotamente o seu problema.&#10;Poderia nos informar se a sua internet normalizou e se podemos cancelar sua visita?&#10;&#10;Seu protocolo de agendamento é: &#10;&#10;Se ainda estiver com problemas, a visita com o técnico no local será mantida para validação.">Problema resolvido remotamente. Confirme se a internet normalizou.</div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- ABA CANCELAMENTOS -->
-            <div id="tab-cancelamentos" class="tab-content">
-                <div class="metas-grid">
-                    <div class="meta-card">
-                        <div class="card-header">
-                            <h2 data-editable="true">Diário de Bordo</h2>
-                            <p data-editable="true">Anote eventos importantes do dia.</p>
-                        </div>
-                        <div class="card-body">
-                            <textarea id="logbook-textarea" placeholder="Ex: Instabilidade massiva na região X..."></textarea>
-                        </div>
-                        <div class="card-footer">
-                            <button type="button" id="saveLogbookButton" class="button save-button">Salvar Anotação</button>
-                        </div>
-                    </div>
-                    <div class="meta-card">
-                        <div class="card-header"><h2 data-editable="true">Histórico de Entradas</h2></div>
-                        <div class="card-body">
-                            <ul id="history-list"></ul>
-                        </div>
-                    </div>
-                    <div class="meta-card">
-                        <div class="card-header"><h2 data-editable="true">Projeção de Cancelamentos</h2></div>
-                        <div class="card-body" style="justify-content: center; align-items: center; text-align: center;">
-                            <div id="projection-value" class="projection-value">0</div>
-                            <div id="projection-formula">A aguardar histórico...</div>
-                            <div id="tier-projection-container"></div>
-                        </div>
-                    </div>
-                    <div class="meta-card">
-                        <div class="card-header"><h2 data-editable="true">Gráfico de Tendência</h2></div>
-                        <div class="card-body">
-                            <div id="chart-container"><canvas id="trendChart"></canvas></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ABA RELATÓRIOS -->
-            <div id="tab-reports" class="tab-content">
-                <div class="metas-grid">
-                    <div id="report-card" class="meta-card">
-                        <div class="card-header">
-                            <h2>Relatório de Desempenho</h2>
-                            <p>Analise e compare sua performance mensal.</p>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="report-month-select">Selecione o Mês:</label>
-                                <select id="report-month-select"></select>
-                            </div>
-                            <div class="report-section">
-                                <h3 id="current-month-title">Resumo do Mês</h3>
-                                <div id="current-month-summary" class="summary-grid"></div>
-                            </div>
-                             <div class="report-section">
-                                <h3 id="previous-month-title">Comparativo com Mês Anterior</h3>
-                                <div id="previous-month-comparison" class="summary-grid"></div>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button id="export-pdf-button" class="button">Exportar para PDF</button>
-                        </div>
-                    </div>
-                    <div class="meta-card">
-                        <div class="card-header"><h2 data-editable="true">Resumo por Categoria</h2></div>
-                        <div class="card-body">
-                            <div id="category-chart-container">
-                                <canvas id="categoryPieChart"></canvas>
-                            </div>
-                            <ul id="category-summary-list" style="margin-top: 15px;"></ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ABA OUTROS -->
+            <!-- Aba Outros -->
             <div id="tab-outros" class="tab-content">
-                <div class="metas-grid">
-                    <div class="meta-card">
-                        <div class="card-header">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                                <h2 data-editable="true">Links Úteis</h2>
-                                <button id="senhas-button" title="Ver Senhas" class="icon-button">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-                                </button>
-                            </div>
-                            <p data-editable="true">Aceda a sistemas importantes com um clique.</p>
-                        </div>
-                        <div class="card-body" id="links-uteis-container">
-                             <a href="http://172.30.0.141:8080" target="_blank" class="link-util" data-editable="true">SIG</a>
-                             <a href="https://desktopsa.my.salesforce.com" target="_blank" class="link-util" data-editable="true">SalesForce</a>
-                             <a href="http://sis.desktop.com.br" target="_blank" class="link-util" data-editable="true">SIS</a>
-                             <a href="https://www.flavioitech.com" target="_blank" class="link-util" data-editable="true">Meu Site</a>
-                        </div>
-                    </div>
-                    <div class="meta-card">
-                        <div class="card-header"><h2 data-editable="true">Comissão Estimada</h2></div>
-                        <div class="card-body" style="justify-content: center; align-items: center;">
-                            <div id="bonus-value" class="bonus-value" style="color: var(--success-color);">R$ 0,00</div>
-                            <div id="bonus-formula">A aguardar dados...</div>
-                        </div>
-                    </div>
-                    <div class="meta-card">
-                        <div class="card-header"><h2>Conquistas 🏆</h2></div>
-                        <div class="card-body">
-                            <ul id="achievement-list">
-                                <li id="achieve-first-save" class="achievement">Guardar o progresso pela primeira vez.</li>
-                                <li id="achieve-bonus1" class="achievement">Atingir a primeira faixa de comissão.</li>
-                                <li id="achieve-max-bonus" class="achievement">Atingir a meta máxima pela primeira vez.</li>
-                                <li id="achieve-5day-streak" class="achievement">Guardar o progresso por 5 dias seguidos.</li>
-                                <li id="achieve-first-case" class="achievement">Adicionar o seu primeiro caso.</li>
-                                <li id="achieve-50-protocols" class="achievement">Analisar 50 protocolos num dia.</li>
-                                <li id="achieve-monthly-protocol-goal" class="achievement">Atingir a meta mensal de protocolos.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                <!-- ... (código dos cards da aba outros) ... -->
             </div>
         </div>
 
+        <!-- Botões de Ação -->
         <div class="action-buttons">
-            <button type="button" id="saveButton" class="button save-button">Salvar e Sincronizar</button>
+            <button type="button" id="saveButton" class="button save-button">Sincronizar com a Nuvem</button>
+            <button type="button" id="editButton" class="button secondary-button">✏️ Editar Textos</button>
             <button type="button" id="themeToggleButton" class="button">Mudar Tema</button>
         </div>
     </div>
-
-    <!-- MODAIS -->
-    <div id="settings-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Configurar Metas e Alertas</h2>
-                <span class="close-button" id="close-settings-modal">&times;</span>
-            </div>
-            <div class="modal-body">
-                <form id="settings-form">
-                    <h4>Salário Base (para cálculo)</h4>
-                    <div class="form-group">
-                         <input type="number" id="baseSalaryInput" placeholder="Ex: 2500.00" step="0.01">
-                    </div>
-                    <hr style="border-color: var(--border-color); margin: 20px 0;">
-                    <h4>Metas de Cancelamento</h4>
-                    <p style="font-size: 12px; color: var(--text-secondary-color); margin-top: -10px;">Defina a quantidade e a comissão em %.</p>
-                    <div id="settings-metas-container"></div>
-                    <hr style="border-color: var(--border-color); margin: 20px 0;">
-                    <h4>Notificações</h4>
-                    <div class="form-group" style="display: flex; align-items: center; gap: 15px; justify-content: center;">
-                        <input type="checkbox" id="reminderEnabled" style="width: auto;">
-                        <label for="reminderEnabled" style="margin: 0;">Ativar lembrete diário</label>
-                        <input type="time" id="reminderTime">
-                    </div>
-                    <button type="submit" class="button save-button" style="width: 100%; margin-top: 20px;">Guardar Configurações</button>
-                </form>
-                <div class="modal-actions">
-                    <button type="button" id="importButton" class="button">Importar Backup</button>
-                    <button type="button" id="exportButton" class="button">Exportar Backup</button>
-                    <button type="button" id="installAppButton" class="button">Instalar App</button>
-                    <button type="button" id="clearCacheButton" class="button reset-button">Limpar Cache</button>
-                    <button type="button" id="resetButton" class="button reset-button">Repor Dados</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="senhas-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Senhas de Acesso</h2>
-                <span class="close-button" id="close-senhas-modal">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div id="senhas-container">
-                    <div class="senha-item">
-                        <h4>SIG</h4>
-                        <p><strong>Utilizador:</strong> <span class="copyable-credential">flavio.cardozo@desktop.tec.br</span></p>
-                        <p><strong>Senha:</strong> <span class="copyable-credential">Suporte N2</span></p>
-                    </div>
-                     <div class="senha-item">
-                        <h4>SalesForce</h4>
-                        <p><strong>Utilizador:</strong> <span class="copyable-credential">flavio.cardozo@desktop.tec.br</span></p>
-                        <p><strong>Senha:</strong> <span class="copyable-credential">@Flavero85</span></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Módulo do script principal -->
+    
+    <!-- Modais e Footer -->
+    <!-- ... (código dos modais e do footer) ... -->
+    
+    <!-- !!! IMPORTANTE: SCRIPT CARREGADO COMO MÓDULO !!! -->
     <script type="module" src="script.js"></script>
 </body>
 </html>

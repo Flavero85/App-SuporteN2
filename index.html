@@ -833,7 +833,7 @@
                             <div id="daily-summary-cases-list"></div>
                         </div>
                         <div class="card-footer">
-                             <button type="button" id="dailySummaryClearButton" class="button reset-button">Limpar Resumo</button>
+                             <button type="button" id="dailySummaryClearButton" class="button reset-button">Limpar Anotação</button>
                             <button type="button" id="dailySummarySaveButton" class="button save-button">Salvar</button>
                         </div>
                     </div>
@@ -1465,23 +1465,38 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const clearDailySummary = () => {
         vibrate();
-        if (confirm('Tem a certeza que quer limpar as anotações e casos de hoje?')) {
+        if (confirm('Tem a certeza que quer limpar a anotação do diário de bordo de hoje? Esta ação não pode ser desfeita.')) {
             const today = getTodayDateString();
-            // Limpa logbook
+            
+            // Limpa apenas o logbook do dia
             logbookTextarea.value = '';
             delete dailyLogbook[today];
             localStorage.setItem('dailyLogbook', JSON.stringify(dailyLogbook));
-
-            // Limpa casos de hoje
-            allCases = allCases.filter(c => c.date !== today);
-            saveCases();
             
-            updateAll();
-            showToast('Resumo do dia limpo!', 'danger');
+            updateAll(); // Atualiza a UI, incluindo o card de resumo
+            showToast('Anotação do dia limpa!', 'danger');
         }
     };
 
     // --- FUNÇÕES PRINCIPAIS DE RENDERIZAÇÃO E CÁLCULO ---
+    const updateDailyMission = () => {
+        const protocols = parseInt(protocolosAnalisadosInput.value) || 0;
+        const savedToday = history.some(h => h.date === getTodayDateString());
+        const dailyCancellations = parseInt(dailyCancellationsInput.value) || 0;
+        const casesAddedToday = allCases.filter(c => c.date === getTodayDateString()).length;
+
+        const missions = [
+            { id: 'mission-protocols', text: `Analisar ${DAILY_PROTOCOL_GOAL} protocolos (${protocols}/${DAILY_PROTOCOL_GOAL})`, completed: protocols >= DAILY_PROTOCOL_GOAL },
+            { id: 'mission-daily-cancellations', text: `Registar 6 cancelamentos hoje (${dailyCancellations}/6)`, completed: dailyCancellations >= 6 },
+            { id: 'mission-copy-responses', text: `Copiar 20 respostas (${dailyCopyCount}/20)`, completed: dailyCopyCount >= 20 },
+            { id: 'mission-new-cases', text: `Adicionar 3 novos casos (${casesAddedToday}/3)`, completed: casesAddedToday >= 3 },
+            { id: 'mission-save', text: 'Guardar o progresso de hoje', completed: savedToday }
+        ];
+
+        dailyMissionList.innerHTML = missions.map(mission => 
+            `<li id="${mission.id}" class="${mission.completed ? 'completed' : ''}">${mission.text}</li>`
+        ).join('');
+    };
     const renderAtendimentoMetas = () => {
         metasContainer.innerHTML = '';
         metas.sort((a, b) => a.target - b.target).forEach(meta => {
@@ -1985,6 +2000,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 allCases = allCases.filter(c => c.id !== caseId);
                 renderCases(document.querySelector('.filter-btn.active').dataset.filter, caseSearchInput.value);
                 renderDailySummary();
+                updateDailyMission();
                 vibrate();
             }
         }
@@ -2006,10 +2022,8 @@ document.addEventListener('DOMContentLoaded', () => {
              allCases[caseIndex].status = target.value;
              usedStatuses.add(target.value);
              localStorage.setItem('usedStatuses', JSON.stringify(Array.from(usedStatuses)));
-             // Re-render para atualizar a cor do status
              renderCases(document.querySelector('.filter-btn.active').dataset.filter, caseSearchInput.value);
         }
-        // Atualiza o resumo e as missões em tempo real
         renderDailySummary();
         updateDailyMission();
     });
@@ -2037,6 +2051,7 @@ document.addEventListener('DOMContentLoaded', () => {
             allCases = [];
             renderCases();
             renderDailySummary();
+            updateDailyMission();
             showToast('Todos os casos foram excluídos!', 'danger');
         }
     });
@@ -2044,7 +2059,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveCasesButton.addEventListener('click', () => {
         vibrate();
         saveCases();
-        updateAll(); // Garante que tudo seja atualizado ao salvar
+        updateAll();
         showToast('Lista de casos salva com sucesso!', 'success');
     });
 
@@ -2269,5 +2284,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
 

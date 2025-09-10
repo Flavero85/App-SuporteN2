@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- SELETORES DE ELEMENTOS ---
     const loadingOverlay = document.getElementById('loading-overlay');
+    const appContainer = document.getElementById('app-container');
     const dailyCancellationsInput = document.getElementById('dailyCancellationsInput');
     const atendimentosInput = document.getElementById('atendimentosInput');
     const protocolosAnalisadosInput = document.getElementById('protocolosAnalisadosInput');
@@ -84,14 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabContentWrapper = document.getElementById('tab-content-wrapper');
     const tabsContainer = document.querySelector('.tabs-container');
     const tabButtons = document.querySelectorAll('.tab-button');
-    const pinLockScreen = document.getElementById('pin-lock-screen');
-    const pinContainer = pinLockScreen.querySelector('.pin-container');
-    const pinTitle = document.getElementById('pin-title');
-    const pinSubtitle = document.getElementById('pin-subtitle');
-    const pinInputs = pinLockScreen.querySelectorAll('.pin-digit');
-    const pinError = document.getElementById('pin-error');
-    const appContainer = document.getElementById('app-container');
-    const pinResetButton = document.getElementById('pin-reset-button');
     const reportMonthSelect = document.getElementById('report-month-select');
     const exportPdfButton = document.getElementById('export-pdf-button');
     const currentMonthSummaryEl = document.getElementById('current-month-summary');
@@ -110,12 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let dailyCopyCount = 0;
     let touchStartX = 0;
     let touchEndX = 0;
-    let pinSetupStep = 1;
-    let firstPin = "";
-    let inactivityTimer;
 
     // --- CONSTANTES ---
-    const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutos
     const DAILY_PROTOCOL_GOAL = 50;
     const MONTHLY_PROTOCOL_GOAL = 1300;
     const TOTAL_WORKING_DAYS = 26;
@@ -169,7 +158,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user) {
             userId = user.uid;
             console.log("Usuário autenticado:", userId);
-            checkPin();
+            await loadDataFromFirebase();
+            appContainer.style.visibility = 'visible'; // Mostra o app após carregar dados
         } else {
             try {
                 await signInAnonymously(auth);
@@ -179,104 +169,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-
-    // --- LÓGICA DE PIN E INATIVIDADE ---
-    function lockApp() {
-        pinLockScreen.style.visibility = 'visible';
-        pinLockScreen.style.opacity = '1';
-        appContainer.style.visibility = 'hidden';
-        clearTimeout(inactivityTimer);
-        clearPinInputs();
-        if(pinInputs.length > 0) pinInputs[0].focus();
-    }
-
-    function resetInactivityTimer() {
-        clearTimeout(inactivityTimer);
-        inactivityTimer = setTimeout(lockApp, INACTIVITY_TIMEOUT);
-        localStorage.setItem('lastActiveTimestamp', Date.now());
-    }
-
-    async function unlockApp() {
-        await loadDataFromFirebase(); // GARANTE QUE OS DADOS SÃO CARREGADOS PRIMEIRO
-        pinLockScreen.style.opacity = '0';
-        pinLockScreen.style.visibility = 'hidden';
-        appContainer.style.visibility = 'visible';
-        
-        resetInactivityTimer();
-        ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'].forEach(event => {
-            window.addEventListener(event, resetInactivityTimer, { passive: true });
-        });
-    }
-    
-    async function handlePinInput() {
-        const pin = Array.from(pinInputs).map(input => input.value).join('');
-        if (pin.length !== 4) return;
-
-        const storedPin = localStorage.getItem('appPin');
-
-        if (!storedPin) {
-            if (pinSetupStep === 1) {
-                firstPin = pin;
-                pinSetupStep = 2;
-                pinTitle.textContent = "Confirme o seu PIN";
-                pinSubtitle.textContent = "Introduza novamente o PIN de 4 dígitos.";
-                clearPinInputs();
-            } else {
-                if (pin === firstPin) {
-                    localStorage.setItem('appPin', pin);
-                    showToast('PIN criado com sucesso!', 'success');
-                    await unlockApp();
-                } else {
-                    pinError.textContent = "Os PINs não coincidem. Tente novamente.";
-                    pinContainer.classList.add('shake');
-                    setTimeout(() => pinContainer.classList.remove('shake'), 500);
-                    clearPinInputs();
-                    pinSetupStep = 1;
-                    pinTitle.textContent = "Criar PIN de Acesso";
-                    pinSubtitle.textContent = "Crie um PIN de 4 dígitos para proteger seus dados.";
-                    firstPin = "";
-                }
-            }
-        } else {
-            if (pin === storedPin) {
-                await unlockApp();
-            } else {
-                pinError.textContent = "PIN incorreto. Tente novamente.";
-                pinContainer.classList.add('shake');
-                setTimeout(() => pinContainer.classList.remove('shake'), 500);
-                clearPinInputs();
-            }
-        }
-    }
-
-    function clearPinInputs() {
-        pinInputs.forEach(input => input.value = '');
-        if(pinInputs.length > 0) pinInputs[0].focus();
-        pinError.textContent = "";
-    }
-    
-    async function checkPin() {
-        const storedPin = localStorage.getItem('appPin');
-        
-        if (!storedPin) {
-            pinTitle.textContent = "Criar PIN de Acesso";
-            pinSubtitle.textContent = "Crie um PIN de 4 dígitos para proteger seus dados.";
-            pinResetButton.style.display = 'none';
-            lockApp();
-            return;
-        }
-
-        pinTitle.textContent = "Introduza o seu PIN";
-        pinSubtitle.textContent = "Introduza o seu PIN de 4 dígitos para aceder.";
-        pinResetButton.style.display = 'block';
-
-        const lastActive = parseInt(localStorage.getItem('lastActiveTimestamp')) || 0;
-        if (Date.now() - lastActive > INACTIVITY_TIMEOUT) {
-            lockApp();
-        } else {
-            await unlockApp();
-        }
-    }
 
     // --- SINCRONIZAÇÃO COM FIREBASE ---
     async function loadDataFromFirebase() {
@@ -308,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast("Falha ao carregar dados da nuvem.", "danger");
         } finally {
             loadLocalData();
-            updateAll(); // Atualiza a UI DEPOIS de carregar os dados
+            updateAll();
             hideLoading();
         }
     }
@@ -339,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // --- DADOS LOCAIS ---
+    // --- DADOS LOCAIS (PROGRESSO DO DIA) ---
     function loadLocalData() {
         const todayStr = getTodayDateString();
         const lastUsedDate = localStorage.getItem('lastUsedDate');
@@ -395,219 +287,304 @@ document.addEventListener('DOMContentLoaded', () => {
 
         unlockAchievement('achieve-first-save', 'Primeiro progresso sincronizado!');
     }
-
-    // --- MÓDULO DE RELATÓRIOS (Sem alterações) ---
-    // (Código de relatórios aqui)
-    function populateMonthSelector() {
-        const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-        const availableMonths = new Set();
-        history.forEach(h => {
-            const date = parseDate(h.date);
-            const monthKey = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`;
-            availableMonths.add(monthKey);
-        });
-
-        if (availableMonths.size === 0) {
-            const now = new Date();
-            const monthKey = `${now.getFullYear()}-${String(now.getMonth()).padStart(2, '0')}`;
-            availableMonths.add(monthKey);
-        }
-
-        const sortedMonths = Array.from(availableMonths).sort().reverse();
-        reportMonthSelect.innerHTML = sortedMonths.map(key => {
-            const [year, month] = key.split('-');
-            const monthName = monthNames[parseInt(month)];
-            return `<option value="${key}">${monthName} de ${year}</option>`;
-        }).join('');
-        generateReport();
-    }
-    
-    function generateReport() {
-        const selectedKey = reportMonthSelect.value;
-        if (!selectedKey) {
-            currentMonthSummaryEl.innerHTML = "<p>Nenhum dado para o período selecionado.</p>";
-            previousMonthComparisonEl.innerHTML = "";
-            return;
-        }
-    
-        const [year, month] = selectedKey.split('-').map(Number);
-    
-        const currentMonthData = getMonthData(year, month);
-        const previousMonthData = getMonthData(year, month - 1);
-    
-        currentMonthTitleEl.textContent = `Resumo de ${reportMonthSelect.options[reportMonthSelect.selectedIndex].text}`;
-        previousMonthTitleEl.textContent = `Comparativo com ${getMonthName(month - 1, year)}`;
-    
-        renderReportSection(currentMonthSummaryEl, currentMonthData);
-        renderComparisonSection(previousMonthComparisonEl, currentMonthData, previousMonthData);
-    }
-    
-    function getMonthData(year, month) {
-        let prevYear = year;
-        let prevMonth = month - 1;
-        if (prevMonth < 0) {
-            prevMonth = 11;
-            prevYear -= 1;
-        }
-
-        const monthHistory = history.filter(h => {
-            const date = parseDate(h.date);
-            return date.getFullYear() === year && date.getMonth() === month;
-        });
-    
-        if (monthHistory.length === 0) return { totalCancellations: 0, totalProtocols: 0, avgProtocols: 0, mostFrequentCategory: "N/A", daysWorked: 0 };
-    
-        const lastDayOfMonth = monthHistory[monthHistory.length - 1];
-        
-        const historyOfPreviousMonth = history.filter(h => {
-            const date = parseDate(h.date);
-            return date.getFullYear() === prevYear && date.getMonth() === prevMonth;
-        });
-
-        const lastDayOfPreviousMonth = historyOfPreviousMonth.length > 0 ? historyOfPreviousMonth[historyOfPreviousMonth.length-1] : {atendimentos: 0};
-        
-        const totalCancellations = lastDayOfMonth.atendimentos - lastDayOfPreviousMonth.atendimentos;
-        const totalProtocols = monthHistory.reduce((sum, h) => sum + h.protocols, 0);
-        const daysWorked = monthHistory.length;
-        const avgProtocols = daysWorked > 0 ? (totalProtocols / daysWorked).toFixed(1) : 0;
-    
-        const monthCategories = { ...categoryCounts }; // Simplificado para usar todas as categorias
-        const mostFrequentCategory = Object.keys(monthCategories).length > 0
-            ? Object.entries(monthCategories).sort((a, b) => b[1] - a[1])[0][0]
-            : "N/A";
-    
-        return { totalCancellations, totalProtocols, avgProtocols, mostFrequentCategory, daysWorked };
-    }
-    
-    function renderReportSection(element, data) {
-        element.innerHTML = `
-            ${createSummaryItem("Cancelamentos no Mês", data.totalCancellations)}
-            ${createSummaryItem("Protocolos no Mês", data.totalProtocols)}
-            ${createSummaryItem("Média Diária de Protocolos", data.avgProtocols)}
-            ${createSummaryItem("Dias Trabalhados", data.daysWorked)}
-            ${createSummaryItem("Categoria Frequente", data.mostFrequentCategory, false)}
-        `;
-    }
-
-    function renderComparisonSection(element, current, previous) {
-         if (previous.daysWorked === 0) {
-            element.innerHTML = "<p>Sem dados do mês anterior para comparar.</p>";
-            return;
-        }
-        element.innerHTML = `
-            ${createSummaryItem("Cancelamentos", getComparison(current.totalCancellations, previous.totalCancellations), true)}
-            ${createSummaryItem("Protocolos", getComparison(current.totalProtocols, previous.totalProtocols), true)}
-            ${createSummaryItem("Média de Protocolos", getComparison(current.avgProtocols, previous.avgProtocols), true)}
-            ${createSummaryItem("Dias Trabalhados", getComparison(current.daysWorked, previous.daysWorked), true)}
-        `;
-    }
-
-    function createSummaryItem(label, value, isComparison = false) {
-        if(isComparison){
-            return `
-                <div class="summary-item">
-                    <div class="label">${label}</div>
-                    <div class="value ${value.class}">${value.text}</div>
-                    <div class="comparison neutral">(vs ${value.previous})</div>
-                </div>
-            `;
-        }
-        return `
-            <div class="summary-item">
-                <div class="label">${label}</div>
-                <div class="value">${value}</div>
-            </div>
-        `;
-    }
-
-    function getComparison(current, previous) {
-        const currentNum = parseFloat(current);
-        const previousNum = parseFloat(previous);
-        const diff = currentNum - previousNum;
-        let percentage = 0;
-        if (previousNum !== 0) {
-            percentage = (diff / previousNum) * 100;
-        } else if (currentNum > 0) {
-            percentage = 100;
-        }
-
-        let text, cssClass;
-        if (diff > 0) {
-            text = `+${diff.toFixed(1)} (${percentage.toFixed(0)}%)`;
-            cssClass = "positive";
-        } else if (diff < 0) {
-            text = `${diff.toFixed(1)} (${percentage.toFixed(0)}%)`;
-            cssClass = "negative";
-        } else {
-            text = "0 (0%)";
-            cssClass = "neutral";
-        }
-        return { text: text, class: cssClass, previous: previousNum.toFixed(1) };
-    }
-
-    function getMonthName(monthIndex, year) {
-        const date = new Date(year, monthIndex, 1);
-        return date.toLocaleString('pt-BR', { month: 'long' });
-    }
-
-    async function exportReportAsPDF() {
-        showLoading("Gerando PDF...");
-        const reportContent = document.getElementById('report-content');
-        const canvas = await html2canvas(reportContent, {
-            scale: 2,
-            backgroundColor: getComputedStyle(document.body).getPropertyValue('--main-bg').trim()
-        });
-        const imgData = canvas.toDataURL('image/png');
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-        
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        pdf.save(`relatorio_${reportMonthSelect.value}.pdf`);
-        hideLoading();
-    }
     
     // --- FUNÇÕES DE ATUALIZAÇÃO E RENDERIZAÇÃO ---
-    // (Omitido por brevidade - cole o resto das suas funções aqui)
     function updateAll() {
-        //...
+        updateMetasUI();
+        updateSummary();
+        updateCategorySummary();
+        updateCharts();
+        updateAchievements();
+        renderAllCases(allCases);
+        updateProtocolGoals();
+        updateDailyMission();
+        populateMonthSelector();
+        updateHistoryList();
+    }
+
+    function updateMetasUI() {
+        metasContainer.innerHTML = '';
+        metas.forEach(meta => {
+            const atingido = (parseInt(atendimentosInput.value) || 0) >= meta.target;
+            const progresso = Math.min(((parseInt(atendimentosInput.value) || 0) / meta.target) * 100, 100);
+
+            const metaEl = document.createElement('div');
+            metaEl.className = 'meta-item';
+            metaEl.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <span style="font-weight: bold;">Meta: ${meta.target} cancelamentos</span>
+                    <span style="color: ${atingido ? 'var(--success-color)' : 'var(--text-secondary-color)'}; font-size: 12px;">Prêmio: ${meta.reward}%</span>
+                </div>
+                <div class="progress-bar-background">
+                    <div class="progress-bar-fill ${atingido ? 'completed' : ''}" style="width: ${progresso}%;"></div>
+                </div>
+            `;
+            metasContainer.appendChild(metaEl);
+        });
+    }
+
+    function updateSummary() {
+        const totalAtendimentos = parseInt(atendimentosInput.value) || 0;
+        let bonusPercent = 0;
+        let nextMetaTarget = Infinity;
+        let nextMetaPercent = 0;
+
+        metas.sort((a,b) => a.target - b.target).forEach(meta => {
+            if (totalAtendimentos >= meta.target) {
+                bonusPercent = Math.max(bonusPercent, meta.reward);
+            } else if (meta.target < nextMetaTarget) {
+                nextMetaTarget = meta.target;
+                nextMetaPercent = meta.reward;
+            }
+        });
+
+        const bonusCalculado = (baseSalary * (bonusPercent / 100));
+        bonusValueEl.textContent = `R$ ${bonusCalculado.toFixed(2)}`;
+        bonusFormulaEl.textContent = `(${bonusPercent}% de R$ ${baseSalary.toFixed(2)})`;
+
+        if (nextMetaTarget !== Infinity) {
+            const faltam = nextMetaTarget - totalAtendimentos;
+            summaryText.innerHTML = `Você ganhou <strong>R$ ${bonusCalculado.toFixed(2)}</strong>. Faltam <strong>${faltam}</strong> para o próximo prêmio de <strong>${nextMetaPercent}%</strong>.`;
+            summaryText.className = 'summary-box';
+        } else {
+            summaryText.innerHTML = `Parabéns! Você atingiu a meta máxima e ganhou <strong>R$ ${bonusCalculado.toFixed(2)}</strong>!`;
+            summaryText.className = 'summary-box completed';
+        }
+        
+        if (totalAtendimentos >= 100) unlockAchievement('achieve-100-cancellations', 'Veterano: 100 cancelamentos no mês!');
+        if (totalAtendimentos >= 200) unlockAchievement('achieve-200-cancellations', 'Expert: 200 cancelamentos no mês!');
+        if (bonusPercent > 0) unlockAchievement('achieve-bonus1', 'Comissão desbloqueada!');
+        if (bonusPercent === Math.max(...metas.map(m => m.reward))) unlockAchievement('achieve-max-bonus', 'Meta máxima atingida!');
+    }
+    
+    function updateCategorySummary() {
+        categorySummaryList.innerHTML = '';
+        const sortedCategories = Object.entries(categoryCounts).sort((a,b) => b[1] - a[1]);
+        
+        if(sortedCategories.length === 0){
+            categorySummaryList.innerHTML = '<li>Nenhuma categoria registrada ainda.</li>';
+            return;
+        }
+
+        sortedCategories.forEach(([category, count]) => {
+            const li = document.createElement('li');
+            li.textContent = `${category}: ${count}`;
+            categorySummaryList.appendChild(li);
+        });
+        
+        if(Object.keys(categoryCounts).length >= 5) unlockAchievement('achieve-all-categories', 'Analista: Usou 5 categorias diferentes!');
+    }
+
+    function updateCharts() {
+        const labels = history.map(h => h.date);
+        const dailyData = history.map(h => h.dailyCancellations);
+        const protocolData = history.map(h => h.protocols);
+
+        if (trendChart) trendChart.destroy();
+        trendChart = new Chart(trendChartCanvas, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Cancelamentos por Dia',
+                    data: dailyData,
+                    borderColor: 'var(--primary-color)',
+                    tension: 0.2
+                }, {
+                    label: 'Protocolos por Dia',
+                    data: protocolData,
+                    borderColor: 'var(--info-color)',
+                    tension: 0.2
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const categoryLabels = Object.keys(categoryCounts);
+        const categoryData = Object.values(categoryCounts);
+        if (categoryPieChart) categoryPieChart.destroy();
+        categoryPieChart = new Chart(categoryPieChartCanvas, {
+            type: 'pie',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categoryData,
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    function updateProtocolGoals() {
+        const dailyCount = parseInt(protocolosAnalisadosInput.value) || 0;
+        const monthlyTotal = history.reduce((acc, curr) => acc + (curr.protocols || 0), 0);
+        
+        const dailyProgress = Math.min((dailyCount / DAILY_PROTOCOL_GOAL) * 100, 100);
+        const monthlyProgress = Math.min((monthlyTotal / MONTHLY_PROTOCOL_GOAL) * 100, 100);
+
+        protocolGoalsContainer.innerHTML = `
+            <div class="meta-item">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <span>Meta Diária: ${dailyCount}/${DAILY_PROTOCOL_GOAL}</span>
+                </div>
+                <div class="progress-bar-background">
+                    <div class="progress-bar-fill ${dailyCount >= DAILY_PROTOCOL_GOAL ? 'completed': ''}" style="width: ${dailyProgress}%;"></div>
+                </div>
+            </div>
+            <div class="meta-item">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <span>Meta Mensal: ${monthlyTotal}/${MONTHLY_PROTOCOL_GOAL}</span>
+                </div>
+                <div class="progress-bar-background">
+                    <div class="progress-bar-fill ${monthlyTotal >= MONTHLY_PROTOCOL_GOAL ? 'completed': ''}" style="width: ${monthlyProgress}%;"></div>
+                </div>
+            </div>
+        `;
+        if (dailyCount >= 50) unlockAchievement('achieve-50-protocols', 'Focado: 50 protocolos em um dia!');
+        if (monthlyTotal >= MONTHLY_PROTOCOL_GOAL) unlockAchievement('achieve-monthly-protocol-goal', 'Maratonista: Meta mensal de protocolos atingida!');
+    }
+    
+    function updateDailyMission() {
+        const dailyProtocols = parseInt(protocolosAnalisadosInput.value) || 0;
+        const missions = [
+            { text: `Analisar ${DAILY_PROTOCOL_GOAL} protocolos.`, completed: dailyProtocols >= DAILY_PROTOCOL_GOAL },
+            { text: 'Registrar pelo menos 1 caso.', completed: allCases.length > 0 },
+            { text: 'Salvar o progresso na nuvem.', completed: unlockedAchievements['achieve-first-save'] }
+        ];
+
+        dailyMissionList.innerHTML = missions.map(mission => 
+            `<li class="${mission.completed ? 'completed' : ''}">${mission.text}</li>`
+        ).join('');
+    }
+    
+    function updateHistoryList() {
+        historyListEl.innerHTML = [...history].reverse().map(h => 
+            `<li><strong>${h.date}:</strong> ${h.dailyCancellations} canc. / ${h.protocols} protoc.</li>`
+        ).join('');
+    }
+
+    // --- LÓGICA DE CONQUISTAS ---
+    function unlockAchievement(id, message) {
+        if (!unlockedAchievements[id]) {
+            unlockedAchievements[id] = true;
+            const achievementEl = document.getElementById(id);
+            if(achievementEl) achievementEl.classList.add('unlocked');
+            showToast(`🏆 ${message}`, 'gold');
+            vibrate();
+        }
+    }
+
+    function updateAchievements() {
+        for (const id in unlockedAchievements) {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('unlocked');
+        }
+    }
+    
+    // --- LÓGICA DE CASOS ---
+    function renderAllCases(casesToRender) {
+        casesListContainer.innerHTML = '';
+        if (casesToRender.length === 0) {
+            casesListContainer.innerHTML = '<p style="text-align:center; color: var(--text-secondary-color);">Nenhum caso registrado.</p>';
+            return;
+        }
+        casesToRender.forEach(caseData => {
+            const caseEl = createCaseElement(caseData);
+            casesListContainer.appendChild(caseEl);
+        });
+    }
+
+    function createCaseElement(caseData) {
+        const div = document.createElement('div');
+        div.className = 'case-entry';
+        div.dataset.id = caseData.id;
+        div.innerHTML = `
+            <div class="case-main-content">
+                <button class="expand-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div class="case-fields">
+                    <div class="field-group">
+                        <span class="status-indicator status-${caseData.status}"></span>
+                        <input type="text" value="${caseData.protocol}" placeholder="Protocolo" class="case-protocol-input" readonly>
+                        <button class="button copy-btn">Copiar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="case-details-content">
+                <select class="case-status-select">
+                    <option value="Pendente" ${caseData.status === 'Pendente' ? 'selected' : ''}>Pendente</option>
+                    <option value="Em-Andamento" ${caseData.status === 'Em-Andamento' ? 'selected' : ''}>Em Andamento</option>
+                    <option value="Resolvido" ${caseData.status === 'Resolvido' ? 'selected' : ''}>Resolvido</option>
+                </select>
+                <textarea class="case-details-textarea" placeholder="Detalhes...">${caseData.details}</textarea>
+                <div class="details-actions">
+                    <button class="button save-case-btn">Salvar</button>
+                    <button class="button reset-button delete-case-btn">Excluir</button>
+                </div>
+            </div>
+        `;
+        // Adicionar event listeners para os elementos do caso
+        return div;
     }
     
     // --- EVENT LISTENERS ---
-    pinInputs.forEach((input, index) => {
+    
+    // Listeners de input para atualização em tempo real
+    [dailyCancellationsInput, atendimentosInput, protocolosAnalisadosInput].forEach(input => {
         input.addEventListener('input', () => {
-            if (input.value && index < pinInputs.length - 1) {
-                pinInputs[index + 1].focus();
-            }
-            handlePinInput();
-        });
-        input.addEventListener('keydown', (e) => {
-            if (e.key === "Backspace" && !input.value && index > 0) {
-                pinInputs[index - 1].focus();
-            }
+            saveDailyState();
+            updateAll();
         });
     });
 
-    pinResetButton.addEventListener('click', () => {
-        if (confirm("Tem a certeza que quer redefinir o seu PIN? Esta ação irá apagar TODOS os dados da aplicação no seu dispositivo (NÃO afeta a nuvem).")) {
-            localStorage.clear();
-            window.location.reload();
-        }
+    incrementButton.addEventListener('click', () => {
+        const currentValue = parseInt(dailyCancellationsInput.value) || 0;
+        dailyCancellationsInput.value = currentValue + 1;
+        const category = categorySelect.value;
+        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+        saveDailyState();
+        updateAll();
+        vibrate();
     });
-    
-    saveButton.addEventListener('click', saveDataToFirebase);
-    reportMonthSelect.addEventListener('change', generateReport);
-    exportPdfButton.addEventListener('click', exportReportAsPDF);
+
+    incrementProtocolosButton.addEventListener('click', () => {
+        const currentValue = parseInt(protocolosAnalisadosInput.value) || 0;
+        protocolosAnalisadosInput.value = currentValue + 1;
+        saveDailyState();
+        updateAll();
+        vibrate();
+    });
+
+    // Modal de Configurações
     settingsButton.addEventListener('click', () => settingsModal.style.display = 'block');
     closeSettingsModal.addEventListener('click', () => settingsModal.style.display = 'none');
+    
+    // Modal de Senhas
+    senhasButton.addEventListener('click', () => senhasModal.style.display = 'block');
+    closeSenhasModal.addEventListener('click', () => senhasModal.style.display = 'none');
+
     window.addEventListener('click', (e) => {
         if (e.target == settingsModal) settingsModal.style.display = 'none';
         if (e.target == senhasModal) senhasModal.style.display = 'none';
     });
-    // Adicione AQUI o resto dos seus event listeners para que os botões funcionem
-});
 
-// AQUI DEVE ENTRAR O RESTO DO SEU CÓDIGO JS COM AS FUNÇÕES FALTANTES
-// (updateMetasUI, updateSummary, listeners dos botões, etc.)
+    // Abas
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTab = button.dataset.tab;
+            
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            button.classList.add('active');
+            document.getElementById(`tab-${targetTab}`).classList.add('active');
+        });
+    });
+
+    saveButton.addEventListener('click', saveDataToFirebase);
+    reportMonthSelect.addEventListener('change', generateReport);
+    exportPdfButton.addEventListener('click', exportReportAsPDF);
+});
 

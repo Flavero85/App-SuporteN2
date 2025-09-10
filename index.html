@@ -15,29 +15,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-    <!-- Tela de Bloqueio por PIN -->
-    <div id="pin-lock-screen">
-        <div class="pin-container">
-            <img src="logo.png" alt="Logo" class="pin-logo">
-            <h2 id="pin-title">Criar PIN de Acesso</h2>
-            <p id="pin-subtitle">Crie um PIN de 4 dígitos para proteger seus dados.</p>
-            <div id="pin-input-area" class="pin-input-area">
-                <input type="password" class="pin-digit" maxlength="1" inputmode="numeric">
-                <input type="password" class="pin-digit" maxlength="1" inputmode="numeric">
-                <input type="password" class="pin-digit" maxlength="1" inputmode="numeric">
-                <input type="password" class="pin-digit" maxlength="1" inputmode="numeric">
-            </div>
-            <p id="pin-error" class="pin-error-message"></p>
-            <button id="pin-reset-button" class="button reset-button" style="display: none;">Esqueci o PIN</button>
-        </div>
-    </div>
-    
     <div id="toast-container"></div>
     <div id="loading-overlay" class="loading-overlay">
         <div class="spinner"></div>
         <p>Sincronizando dados...</p>
     </div>
-
 
     <div id="app-container" class="page-container" style="visibility: hidden;">
         <div class="header-metas">

@@ -127,7 +127,10 @@ function main() {
         loadingOverlay.style.display = 'flex';
     }
     function hideLoading() {
-        loadingOverlay.style.display = 'none';
+        loadingOverlay.style.opacity = '0';
+        setTimeout(() => {
+            loadingOverlay.style.display = 'none';
+        }, 500);
         appContainer.style.visibility = 'visible';
     }
 
@@ -222,7 +225,8 @@ function main() {
         previousDailyCancellations = dailyCount;
         
         localStorage.setItem('lastUsedDate', todayStr);
-        atendimentosInput.value = history.find(h => h.date === todayStr)?.atendimentos || (history.length > 0 ? history[history.length-1].atendimentos : 0);
+        const lastHistoryEntry = history.length > 0 ? history[history.length - 1] : { atendimentos: 0 };
+        atendimentosInput.value = history.find(h => h.date === todayStr)?.atendimentos || lastHistoryEntry.atendimentos;
         baseSalaryInput.value = baseSalary > 0 ? baseSalary : '';
         reminderEnabledInput.checked = reminderSettings.enabled;
         reminderTimeInput.value = reminderSettings.time;
@@ -249,10 +253,18 @@ function main() {
         unlockAchievement('achieve-first-save', 'Primeiro progresso guardado!');
     }
     
-    // Todas as outras funções (renderização, relatórios, eventos) vão aqui...
-    // O código abaixo é a continuação do que está dentro da função 'main'
-
+    // --- EVENT LISTENERS ---
     saveButton.addEventListener('click', saveDataToFirebase);
-    //... e todos os outros event listeners.
+    // Adicione aqui todos os outros event listeners do seu aplicativo
+    // Exemplo:
+    incrementButton.addEventListener('click', () => {
+        // ...lógica...
+    });
+    
+    // Todas as outras funções (renderização, relatórios, etc.) vão aqui...
+    function updateAll() {
+        // ...código...
+    }
+    updateAll(); // Chame para renderizar o estado inicial
 }
 

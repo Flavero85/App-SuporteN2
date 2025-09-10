@@ -109,8 +109,10 @@ input, select, textarea {
 .tabs-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); overflow-x: auto; }
 .tab-button { padding: 10px 15px; cursor: pointer; background: none; border: none; color: var(--text-secondary-color); font-weight: bold; border-bottom: 3px solid transparent; transition: color 0.3s, border-color 0.3s; flex-shrink: 0; }
 .tab-button.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+#tab-content-wrapper { position: relative; overflow: hidden; }
 .tab-content { display: none; }
-.tab-content.active { display: block; }
+.tab-content.active { display: block; animation: fadeIn 0.5s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 .report-controls { display: flex; gap: 10px; margin-top: 10px; }
 .report-body { gap: 25px; }
@@ -132,4 +134,3 @@ input, select, textarea {
 #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .toast { background-color: var(--toast-bg); color: var(--toast-color, #fff); padding: 12px 20px; border-radius: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); opacity: 0; transform: translateY(20px); transition: opacity 0.3s, transform 0.3s; font-size: 14px; border: 1px solid var(--border-color); }
 .toast.show { opacity: 1; transform: translateY(0); }
-

@@ -4,15 +4,16 @@ import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gsta
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // --- INICIALIZAÇÃO DO FIREBASE ---
-// Configuração real do projeto Firebase
+// Configuração corrigida do seu projeto Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyCdNKJdTYEeOaejZy_ZxU9tVq7bF1x34",
+  apiKey: "AIzaSyCdQYNKJdTYEeOaejZy_ZxU9tVq7bF1x34",
   authDomain: "app-suporte-n2.firebaseapp.com",
   projectId: "app-suporte-n2",
-  storageBucket: "app-suporte-n2.firebasestorage.app",
+  storageBucket: "app-suporte-n2.appspot.com",
   messagingSenderId: "257470368604",
   appId: "1:257470368604:web:42fcc4973851eb02b78f99"
 };
+
 
 // Inicializa o Firebase e seus serviços
 const app = initializeApp(firebaseConfig);
@@ -263,6 +264,9 @@ document.addEventListener('DOMContentLoaded', () => {
         hideLoading();
         
         if (!storedPin) {
+            pinTitle.textContent = "Criar PIN de Acesso";
+            pinSubtitle.textContent = "Crie um PIN de 4 dígitos para proteger seus dados.";
+            pinResetButton.style.display = 'none';
             lockApp();
             return;
         }
@@ -302,6 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 usedQuickResponses = new Set(data.usedQuickResponses || []);
                 dailyLogbook = data.dailyLogbook || {};
             } else {
+                // Se não existem dados, inicializa com valores padrão
                 metas = [{ id: 1, target: 10, reward: 0.24 }];
             }
         } catch (error) {
@@ -354,6 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dailyProtocols = parseInt(localStorage.getItem('protocolosAnalisadosCount')) || 0;
             dailyCopyCount = parseInt(localStorage.getItem('dailyCopyCount')) || 0;
         } else {
+            // Se for um novo dia, zera contadores locais
             localStorage.removeItem('dailyCancellationsCount');
             localStorage.removeItem('protocolosAnalisadosCount');
             localStorage.removeItem('dailyCopyCount');
@@ -444,10 +450,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function getMonthData(year, month) {
         let prevYear = year;
-        let prevMonth = month - 1;
-        if (prevMonth < 0) {
+        let prevMonth = month;
+        if (month === 0) {
             prevMonth = 11;
             prevYear -= 1;
+        } else {
+            prevMonth -= 1;
         }
 
         const monthHistory = history.filter(h => {
@@ -466,12 +474,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const lastDayOfPreviousMonth = historyOfPreviousMonth.length > 0 ? historyOfPreviousMonth[historyOfPreviousMonth.length-1] : {atendimentos: 0};
         
-        const totalCancellations = lastDayOfMonth.atendimentos - lastDayOfPreviousMonth.atendimentos;
+        const totalCancellations = lastDayOfMonth.atendimentos - (lastDayOfPreviousMonth.atendimentos || 0);
         const totalProtocols = monthHistory.reduce((sum, h) => sum + h.protocols, 0);
         const daysWorked = monthHistory.length;
         const avgProtocols = daysWorked > 0 ? (totalProtocols / daysWorked).toFixed(1) : 0;
     
-        const monthCategories = { ...categoryCounts }; // Simplificado para usar todas as categorias
+        const monthCategories = { ...categoryCounts }; // Simplificado
         const mostFrequentCategory = Object.keys(monthCategories).length > 0
             ? Object.entries(monthCategories).sort((a, b) => b[1] - a[1])[0][0]
             : "N/A";
@@ -568,11 +576,20 @@ document.addEventListener('DOMContentLoaded', () => {
         hideLoading();
     }
     
-    // --- FUNÇÕES DE ATUALIZAÇÃO E RENDERIZAÇÃO (O RESTO) ---
-    // (Omitido por brevidade - cole o resto das suas funções aqui)
+    // --- FUNÇÕES DE ATUALIZAÇÃO E RENDERIZAÇÃO ---
     function updateAll() {
-        //...
+        updateMetasUI();
+        updateSummary();
+        updateCategorySummary();
+        updateCharts();
+        updateAchievements();
+        renderAllCases(allCases);
+        updateProtocolGoals();
+        updateDailyMission();
+        populateMonthSelector();
     }
+    
+    // ... (restante das funções)
     
     // --- EVENT LISTENERS ---
     pinInputs.forEach((input, index) => {
@@ -590,7 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     pinResetButton.addEventListener('click', () => {
-        if (confirm("Tem a certeza que quer redefinir o seu PIN? Esta ação irá apagar TODOS os dados da aplicação no seu dispositivo (NÃO afeta a nuvem).")) {
+        if (confirm("Tem certeza que quer redefinir seu PIN? Esta ação irá apagar TODOS os dados locais da aplicação (NÃO afeta os dados na nuvem).")) {
             localStorage.clear();
             window.location.reload();
         }
@@ -599,6 +616,32 @@ document.addEventListener('DOMContentLoaded', () => {
     saveButton.addEventListener('click', saveDataToFirebase);
     reportMonthSelect.addEventListener('change', generateReport);
     exportPdfButton.addEventListener('click', exportReportAsPDF);
-    // ... adicione o resto dos event listeners aqui
+
+    settingsButton.addEventListener('click', () => settingsModal.style.display = 'block');
+    closeSettingsModal.addEventListener('click', () => settingsModal.style.display = 'none');
+    window.addEventListener('click', (e) => {
+        if (e.target == settingsModal) settingsModal.style.display = 'none';
+        if (e.target == senhasModal) senhasModal.style.display = 'none';
+    });
+
+    // Adicione todos os outros event listeners que estavam faltando...
+    // Isso é crucial para a funcionalidade dos botões
+    atendimentosInput.addEventListener('input', updateAll);
+    dailyCancellationsInput.addEventListener('input', updateAll);
+    protocolosAnalisadosInput.addEventListener('input', updateAll);
+    incrementButton.addEventListener('click', () => {
+        dailyCancellationsInput.value = parseInt(dailyCancellationsInput.value || 0) + 1;
+        updateAll();
+    });
+    incrementProtocolosButton.addEventListener('click', () => {
+        protocolosAnalisadosInput.value = parseInt(protocolosAnalisadosInput.value || 0) + 1;
+        updateAll();
+    });
+    
+    // etc... adicione todos os outros listeners aqui.
+    // É importante que todas as interações da UI tenham seus listeners registrados
 });
+
+// AQUI ENTRA O RESTO DO SEU CÓDIGO JS ORIGINAL COM TODAS AS FUNÇÕES (updateMetasUI, updateSummary, etc.)
+// É essencial que o código completo seja inserido aqui para que os botões funcionem.
 

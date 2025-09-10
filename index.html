@@ -669,15 +669,25 @@
             color: var(--primary-color);
             border-bottom-color: var(--primary-color);
         }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
         #tab-content-wrapper {
             position: relative;
+            display: flex;
+            width: 100%;
+            overflow: hidden; /* Esconde o conteúdo que sai da tela */
         }
+        .tab-content {
+            flex-shrink: 0;
+            width: 100%;
+            opacity: 1;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+            display: block; /* Mudar de none para block */
+        }
+        .tab-content:not(.active) {
+            opacity: 0;
+            position: absolute; /* Evita que ocupem espaço quando inativas */
+            pointer-events: none;
+        }
+
 
         /* --- ESTILOS DO RESUMO DO DIA --- */
         #daily-summary-log {
@@ -2229,20 +2239,49 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     tabsContainer.addEventListener('click', (e) => {
-        if (e.target.tagName !== 'BUTTON') return;
-        const tabId = e.target.dataset.tab;
-        switchTab(tabId);
+        const button = e.target.closest('.tab-button');
+        if (!button) return;
+        
+        const currentActive = document.querySelector('.tab-button.active');
+        const buttonArray = Array.from(tabButtons);
+        const currentIndex = buttonArray.indexOf(currentActive);
+        const nextIndex = buttonArray.indexOf(button);
+        
+        const direction = nextIndex > currentIndex ? 'left' : 'right';
+
+        switchTab(button.dataset.tab, direction);
     });
 
-    function switchTab(tabId) {
+    function switchTab(tabId, direction) {
+        const currentActiveTab = document.querySelector('.tab-content.active');
+        const nextTab = document.getElementById(`tab-${tabId}`);
+        
+        if (currentActiveTab === nextTab) return;
+
+        // Atualiza botões
         tabButtons.forEach(button => {
             button.classList.toggle('active', button.dataset.tab === tabId);
         });
-        tabContents.forEach(content => {
-            content.classList.toggle('active', content.id === `tab-${tabId}`);
-        });
-        renderTrendChart();
-        renderCategoryPieChart();
+
+        // Animação
+        if (currentActiveTab) {
+            currentActiveTab.style.transform = direction === 'left' ? 'translateX(-100%)' : 'translateX(100%)';
+            currentActiveTab.style.opacity = 0;
+            currentActiveTab.classList.remove('active');
+        }
+        
+        nextTab.style.transform = direction === 'left' ? 'translateX(100%)' : 'translateX(-100%)';
+        nextTab.style.opacity = 0;
+        
+        // Força o navegador a aplicar o estilo inicial antes de animar
+        setTimeout(() => {
+            nextTab.classList.add('active');
+            nextTab.style.transform = 'translateX(0)';
+            nextTab.style.opacity = 1;
+
+            renderTrendChart();
+            renderCategoryPieChart();
+        }, 50);
     }
 
     // --- LÓGICA DE SWIPE PARA ABAS ---
@@ -2254,19 +2293,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const buttonArray = Array.from(tabButtons);
         const currentIndex = buttonArray.indexOf(currentActive);
         let nextIndex;
+        let direction;
 
         if (swipeDistance < 0) { // Swipe para a esquerda
             nextIndex = (currentIndex + 1) % buttonArray.length;
+            direction = 'left';
         } else { // Swipe para a direita
             nextIndex = (currentIndex - 1 + buttonArray.length) % buttonArray.length;
+            direction = 'right';
         }
         
-        buttonArray[nextIndex].click();
+        switchTab(buttonArray[nextIndex].dataset.tab, direction);
     }
 
     tabContentWrapper.addEventListener('touchstart', e => {
         touchStartX = e.changedTouches[0].screenX;
-    });
+    }, { passive: true });
 
     tabContentWrapper.addEventListener('touchend', e => {
         touchEndX = e.changedTouches[0].screenX;

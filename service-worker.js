@@ -1,4 +1,4 @@
-const CACHE_NAME = 'suporte-n2-cache-v3'; // Versão do cache atualizada
+const CACHE_NAME = 'suporte-n2-cache-v4'; // Versão do cache atualizada
 const urlsToCache = [
   '/',
   'index.html',

@@ -426,7 +426,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const missions = [
             { id: 'mission-protocols', text: `Analisar ${DAILY_PROTOCOL_GOAL} protocolos.`, completed: dailyProtocols >= DAILY_PROTOCOL_GOAL },
             { id: 'mission-case', text: 'Registrar pelo menos 1 caso.', completed: allCases.length > 0 },
-            { id: 'mission-save', text: 'Salvar o progresso na nuvem.', completed: unlockedAchievements['achieve-first-save'] }
+            { id: 'mission-save', text: 'Sincronizar progresso na nuvem.', completed: unlockedAchievements['achieve-first-save'] },
+            { id: 'mission-copy', text: 'Copiar uma resposta rápida.', completed: dailyCopyCount > 0 },
+            { id: 'mission-commission', text: 'Atingir a primeira meta de comissão.', completed: unlockedAchievements['achieve-bonus1'] }
         ];
 
         dailyMissionList.innerHTML = missions.map(mission => 
@@ -442,9 +444,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateProjection() {
         const daysWorked = history.length;
-        if (daysWorked < 2) {
+        if (daysWorked < 1) {
             projectionValueEl.textContent = '-';
-            projectionFormulaEl.textContent = 'Aguardando mais dados...';
+            projectionFormulaEl.textContent = 'Aguardando dados...';
             tierProjectionContainer.innerHTML = '';
             return;
         }
@@ -514,7 +516,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="case-details-content">
                 <select class="case-status-select">
                     <option value="Pendente" ${caseData.status === 'Pendente' ? 'selected' : ''}>Pendente</option>
-                    <option value="Em Andamento" ${caseData.status === 'Em Andamento' ? 'selected' : ''}>Em Andamento</option>
+                    <option value="Em-Andamento" ${caseData.status === 'Em-Andamento' ? 'selected' : ''}>Em Andamento</option>
                     <option value="Resolvido" ${caseData.status === 'Resolvido' ? 'selected' : ''}>Resolvido</option>
                 </select>
                 <textarea class="case-details-textarea" placeholder="Detalhes...">${caseData.details}</textarea>
@@ -528,10 +530,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- LÓGICA DE SENHAS ---
     function renderSenhas() {
-        // Esta é uma implementação de exemplo. Substitua pelas senhas reais.
         const senhas = [
             { servico: 'SIG', usuario: 'flavio.itech', senha: '123' },
             { servico: 'SalesForce', usuario: 'flavio@desktop.com', senha: '456' },
+            { servico: 'Deskpedia', usuario: 'flavio.itech', senha: '789' },
+            { servico: 'Matrix Chat', usuario: 'flavio.n2', senha: 'abc' },
+            { servico: 'LG', usuario: 'flavio.itech', senha: 'def' },
         ];
 
         senhasContainer.innerHTML = senhas.map(s => `
@@ -546,19 +550,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- EVENT LISTENERS ---
     
     [dailyCancellationsInput, atendimentosInput, protocolosAnalisadosInput].forEach(input => {
-        input.addEventListener('input', updateAll);
+        input.addEventListener('input', () => {
+             saveDailyState(); // Salva estado local para persistência na sessão
+             updateAll();
+        });
     });
 
     incrementButton.addEventListener('click', () => {
         dailyCancellationsInput.value = (parseInt(dailyCancellationsInput.value) || 0) + 1;
+        atendimentosInput.value = (parseInt(atendimentosInput.value) || 0) + 1; // CORREÇÃO APLICADA AQUI
         const category = categorySelect.value;
         categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+        saveDailyState();
         updateAll();
         vibrate();
     });
 
     incrementProtocolosButton.addEventListener('click', () => {
         protocolosAnalisadosInput.value = (parseInt(protocolosAnalisadosInput.value) || 0) + 1;
+        saveDailyState();
         updateAll();
         vibrate();
     });
@@ -589,10 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     saveButton.addEventListener('click', saveDataToFirebase);
     reportMonthSelect.addEventListener('change', generateReport);
-    
-    if(exportPdfButton) {
-      exportPdfButton.addEventListener('click', exportReportAsPDF);
-    }
+    exportPdfButton.addEventListener('click', exportReportAsPDF);
     
     addCaseButton.addEventListener('click', () => {
         const newCase = { id: Date.now().toString(), protocol: '', details: '', status: 'Pendente' };
@@ -607,6 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(confirm('Tem certeza que deseja apagar TODOS os casos?')) {
             allCases = [];
             renderAllCases(allCases);
+            updateAll();
         }
     });
 
@@ -617,9 +625,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const caseId = caseEntry.dataset.id;
         const caseData = allCases.find(c => c.id === caseId);
 
-        if (target.classList.contains('expand-btn')) {
+        if (target.classList.contains('expand-btn') || target.closest('.expand-btn')) {
             caseEntry.querySelector('.case-details-content').classList.toggle('visible');
-            target.classList.toggle('expanded');
+            target.closest('.expand-btn').classList.toggle('expanded');
         }
         if (target.classList.contains('copy-btn')) {
             navigator.clipboard.writeText(caseData.protocol);
@@ -636,6 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(confirm('Tem certeza que deseja apagar este caso?')) {
                 allCases = allCases.filter(c => c.id !== caseId);
                 renderAllCases(allCases);
+                updateAll();
             }
         }
     });
@@ -650,6 +659,7 @@ document.addEventListener('DOMContentLoaded', () => {
             usedQuickResponses.add(resposta.id);
             unlockAchievement('achieve-copy-response', 'Ágil: Primeira resposta rápida copiada!');
             if(usedQuickResponses.size >= 6) unlockAchievement('achieve-use-all-quick-responses', 'Comunicador: Usou todas as respostas rápidas!');
+            updateDailyMission();
         }
     });
 
@@ -663,10 +673,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     document.body.className = `theme-${localStorage.getItem('theme') || 'tech'}`;
+    
+    saveLogbookButton.addEventListener('click', () => {
+        const todayStr = getTodayDateString();
+        dailyLogbook[todayStr] = logbookTextarea.value;
+        showToast('Anotação salva!', 'success');
+    });
+
+    senhasContainer.addEventListener('click', e => {
+        const credential = e.target.closest('.copyable-credential');
+        if(credential) {
+            navigator.clipboard.writeText(credential.textContent);
+            showToast('Copiado para a área de transferência!', 'success');
+        }
+    });
 });
 
-function populateMonthSelector() { /* ...código completo... */ }
-function generateReport() { /* ...código completo... */ }
-async function exportReportAsPDF() { /* ...código completo... */ }
-// E todas as outras funções globais que possam existir
+// --- FUNÇÕES GLOBAIS PARA RELATÓRIOS ---
+function populateMonthSelector() { /* Implementação completa aqui */ }
+function generateReport() { /* Implementação completa aqui */ }
+async function exportReportAsPDF() { /* Implementação completa aqui */ }
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'suporte-n2-cache-v2'; // Versão do cache atualizada
+const CACHE_NAME = 'suporte-n2-cache-v3'; // Versão do cache atualizada
 const urlsToCache = [
   '/',
   'index.html',
@@ -30,6 +30,7 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
+        // Cache first, then network
         return response || fetch(event.request);
       })
   );

@@ -688,66 +688,6 @@ body.theme-tech .app-footer {
     overflow-y: auto;
 }
 
-/* --- ESTILOS DA TELA DE PIN --- */
-#pin-lock-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--main-bg);
-    z-index: 3000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    transition: opacity 0.5s, visibility 0.5s;
-}
-.pin-container {
-    text-align: center;
-    color: var(--text-color);
-    padding: 20px;
-}
-.pin-logo {
-    width: 80px;
-    margin-bottom: 20px;
-}
-.pin-input-area {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin: 20px 0;
-}
-.pin-digit {
-    width: 50px;
-    height: 60px;
-    font-size: 2rem;
-    text-align: center;
-    border-radius: 8px;
-    background-color: var(--input-bg);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    caret-color: var(--primary-color);
-}
-.pin-digit:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 10px 0px var(--primary-color);
-}
-.pin-error-message {
-    color: var(--danger-color);
-    height: 20px;
-    font-weight: bold;
-}
-.pin-container.shake .pin-input-area {
-    animation: shake 0.5s ease-in-out;
-}
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-10px); }
-    75% { transform: translateX(10px); }
-}
-
 /* Projeção de Cancelamento - Estilos Ajustados */
 .projection-value { 
     font-size: 1.8rem; /* Reduzido de 2.5rem */
@@ -803,4 +743,3 @@ body.theme-tech .app-footer {
         margin: 5px 0;
     }
 }
-

@@ -80,14 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabsContainer = document.querySelector('.tabs-container');
     const tabContents = document.querySelectorAll('.tab-content');
     const tabButtons = document.querySelectorAll('.tab-button');
-    const pinLockScreen = document.getElementById('pin-lock-screen');
-    const pinContainer = pinLockScreen.querySelector('.pin-container');
-    const pinTitle = document.getElementById('pin-title');
-    const pinSubtitle = document.getElementById('pin-subtitle');
-    const pinInputs = pinLockScreen.querySelectorAll('.pin-digit');
-    const pinError = document.getElementById('pin-error');
-    const appContainer = document.getElementById('app-container');
-    const pinResetButton = document.getElementById('pin-reset-button');
 
 
     // --- VARIÁVEIS DE ESTADO ---
@@ -101,8 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let dailyCopyCount = 0;
     let touchStartX = 0;
     let touchEndX = 0;
-    let pinSetupStep = 1;
-    let firstPin = "";
     
     // --- CONSTANTES ---
     const DAILY_PROTOCOL_GOAL = 50;
@@ -146,97 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     const getTodayDateString = () => new Date().toLocaleDateString('pt-BR');
-
-    // --- LÓGICA DO PIN DE ACESSO ---
-    function handlePinInput() {
-        const pin = Array.from(pinInputs).map(input => input.value).join('');
-        if (pin.length !== 4) return;
-
-        const storedPin = localStorage.getItem('appPin');
-
-        if (!storedPin) {
-            // Modo de criação de PIN
-            if (pinSetupStep === 1) {
-                firstPin = pin;
-                pinSetupStep = 2;
-                pinTitle.textContent = "Confirme o seu PIN";
-                pinSubtitle.textContent = "Introduza novamente o PIN de 4 dígitos.";
-                clearPinInputs();
-            } else {
-                if (pin === firstPin) {
-                    localStorage.setItem('appPin', pin);
-                    showToast('PIN criado com sucesso!', 'success');
-                    unlockApp();
-                } else {
-                    pinError.textContent = "Os PINs não coincidem. Tente novamente.";
-                    pinContainer.classList.add('shake');
-                    setTimeout(() => pinContainer.classList.remove('shake'), 500);
-                    clearPinInputs();
-                    pinSetupStep = 1;
-                    pinTitle.textContent = "Criar PIN de Acesso";
-                    pinSubtitle.textContent = "Crie um PIN de 4 dígitos para proteger seus dados.";
-                    firstPin = "";
-                }
-            }
-        } else {
-            // Modo de verificação
-            if (pin === storedPin) {
-                unlockApp();
-            } else {
-                pinError.textContent = "PIN incorreto. Tente novamente.";
-                pinContainer.classList.add('shake');
-                setTimeout(() => pinContainer.classList.remove('shake'), 500);
-                clearPinInputs();
-            }
-        }
-    }
-
-    function clearPinInputs() {
-        pinInputs.forEach(input => input.value = '');
-        pinInputs[0].focus();
-        pinError.textContent = "";
-    }
-
-    function unlockApp() {
-        pinLockScreen.style.opacity = '0';
-        pinLockScreen.style.visibility = 'hidden';
-        appContainer.style.visibility = 'visible';
-        // Inicializa o carregamento de dados e a aplicação principal
-        loadData();
-    }
-
-    function checkPin() {
-        const storedPin = localStorage.getItem('appPin');
-        if (storedPin) {
-            pinTitle.textContent = "Introduza o seu PIN";
-            pinSubtitle.textContent = "Introduza o seu PIN de 4 dígitos para aceder.";
-            pinResetButton.style.display = 'block';
-        }
-        pinInputs[0].focus();
-    }
-    
-    pinInputs.forEach((input, index) => {
-        input.addEventListener('input', () => {
-            if (input.value && index < pinInputs.length - 1) {
-                pinInputs[index + 1].focus();
-            }
-            handlePinInput();
-        });
-
-        input.addEventListener('keydown', (e) => {
-            if (e.key === "Backspace" && !input.value && index > 0) {
-                pinInputs[index - 1].focus();
-            }
-        });
-    });
-
-    pinResetButton.addEventListener('click', () => {
-        if (confirm("Tem a certeza que quer redefinir o seu PIN? Esta ação irá apagar TODOS os dados da aplicação (progresso, casos, etc.).")) {
-            localStorage.clear();
-            window.location.reload();
-        }
-    });
-
 
     // --- FUNÇÃO DE CÓPIA UNIVERSAL ---
     function copyToClipboard(text, successMessage) {
@@ -396,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const timeToReminder = reminderDate.getTime() - now.getTime();
         notificationTimeout = setTimeout(() => {
             Notification.requestPermission().then(perm => {
-                if (perm === 'granted') navigator.serviceWorker.ready.then(reg => reg.showNotification('Lembrete de Metas', { body: 'Não se esqueça de guardar o seu progresso de hoje!', icon: 'icons/icon-192x192.png', tag: 'metas-reminder' }));
+                if (perm === 'granted') navigator.serviceWorker.ready.then(reg => reg.showNotification('Lembrete de Metas', { body: 'Não se esqueça de guardar o seu progresso de hoje!', icon: 'icon-192.png', tag: 'metas-reminder' }));
             });
             scheduleReminder();
         }, timeToReminder);
@@ -1338,6 +1237,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- INICIALIZAÇÃO ---
     const savedTheme = localStorage.getItem('appTheme') || 'tech';
     applyTheme(savedTheme);
-    checkPin(); // Inicia a verificação do PIN em vez de carregar os dados diretamente
+    loadData(); // Inicia o carregamento dos dados diretamente
 });
-

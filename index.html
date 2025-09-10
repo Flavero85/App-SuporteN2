@@ -15,26 +15,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <!-- Tela de Bloqueio por PIN -->
-    <div id="pin-lock-screen">
-        <div class="pin-container">
-            <img src="logo.png" alt="Logo" class="pin-logo">
-            <h2 id="pin-title">Criar PIN de Acesso</h2>
-            <p id="pin-subtitle">Crie um PIN de 4 dígitos para proteger seus dados.</p>
-            <div id="pin-input-area" class="pin-input-area">
-                <input type="password" class="pin-digit" maxlength="1" inputmode="numeric">
-                <input type="password" class="pin-digit" maxlength="1" inputmode="numeric">
-                <input type="password" class="pin-digit" maxlength="1" inputmode="numeric">
-                <input type="password" class="pin-digit" maxlength="1" inputmode="numeric">
-            </div>
-            <p id="pin-error" class="pin-error-message"></p>
-            <button id="pin-reset-button" class="button reset-button" style="display: none;">Esqueci o PIN</button>
-        </div>
-    </div>
     
     <div id="toast-container"></div>
 
-    <div id="app-container" class="page-container" style="visibility: hidden;">
+    <div id="app-container" class="page-container">
         <div class="header-metas">
             <img src="logo.png" alt="Logo" class="header-logo">
             <h1 id="main-title" data-editable="true">Suporte N2</h1>
@@ -415,4 +399,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-

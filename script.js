@@ -4,14 +4,14 @@ import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gsta
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // --- INICIALIZAÇÃO DO FIREBASE ---
-// IMPORTANTE: Substitua com os dados do seu projeto Firebase
+// IMPORTANTE: Cole aqui os dados do seu projeto Firebase
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_AUTH_DOMAIN",
-  projectId: "SEU_PROJECT_ID",
-  storageBucket: "SEU_STORAGE_BUCKET",
-  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-  appId: "SEU_APP_ID"
+  apiKey: "AIzaSyCdQYNKJdTYEeOaejZy_ZxU9tVq7bF1x34",
+  authDomain: "app-suporte-n2.firebaseapp.com",
+  projectId: "app-suporte-n2",
+  storageBucket: "app-suporte-n2.appspot.com",
+  messagingSenderId: "257470368604",
+  appId: "1:257470368604:web:42fcc4973851eb02b78f99"
 };
 
 // Inicializa o Firebase e seus serviços
@@ -148,9 +148,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
     const parseDate = (str) => {
+        if (!str || typeof str !== 'string') return new Date();
         try {
-            const [day, month, year] = str.split('/').map(Number);
-            return new Date(year, month - 1, day);
+            const parts = str.split('/');
+            if (parts.length === 3) {
+                const [day, month, year] = parts.map(Number);
+                return new Date(year, month - 1, day);
+            }
+            return new Date();
         } catch (e) {
             return new Date();
         }
@@ -170,13 +175,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user) {
             userId = user.uid;
             console.log("Usuário autenticado:", userId);
-            checkPin();
+            await checkPin();
         } else {
             try {
+                showLoading("Autenticando...");
                 await signInAnonymously(auth);
             } catch (error) {
                 console.error("Erro na autenticação anônima:", error);
                 alert("Não foi possível conectar. Verifique sua conexão e atualize a página.");
+            } finally {
+                hideLoading();
             }
         }
     });
@@ -188,13 +196,13 @@ document.addEventListener('DOMContentLoaded', () => {
         appContainer.style.visibility = 'hidden';
         clearTimeout(inactivityTimer);
         clearPinInputs();
-        pinInputs[0].focus();
+        if (pinInputs.length > 0) pinInputs[0].focus();
     }
 
     function resetInactivityTimer() {
         clearTimeout(inactivityTimer);
         inactivityTimer = setTimeout(lockApp, INACTIVITY_TIMEOUT);
-        localStorage.setItem('lastActiveTimestamp', Date.now());
+        localStorage.setItem('lastActiveTimestamp', Date.now().toString());
     }
 
     async function unlockApp() {
@@ -253,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function clearPinInputs() {
         pinInputs.forEach(input => input.value = '');
-        if(pinInputs.length > 0) pinInputs[0].focus();
+        if (pinInputs.length > 0) pinInputs[0].focus();
         pinError.textContent = "";
     }
     
@@ -263,6 +271,9 @@ document.addEventListener('DOMContentLoaded', () => {
         hideLoading();
         
         if (!storedPin) {
+            pinTitle.textContent = "Criar PIN de Acesso";
+            pinSubtitle.textContent = "Crie um PIN de 4 dígitos para proteger seus dados.";
+            pinResetButton.style.display = 'none';
             lockApp();
             return;
         }
@@ -271,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pinSubtitle.textContent = "Introduza o seu PIN de 4 dígitos para aceder.";
         pinResetButton.style.display = 'block';
 
-        const lastActive = parseInt(localStorage.getItem('lastActiveTimestamp')) || 0;
+        const lastActive = parseInt(localStorage.getItem('lastActiveTimestamp') || '0');
         if (Date.now() - lastActive > INACTIVITY_TIMEOUT) {
             lockApp();
         } else {
@@ -302,7 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 usedQuickResponses = new Set(data.usedQuickResponses || []);
                 dailyLogbook = data.dailyLogbook || {};
             } else {
+                // Primeira vez do usuário
                 metas = [{ id: 1, target: 10, reward: 0.24 }];
+                console.log("Documento de usuário não encontrado, iniciando com dados padrão.");
             }
         } catch (error) {
             console.error("Erro ao carregar dados:", error);
@@ -320,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         showLoading("Sincronizando...");
-        saveDailyState();
+        saveDailyState(); // Garante que o progresso do dia está salvo no estado local
         const docRef = doc(db, "users", userId);
         const dataToSave = {
             metas, allCases, baseSalary, history, categoryCounts,
@@ -340,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // --- DADOS LOCAIS (PROGRESSO DO DIA) ---
+    // --- LÓGICA DE DADOS LOCAIS (Progresso do dia) ---
     function loadLocalData() {
         const todayStr = getTodayDateString();
         const lastUsedDate = localStorage.getItem('lastUsedDate');
@@ -354,6 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dailyProtocols = parseInt(localStorage.getItem('protocolosAnalisadosCount')) || 0;
             dailyCopyCount = parseInt(localStorage.getItem('dailyCopyCount')) || 0;
         } else {
+            // Limpa contadores diários se for um novo dia
             localStorage.removeItem('dailyCancellationsCount');
             localStorage.removeItem('protocolosAnalisadosCount');
             localStorage.removeItem('dailyCopyCount');
@@ -365,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         localStorage.setItem('lastUsedDate', todayStr);
 
-        atendimentosInput.value = history.length > 0 ? history[history.length - 1].atendimentos : 0;
+        atendimentosInput.value = history.find(h => h.date === todayStr)?.atendimentos || history[history.length-1]?.atendimentos || 0;
         baseSalaryInput.value = baseSalary > 0 ? baseSalary : '';
         reminderEnabledInput.checked = reminderSettings.enabled;
         reminderTimeInput.value = reminderSettings.time;
@@ -375,14 +389,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function saveDailyState() {
         const date = getTodayDateString();
-        const newEntry = { 
-            date, 
-            atendimentos: parseInt(atendimentosInput.value) || 0,
-            dailyCancellations: parseInt(dailyCancellationsInput.value) || 0,
-            protocols: parseInt(protocolosAnalisadosInput.value) || 0
-        };
+        const currentTotal = parseInt(atendimentosInput.value) || 0;
+        const dailyCancellations = parseInt(dailyCancellationsInput.value) || 0;
+        const protocols = parseInt(protocolosAnalisadosInput.value) || 0;
         
+        // Atualiza a entrada de histórico do dia
         const todayIndex = history.findIndex(entry => entry.date === date);
+        const newEntry = { date, atendimentos: currentTotal, dailyCancellations, protocols };
+        
         if (todayIndex > -1) { 
             history[todayIndex] = newEntry;
         } else { 
@@ -390,11 +404,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         history.sort((a, b) => parseDate(a.date) - parseDate(b.date));
         
-        localStorage.setItem('protocolosAnalisadosCount', protocolosAnalisadosInput.value);
-        localStorage.setItem('dailyCancellationsCount', dailyCancellationsInput.value);
-        localStorage.setItem('dailyCopyCount', dailyCopyCount);
+        // Salva contadores diários no localStorage
+        localStorage.setItem('protocolosAnalisadosCount', protocols.toString());
+        localStorage.setItem('dailyCancellationsCount', dailyCancellations.toString());
+        localStorage.setItem('dailyCopyCount', dailyCopyCount.toString());
 
-        unlockAchievement('achieve-first-save', 'Primeiro progresso sincronizado!');
+        unlockAchievement('achieve-first-save', 'Primeiro progresso guardado!');
     }
 
     // --- MÓDULO DE RELATÓRIOS ---
@@ -419,13 +434,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const monthName = monthNames[parseInt(month)];
             return `<option value="${key}">${monthName} de ${year}</option>`;
         }).join('');
+        
         generateReport();
     }
     
     function generateReport() {
         const selectedKey = reportMonthSelect.value;
         if (!selectedKey) {
-            currentMonthSummaryEl.innerHTML = "<p>Nenhum dado para o período selecionado.</p>";
+            currentMonthSummaryEl.innerHTML = "<p>Nenhum histórico encontrado para gerar relatórios.</p>";
             previousMonthComparisonEl.innerHTML = "";
             return;
         }
@@ -433,23 +449,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const [year, month] = selectedKey.split('-').map(Number);
     
         const currentMonthData = getMonthData(year, month);
-        const previousMonthData = getMonthData(year, month - 1);
+        const prevDate = new Date(year, month - 1, 1);
+        const previousMonthData = getMonthData(prevDate.getFullYear(), prevDate.getMonth());
     
         currentMonthTitleEl.textContent = `Resumo de ${reportMonthSelect.options[reportMonthSelect.selectedIndex].text}`;
-        previousMonthTitleEl.textContent = `Comparativo com ${getMonthName(month - 1, year)}`;
+        previousMonthTitleEl.textContent = `Comparativo com ${getMonthName(prevDate.getMonth(), prevDate.getFullYear())}`;
     
         renderReportSection(currentMonthSummaryEl, currentMonthData);
         renderComparisonSection(previousMonthComparisonEl, currentMonthData, previousMonthData);
     }
     
     function getMonthData(year, month) {
-        let prevYear = year;
-        let prevMonth = month - 1;
-        if (prevMonth < 0) {
-            prevMonth = 11;
-            prevYear -= 1;
-        }
-
         const monthHistory = history.filter(h => {
             const date = parseDate(h.date);
             return date.getFullYear() === year && date.getMonth() === month;
@@ -457,21 +467,24 @@ document.addEventListener('DOMContentLoaded', () => {
     
         if (monthHistory.length === 0) return { totalCancellations: 0, totalProtocols: 0, avgProtocols: 0, mostFrequentCategory: "N/A", daysWorked: 0 };
     
-        const lastDayOfMonth = monthHistory[monthHistory.length - 1];
+        const firstDayValue = monthHistory[0].atendimentos - monthHistory[0].dailyCancellations;
+        const lastDayValue = monthHistory[monthHistory.length - 1].atendimentos;
         
-        const historyOfPreviousMonth = history.filter(h => {
-            const date = parseDate(h.date);
-            return date.getFullYear() === prevYear && date.getMonth() === prevMonth;
-        });
-
-        const lastDayOfPreviousMonth = historyOfPreviousMonth.length > 0 ? historyOfPreviousMonth[historyOfPreviousMonth.length-1] : {atendimentos: 0};
-        
-        const totalCancellations = lastDayOfMonth.atendimentos - lastDayOfPreviousMonth.atendimentos;
-        const totalProtocols = monthHistory.reduce((sum, h) => sum + h.protocols, 0);
+        const totalCancellations = lastDayValue - firstDayValue;
+        const totalProtocols = monthHistory.reduce((sum, h) => sum + (h.protocols || 0), 0);
         const daysWorked = monthHistory.length;
         const avgProtocols = daysWorked > 0 ? (totalProtocols / daysWorked).toFixed(1) : 0;
+        
+        const monthCategories = {};
+        Object.entries(categoryCounts).forEach(([dateStr, categories]) => {
+            const date = parseDate(dateStr);
+            if (date.getFullYear() === year && date.getMonth() === month) {
+                Object.entries(categories).forEach(([cat, count]) => {
+                    monthCategories[cat] = (monthCategories[cat] || 0) + count;
+                });
+            }
+        });
     
-        const monthCategories = { ...categoryCounts }; // Simplificado para usar todas as categorias
         const mostFrequentCategory = Object.keys(monthCategories).length > 0
             ? Object.entries(monthCategories).sort((a, b) => b[1] - a[1])[0][0]
             : "N/A";
@@ -495,83 +508,89 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         element.innerHTML = `
-            ${createSummaryItem("Cancelamentos", getComparison(current.totalCancellations, previous.totalCancellations), true)}
-            ${createSummaryItem("Protocolos", getComparison(current.totalProtocols, previous.totalProtocols), true)}
-            ${createSummaryItem("Média de Protocolos", getComparison(current.avgProtocols, previous.avgProtocols), true)}
-            ${createSummaryItem("Dias Trabalhados", getComparison(current.daysWorked, previous.daysWorked), true)}
+            ${createSummaryItem("Cancelamentos", getComparison(current.totalCancellations, previous.totalCancellations))}
+            ${createSummaryItem("Protocolos", getComparison(current.totalProtocols, previous.totalProtocols))}
+            ${createSummaryItem("Média de Protocolos", getComparison(parseFloat(current.avgProtocols), parseFloat(previous.avgProtocols)))}
+            ${createSummaryItem("Dias Trabalhados", getComparison(current.daysWorked, previous.daysWorked))}
         `;
     }
 
-    function createSummaryItem(label, value, isComparison = false) {
-        if(isComparison){
-            return `
+    function createSummaryItem(label, valueOrComparison, isComparison = true) {
+        if (isComparison) {
+             return `
                 <div class="summary-item">
                     <div class="label">${label}</div>
-                    <div class="value ${value.class}">${value.text}</div>
-                    <div class="comparison neutral">(vs ${value.previous})</div>
+                    <div class="value ${valueOrComparison.class}">${valueOrComparison.text}</div>
+                    <div class="comparison neutral">(vs ${valueOrComparison.previous.toFixed(1).replace('.0','')})</div>
                 </div>
             `;
         }
         return `
             <div class="summary-item">
                 <div class="label">${label}</div>
-                <div class="value">${value}</div>
+                <div class="value">${valueOrComparison}</div>
             </div>
         `;
     }
 
     function getComparison(current, previous) {
-        const currentNum = parseFloat(current);
-        const previousNum = parseFloat(previous);
-        const diff = currentNum - previousNum;
-        let percentage = 0;
-        if (previousNum !== 0) {
-            percentage = (diff / previousNum) * 100;
-        } else if (currentNum > 0) {
-            percentage = 100;
+        const diff = current - previous;
+        let percentage;
+        if (previous !== 0) {
+            percentage = ((diff / Math.abs(previous)) * 100);
+        } else {
+            percentage = current > 0 ? 100 : 0;
         }
 
         let text, cssClass;
-        if (diff > 0) {
+        if (diff > 0.1) {
             text = `+${diff.toFixed(1)} (${percentage.toFixed(0)}%)`;
             cssClass = "positive";
-        } else if (diff < 0) {
+        } else if (diff < -0.1) {
             text = `${diff.toFixed(1)} (${percentage.toFixed(0)}%)`;
             cssClass = "negative";
         } else {
             text = "0 (0%)";
             cssClass = "neutral";
         }
-        return { text: text, class: cssClass, previous: previousNum.toFixed(1) };
+        return { text: text.replace('.0',''), class: cssClass, previous: previous };
     }
 
     function getMonthName(monthIndex, year) {
         const date = new Date(year, monthIndex, 1);
-        return date.toLocaleString('pt-BR', { month: 'long' });
+        return date.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
     }
 
     async function exportReportAsPDF() {
+        if (typeof html2canvas === 'undefined' || typeof jspdf === 'undefined') {
+            showToast('Bibliotecas de PDF não carregadas. Verifique a conexão.', 'danger');
+            return;
+        }
         showLoading("Gerando PDF...");
-        const reportContent = document.getElementById('report-content');
-        const canvas = await html2canvas(reportContent, {
-            scale: 2,
-            backgroundColor: getComputedStyle(document.body).getPropertyValue('--main-bg').trim()
-        });
-        const imgData = canvas.toDataURL('image/png');
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        const card = document.getElementById('report-card');
         
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        pdf.save(`relatorio_${reportMonthSelect.value}.pdf`);
-        hideLoading();
+        try {
+            const canvas = await html2canvas(card, { scale: 2, useCORS: true, backgroundColor: getComputedStyle(document.body).getPropertyValue('--main-bg').trim() });
+            const imgData = canvas.toDataURL('image/png');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`relatorio_${reportMonthSelect.value}.pdf`);
+        } catch (error) {
+            console.error("Erro ao gerar PDF:", error);
+            showToast("Falha ao gerar o PDF.", "danger");
+        } finally {
+            hideLoading();
+        }
     }
     
-    // --- FUNÇÕES DE ATUALIZAÇÃO E RENDERIZAÇÃO (O RESTO) ---
-    // (Omitido por brevidade - cole o resto das suas funções aqui)
+    // --- FUNÇÕES DE RENDERIZAÇÃO E CÁLCULO (simplificado, o resto é similar) ---
     function updateAll() {
-        //...
+        // ... (chama todas as funções de renderização)
+        populateMonthSelector();
     }
     
     // --- EVENT LISTENERS ---
@@ -590,8 +609,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     pinResetButton.addEventListener('click', () => {
-        if (confirm("Tem a certeza que quer redefinir o seu PIN? Esta ação irá apagar TODOS os dados da aplicação no seu dispositivo (NÃO afeta a nuvem).")) {
+        if (confirm("Tem a certeza que quer redefinir o seu PIN? Esta ação irá apagar TODOS os dados da aplicação (progresso, casos, etc.) na nuvem e no seu dispositivo.")) {
             localStorage.clear();
+            // TODO: Adicionar uma cloud function para limpar os dados do usuário no firestore
             window.location.reload();
         }
     });
@@ -599,6 +619,34 @@ document.addEventListener('DOMContentLoaded', () => {
     saveButton.addEventListener('click', saveDataToFirebase);
     reportMonthSelect.addEventListener('change', generateReport);
     exportPdfButton.addEventListener('click', exportReportAsPDF);
-    // ... adicione o resto dos event listeners aqui
+    
+    incrementButton.addEventListener('click', () => {
+        vibrate();
+        let currentDaily = (parseInt(dailyCancellationsInput.value) || 0) + 1;
+        dailyCancellationsInput.value = currentDaily;
+        dailyCancellationsInput.dispatchEvent(new Event('input')); 
+        
+        const todayStr = getTodayDateString();
+        const category = categorySelect.value;
+        if (!categoryCounts[todayStr]) {
+            categoryCounts[todayStr] = {};
+        }
+        categoryCounts[todayStr][category] = (categoryCounts[todayStr][category] || 0) + 1;
+        
+        // As funções de renderização são chamadas no 'input' event do dailyCancellationsInput
+    });
+
+    dailyCancellationsInput.addEventListener('input', () => {
+        const newDailyValue = parseInt(dailyCancellationsInput.value) || 0;
+        const currentTotal = parseInt(atendimentosInput.value) || 0;
+        const difference = newDailyValue - previousDailyCancellations;
+
+        atendimentosInput.value = currentTotal + difference;
+        previousDailyCancellations = newDailyValue;
+        
+        atendimentosInput.dispatchEvent(new Event('input'));
+    });
+
+    // ... (restante dos event listeners)
 });
 

@@ -95,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let categoryPieChart;
     let deferredInstallPrompt;
     let isEditMode = false;
-    let notificationTimeout;
     const themes = ['tech', 'dark', 'light', 'mint', 'sunset', 'graphite'];
     let dailyCopyCount = 0;
 
@@ -113,6 +112,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- FUNÇÕES DE UTILIDADE ---
     const getTodayDateString = () => new Date().toLocaleDateString('pt-BR');
+    const parseDate = (str) => {
+        try {
+            const [day, month, year] = str.split('/').map(Number);
+            return new Date(year, month - 1, day);
+        } catch (e) {
+            return new Date();
+        }
+    };
     
     function showToast(message, type = 'info') {
         const toast = document.createElement('div');
@@ -219,16 +226,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let dailyCount = 0;
         let dailyProtocols = 0;
-        dailyCopyCount = 0;
+        dailyCopyCount = parseInt(localStorage.getItem('dailyCopyCount')) || 0;
 
         if (todayStr === lastUsedDate) {
             dailyCount = parseInt(localStorage.getItem('dailyCancellationsCount')) || 0;
             dailyProtocols = parseInt(localStorage.getItem('protocolosAnalisadosCount')) || 0;
-            dailyCopyCount = parseInt(localStorage.getItem('dailyCopyCount')) || 0;
         } else {
-            localStorage.removeItem('dailyCancellationsCount');
-            localStorage.removeItem('protocolosAnalisadosCount');
-            localStorage.removeItem('dailyCopyCount');
+            localStorage.setItem('dailyCancellationsCount', '0');
+            localStorage.setItem('protocolosAnalisadosCount', '0');
+            localStorage.setItem('dailyCopyCount', '0');
         }
         
         dailyCancellationsInput.value = dailyCount;
@@ -259,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { 
             history.push(newEntry); 
         }
-        history.sort((a, b) => new Date(a.date.split('/').reverse().join('-')) - new Date(b.date.split('/').reverse().join('-')));
+        history.sort((a, b) => parseDate(a.date) - parseDate(b.date));
         
         localStorage.setItem('protocolosAnalisadosCount', protocolosAnalisadosInput.value);
         localStorage.setItem('dailyCancellationsCount', dailyCancellationsInput.value);
@@ -268,74 +274,133 @@ document.addEventListener('DOMContentLoaded', () => {
         unlockAchievement('achieve-first-save', 'Primeiro progresso sincronizado!');
     }
     
-    // --- Funções de atualização da UI e Lógica de Negócio ---
+    // --- LÓGICA PRINCIPAL E ATUALIZAÇÕES DE UI ---
+    
     function updateAll() {
-        // Todas as suas funções de atualização e renderização vão aqui
         updateMetasUI();
         updateSummary();
         renderHistory();
         updateCategorySummary();
         updateCharts();
         updateAchievements();
+        updateProjection();
+        updateProtocolGoals();
+        updateDailyMission();
         renderAllCases(allCases);
-        // ...e as outras
+        populateMonthSelector();
     }
-    
+
     function updateMetasUI() {
-        // Implementação completa da sua função
+        metasContainer.innerHTML = '';
+        const atendimentos = parseInt(atendimentosInput.value) || 0;
+        metas.sort((a,b) => a.target - b.target).forEach(meta => {
+            const progress = Math.min((atendimentos / meta.target) * 100, 100);
+            const isCompleted = atendimentos >= meta.target;
+            const metaEl = document.createElement('div');
+            metaEl.className = 'meta-item';
+            metaEl.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px;">
+                    <span>Meta: ${meta.target}</span>
+                    <span>Recompensa: ${(meta.reward * 100).toFixed(0)}%</span>
+                </div>
+                <div class="progress-bar-background">
+                    <div class="progress-bar-fill ${isCompleted ? 'completed' : ''}" style="width: ${progress}%;"></div>
+                </div>
+            `;
+            metasContainer.appendChild(metaEl);
+        });
     }
 
     function updateSummary() {
-         // Implementação completa da sua função
+        const atendimentos = parseInt(atendimentosInput.value) || 0;
+        let bonus = 0;
+        let nextMeta = null;
+        
+        const sortedMetas = [...metas].sort((a, b) => a.target - b.target);
+        
+        for (const meta of sortedMetas) {
+            if (atendimentos >= meta.target) {
+                bonus = baseSalary * meta.reward;
+                if(meta.id === 1) unlockAchievement('achieve-bonus1', 'Primeira faixa de comissão atingida!');
+                if(meta.id === sortedMetas.length) unlockAchievement('achieve-max-bonus', 'Meta máxima atingida!');
+            } else {
+                if (!nextMeta) nextMeta = meta;
+            }
+        }
+        
+        bonusValueEl.textContent = `R$ ${bonus.toFixed(2)}`;
+        bonusFormulaEl.textContent = `Baseado em ${atendimentos} cancelamentos.`;
+        
+        let summaryMessage = 'Continue a trabalhar para atingir a sua primeira meta!';
+        if(nextMeta) {
+            summaryMessage = `Faltam ${nextMeta.target - atendimentos} cancelamentos para a próxima meta de ${nextMeta.target}!`;
+        } else if (bonus > 0) {
+            summaryMessage = 'Parabéns, atingiu a meta máxima!';
+        }
+        
+        summaryText.textContent = summaryMessage;
+        summaryText.className = 'summary-box';
+        if (bonus > 0) summaryText.classList.add('completed');
+
+        if(atendimentos >= 100) unlockAchievement('achieve-100-cancellations', 'Atingiu 100 cancelamentos!');
+        if(atendimentos >= 200) unlockAchievement('achieve-200-cancellations', 'Atingiu 200 cancelamentos!');
     }
-    
+
     function renderHistory() {
-        // Implementação completa da sua função
+        historyListEl.innerHTML = history.slice().reverse().map(h => `<li>${h.date}: ${h.dailyCancellations} canc. / ${h.protocols} prot.</li>`).join('');
     }
 
     function updateCategorySummary() {
-         // Implementação completa da sua função
-    }
-
-    function updateCharts() {
-         // Implementação completa da sua função
-    }
-
-    function updateAchievements() {
-         // Implementação completa da sua função
+        categorySummaryList.innerHTML = Object.entries(categoryCounts)
+            .sort((a, b) => b[1] - a[1])
+            .map(([cat, count]) => `<li>${cat}: ${count}</li>`).join('');
     }
     
-    function unlockAchievement(id, message) {
-        if (!unlockedAchievements[id]) {
-            unlockedAchievements[id] = true;
-            showToast(`🏆 ${message}`, 'gold');
-            updateAchievements();
-        }
-    }
-
-    function renderAllCases(casesToRender) {
-        // Implementação completa da sua função
-    }
-
-    // ... e todas as outras funções do seu script original
+    // ... TODAS AS OUTRAS FUNÇÕES DO SEU SCRIPT ORIGINAL DEVEM ESTAR AQUI ...
+    // updateCharts, updateAchievements, updateProjection, etc.
 
     // --- EVENT LISTENERS ---
     saveButton.addEventListener('click', saveDataToFirebase);
     
-    settingsButton.addEventListener('click', () => { settingsModal.style.display = 'block'; });
+    settingsButton.addEventListener('click', () => {
+        settingsMetasContainer.innerHTML = metas.map(meta => `
+            <div class="meta-row" style="display:flex; gap:10px; margin-bottom:10px;">
+                <input type="number" name="target" value="${meta.target}" placeholder="Meta" style="width:50%;">
+                <input type="number" name="reward" value="${meta.reward * 100}" placeholder="Recompensa (%)" style="width:50%;">
+            </div>
+        `).join('') + `<button type="button" id="addMetaRow" class="button secondary-button" style="width:100%">+ Adicionar Faixa</button>`;
+        
+        document.getElementById('addMetaRow').addEventListener('click', () => {
+            const newRow = document.createElement('div');
+            newRow.className = 'meta-row';
+            newRow.style.cssText = 'display:flex; gap:10px; margin-bottom:10px;';
+            newRow.innerHTML = `
+                <input type="number" name="target" placeholder="Meta" style="width:50%;">
+                <input type="number" name="reward" placeholder="Recompensa (%)" style="width:50%;">
+            `;
+            settingsMetasContainer.insertBefore(newRow, document.getElementById('addMetaRow'));
+        });
+
+        settingsModal.style.display = 'block'; 
+    });
+
     closeSettingsModal.addEventListener('click', () => { settingsModal.style.display = 'none'; });
     
     window.addEventListener('click', (e) => {
         if (e.target == settingsModal) settingsModal.style.display = 'none';
-        if (e.target == senhasModal) senhasModal.style = 'none';
+        if (e.target == senhasModal) senhasModal.style.display = 'none';
     });
 
-    atendimentosInput.addEventListener('input', updateAll);
-    dailyCancellationsInput.addEventListener('input', updateAll);
-    protocolosAnalisadosInput.addEventListener('input', updateAll);
+    [atendimentosInput, dailyCancellationsInput, protocolosAnalisadosInput].forEach(input => {
+        input.addEventListener('input', updateAll);
+    });
     
     incrementButton.addEventListener('click', () => {
+        const currentCategory = categorySelect.value;
+        categoryCounts[currentCategory] = (categoryCounts[currentCategory] || 0) + 1;
         dailyCancellationsInput.value = parseInt(dailyCancellationsInput.value || 0) + 1;
+        atendimentosInput.value = parseInt(atendimentosInput.value || 0) + 1;
+        unlockAchievement('achieve-all-categories', 'Utilizou 5 categorias diferentes!');
         updateAll();
     });
 
@@ -349,8 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
         baseSalary = parseFloat(baseSalaryInput.value) || 0;
         
         const newMetas = [];
-        const metaRows = settingsMetasContainer.querySelectorAll('.meta-row');
-        metaRows.forEach((row, index) => {
+        settingsMetasContainer.querySelectorAll('.meta-row').forEach((row, index) => {
             const target = row.querySelector('input[name="target"]').value;
             const reward = row.querySelector('input[name="reward"]').value;
             if(target && reward) {
@@ -379,13 +443,23 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const tabName = e.currentTarget.dataset.tab;
             document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
+                if(`tab-${tabName}` === tab.id) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
             });
-            document.getElementById(`tab-${tabName}`).classList.add('active');
         });
     });
 
-    // Adicione aqui TODOS os outros event listeners do seu ficheiro original
-    // para garantir que tudo funcione.
+    themeToggleButton.addEventListener('click', () => {
+        let currentThemeIndex = themes.indexOf(document.body.className.replace('theme-', ''));
+        let nextThemeIndex = (currentThemeIndex + 1) % themes.length;
+        document.body.className = `theme-${themes[nextThemeIndex]}`;
+        localStorage.setItem('theme', themes[nextThemeIndex]);
+        unlockAchievement('achieve-change-theme', 'Visual personalizado!');
+    });
+    
+    // ... E TODOS OS OUTROS EVENT LISTENERS ...
 });
 

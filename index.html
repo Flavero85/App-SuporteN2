@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suporte N2</title>
+    <title>Suporte N2 FlavioItech</title>
     <meta name="theme-color" content="#0B021D"/>
     <meta name="description" content="Aplicativo de acompanhamento de metas e ferramentas para o Suporte N2."/>
-    <link rel="apple-touch-icon" href="icons/logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
     <link rel="manifest" href="manifest.json">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -325,7 +325,7 @@
         #saved-chats-list li:hover { background-color: var(--info-background); }
         
         #chart-container, #category-chart-container { position: relative; height: 220px; width: 100%; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px); align-items: center; justify-content: center;}
         .modal-content { background: var(--main-bg); margin: 5% auto; padding: 20px; border: 1px solid var(--border-color); width: 90%; max-width: 600px; border-radius: 12px; }
         .modal-body { max-height: 70vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; }
@@ -779,7 +779,6 @@
             <div id="tab-principal" class="tab-content active">
                 <div class="metas-grid">
                     
-                    <!-- HISTÓRICO DE CASOS -->
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-casos" data-editable="true">Histórico de Casos</h2>
@@ -802,7 +801,6 @@
                             <button type="button" id="saveCasesButton" class="button save-button"><span data-editable="true" id="btn-save-cases-text">Salvar Casos</span></button>
                         </div>
                     </div>
-                    <!-- CONTADORES -->
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-atendimentos" data-editable="true">Contadores</h2>
@@ -844,7 +842,6 @@
                             <div id="summary-text" class="summary-box" data-editable="true">A aguardar os seus dados...</div>
                         </div>
                     </div>
-                    <!-- RESPOSTAS RÁPIDAS -->
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-respostas" data-editable="true">Respostas Rápidas</h2>
@@ -859,7 +856,6 @@
                             <div id="resposta-6" class="summary-box resposta-copiavel" data-full-text="Frase reserva" data-editable="true">Frase de reserva para uso geral em atendimentos.</div>
                         </div>
                     </div>
-                    <!-- MISSÃO DIÁRIA -->
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-daily-mission" data-editable="true">Missão Diária</h2>
@@ -869,7 +865,6 @@
                             <ul id="daily-mission-list"></ul>
                         </div>
                     </div>
-                    <!-- RESUMO DO DIA -->
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-summary" data-editable="true">Resumo do Dia</h2>
@@ -891,7 +886,6 @@
 
             <div id="tab-cancelamentos" class="tab-content">
                 <div class="metas-grid">
-                    <!-- PROJEÇÃO -->
                     <div class="meta-card">
                         <div class="card-header"><h2 id="title-projecao" data-editable="true">Projeção de Cancelamentos</h2></div>
                         <div class="card-body" style="justify-content: center; align-items: center; text-align: center;">
@@ -900,7 +894,6 @@
                             <div id="tier-projection-container" style="margin-top: 15px; font-size: 14px; width: 100%;"></div>
                         </div>
                     </div>
-                    <!-- RESUMO CATEGORIA -->
                     <div class="meta-card">
                         <div class="card-header"><h2 id="title-resumo-categoria" data-editable="true">Resumo por Categoria</h2></div>
                         <div class="card-body">
@@ -910,14 +903,12 @@
                             <ul id="category-summary-list" style="margin-top: 15px;"></ul>
                         </div>
                     </div>
-                    <!-- GRÁFICO -->
                     <div class="meta-card">
                         <div class="card-header"><h2 id="title-grafico" data-editable="true">Gráfico de Tendência</h2></div>
                         <div class="card-body">
                             <div id="chart-container"><canvas id="trendChart"></canvas></div>
                         </div>
                     </div>
-                    <!-- COMISSÃO -->
                     <div class="meta-card">
                         <div class="card-header"><h2 id="title-comissao" data-editable="true">Comissão Estimada</h2></div>
                         <div class="card-body" style="justify-content: center; align-items: center;">
@@ -930,7 +921,6 @@
             
             <div id="tab-relatorios" class="tab-content">
                 <div class="metas-grid">
-                    <!-- DIÁRIO DE BORDO -->
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-logbook" data-editable="true">Diário de Bordo</h2>
@@ -943,7 +933,6 @@
                             <button type="button" id="saveLogbookButton" class="button save-button"><span id="btn-save-logbook-text" data-editable="true">Salvar Anotação</span></button>
                         </div>
                     </div>
-                    <!-- HISTÓRICO DE ENTRADAS -->
                     <div class="meta-card">
                         <div class="card-header"><h2 id="title-historico" data-editable="true">Histórico de Entradas</h2></div>
                         <div class="card-body">
@@ -956,15 +945,18 @@
                             <p id="subtitle-report-gen" data-editable="true">Selecione o mês para gerar o relatório detalhado.</p>
                         </div>
                         <div class="card-body">
-                            <div class="form-group">
-                                <label for="report-month" id="label-report-month" data-editable="true">Mês e Ano:</label>
-                                <input type="month" id="report-month" />
+                            <div id="report-export-area">
+                                <div class="form-group">
+                                    <label for="report-month" id="label-report-month" data-editable="true">Mês e Ano:</label>
+                                    <input type="month" id="report-month" />
+                                </div>
+                                <div id="report-output"></div>
                             </div>
-                             <div class="card-footer" style="justify-content: center;">
-                                <button id="generateReportBtn" class="button"><span id="btn-gen-report-text" data-editable="true">Gerar Análise</span></button>
-                                <button id="compareMonthsBtn" class="button secondary-button"><span id="btn-comp-month-text" data-editable="true">Comparar</span></button>
-                            </div>
-                            <div id="report-output"></div>
+                             </div>
+                        <div class="card-footer" style="justify-content: center;">
+                            <button id="generateReportBtn" class="button"><span id="btn-gen-report-text" data-editable="true">Gerar Análise</span></button>
+                            <button id="compareMonthsBtn" class="button secondary-button"><span id="btn-comp-month-text" data-editable="true">Comparar</span></button>
+                            <button id="exportReportPdfBtn" class="button secondary-button">Exportar PDF</button>
                         </div>
                     </div>
                 </div>
@@ -972,7 +964,6 @@
 
             <div id="tab-outros" class="tab-content">
                 <div class="metas-grid">
-                    <!-- LINKS -->
                     <div class="meta-card">
                         <div class="card-header">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
@@ -1003,7 +994,6 @@
                         </div>
                     </div>
                     
-                    <!-- CONQUISTAS -->
                     <div class="meta-card">
                         <div class="card-header"><h2 id="title-conquistas" data-editable="true">Conquistas 🏆</h2></div>
                         <div class="card-body">
@@ -1041,12 +1031,17 @@
                     </div>
                     <div class="card-body" id="ai-chat-body" style="height: 400px; justify-content: flex-end;">
                         <div id="ai-chat-messages" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
-                            <!-- Mensagens do chat aparecem aqui -->
-                        </div>
+                            </div>
                         <div id="ai-chat-input-container" style="display: flex; gap: 10px; margin-top: 15px;">
                             <input type="text" id="ai-prompt-input" placeholder="Digite sua mensagem...">
                             <button id="ai-send-button" class="button">Enviar</button>
                         </div>
+                    </div>
+                    <div class="card-footer">
+                        <button id="saveChatBtn" class="button secondary-button">Salvar Chat</button>
+                        <button id="viewChatsBtn" class="button secondary-button">Ver Salvos</button>
+                        <button id="exportChatTxtBtn" class="button">Gerar .txt</button>
+                        <button id="clearChatBtn" class="button reset-button">Limpar Chat</button>
                     </div>
                 </div>
             </div>
@@ -1173,6 +1168,20 @@
             </div>
         </div>
     </div>
+    
+    <div id="saved-chats-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-editable="true">Conversas Salvas</h2>
+                <span class="close-button" id="close-saved-chats-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <ul id="saved-chats-list">
+                    </ul>
+            </div>
+        </div>
+    </div>
+
 
 <script type="module">
     // Import the functions you need from the SDKs you need
@@ -1256,9 +1265,19 @@
     const generateReportBtn = document.getElementById('generateReportBtn');
     const compareMonthsBtn = document.getElementById('compareMonthsBtn');
     const reportOutput = document.getElementById('report-output');
+    
+    // --- NOVOS SELETORES (PDF e IA) ---
+    const exportReportPdfBtn = document.getElementById('exportReportPdfBtn');
     const aiSendButton = document.getElementById('ai-send-button');
     const aiPromptInput = document.getElementById('ai-prompt-input');
     const aiChatMessages = document.getElementById('ai-chat-messages');
+    const saveChatBtn = document.getElementById('saveChatBtn');
+    const viewChatsBtn = document.getElementById('viewChatsBtn');
+    const exportChatTxtBtn = document.getElementById('exportChatTxtBtn');
+    const clearChatBtn = document.getElementById('clearChatBtn');
+    const savedChatsModal = document.getElementById('saved-chats-modal');
+    const closeSavedChatsModal = document.getElementById('close-saved-chats-modal');
+    const savedChatsList = document.getElementById('saved-chats-list');
 
 
     // --- VARIÁVEIS DE ESTADO ---
@@ -1474,7 +1493,7 @@
         const timeToReminder = reminderDate.getTime() - now.getTime();
         notificationTimeout = setTimeout(() => {
             Notification.requestPermission().then(perm => {
-                if (perm === 'granted') navigator.serviceWorker.ready.then(reg => reg.showNotification('Lembrete de Metas', { body: 'Não se esqueça de guardar o seu progresso de hoje!', icon: 'icons/icon-192x192.png', tag: 'metas-reminder' }));
+                if (perm === 'granted') navigator.serviceWorker.ready.then(reg => reg.showNotification('Lembrete de Metas', { body: 'Não se esqueça de guardar o seu progresso de hoje!', icon: 'icon-192x192.png', tag: 'metas-reminder' }));
             });
             scheduleReminder();
         }, timeToReminder);
@@ -2353,6 +2372,8 @@
     window.addEventListener('click', e => { 
         if (e.target == settingsModal) settingsModal.style.display = 'none'; 
         if (e.target == senhasModal) senhasModal.style.display = 'none'; 
+        // --- ADICIONADO PARA O NOVO MODAL DE CHATS ---
+        if (e.target == savedChatsModal) savedChatsModal.style.display = 'none';
     });
     
     
@@ -2504,10 +2525,42 @@
         `;
     });
     
+    // --- INÍCIO: NOVAS FUNCIONALIDADES (PDF e IA) ---
+
+    // Lógica para exportar Relatório para PDF
+    exportReportPdfBtn.addEventListener('click', () => {
+        const reportContent = reportOutput.innerHTML.trim();
+        if (!reportContent || reportContent.includes('Nenhum dado encontrado')) {
+            showToast('Gere um relatório primeiro para poder exportar.', 'warning');
+            return;
+        }
+
+        if (confirm('Deseja gerar o relatório em PDF e abri-lo numa nova aba?')) {
+            showToast('A gerar o PDF...', 'info');
+            vibrate();
+            
+            const element = document.getElementById('report-export-area');
+            const opt = {
+                margin:       0.5,
+                filename:     `relatorio_metas_${reportMonthInput.value}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().from(element).set(opt).outputPdf('bloburl').then((bloburl) => {
+                window.open(bloburl, '_blank');
+            }).catch(err => {
+                showToast('Erro ao gerar o PDF.', 'danger');
+                console.error(err);
+            });
+        }
+    });
+
     // --- LÓGICA DO ASSISTENTE IA ---
     const callGeminiAPI = async (prompt) => {
         const apiKey = "AIzaSyB4VSoVXwJACSxlf9njB2uUbJF59q7MmNw";
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
         aiSendButton.disabled = true;
         aiSendButton.textContent = '...';
@@ -2520,12 +2573,18 @@
             });
 
             if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Erro da API:", errorData);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
-            const text = data.candidates[0].content.parts[0].text;
-            addMessageToChat('model', text);
+            if (data.candidates && data.candidates.length > 0) {
+                const text = data.candidates[0].content.parts[0].text;
+                addMessageToChat('model', text);
+            } else {
+                 addMessageToChat('model', 'Não recebi uma resposta válida da IA. Verifique as configurações ou a sua chave de API.');
+            }
 
         } catch (error) {
             console.error("Erro ao chamar a API Gemini:", error);
@@ -2571,6 +2630,93 @@
         }
     });
 
+    // Lógica dos novos botões do chat IA
+    clearChatBtn.addEventListener('click', () => {
+        if (aiChatMessages.children.length > 0 && confirm('Tem a certeza que quer limpar a conversa atual?')) {
+            aiChatMessages.innerHTML = '';
+            showToast('Conversa limpa.', 'info');
+            vibrate();
+        }
+    });
+
+    saveChatBtn.addEventListener('click', () => {
+        const messages = Array.from(aiChatMessages.children).map(div => ({
+            role: div.style.alignSelf === 'flex-end' ? 'user' : 'model',
+            text: div.textContent
+        }));
+
+        if (messages.length === 0) {
+            showToast('A conversa está vazia.', 'warning');
+            return;
+        }
+
+        let savedChats = JSON.parse(localStorage.getItem('savedAiChats')) || [];
+        const newChat = {
+            id: `chat_${new Date().getTime()}`,
+            title: messages[0].text.substring(0, 40) + '...',
+            date: new Date().toLocaleString('pt-BR'),
+            messages: messages
+        };
+        savedChats.unshift(newChat);
+        localStorage.setItem('savedAiChats', JSON.stringify(savedChats));
+        showToast('Conversa salva com sucesso!', 'success');
+        vibrate();
+    });
+
+    viewChatsBtn.addEventListener('click', () => {
+        const savedChats = JSON.parse(localStorage.getItem('savedAiChats')) || [];
+        savedChatsList.innerHTML = '';
+
+        if (savedChats.length === 0) {
+            savedChatsList.innerHTML = '<li>Nenhuma conversa salva.</li>';
+        } else {
+            savedChats.forEach(chat => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${chat.title}</strong><br><small>${chat.date}</small>`;
+                li.dataset.chatId = chat.id;
+                li.addEventListener('click', () => {
+                    aiChatMessages.innerHTML = '';
+                    chat.messages.forEach(msg => {
+                        addMessageToChat(msg.role, msg.text);
+                    });
+                    savedChatsModal.style.display = 'none';
+                    showToast('Conversa carregada!', 'info');
+                });
+                savedChatsList.appendChild(li);
+            });
+        }
+        savedChatsModal.style.display = 'flex';
+    });
+
+    closeSavedChatsModal.addEventListener('click', () => {
+        savedChatsModal.style.display = 'none';
+    });
+
+    exportChatTxtBtn.addEventListener('click', () => {
+        const messages = Array.from(aiChatMessages.children);
+        if (messages.length === 0) {
+            showToast('Não há nada para exportar.', 'warning');
+            return;
+        }
+
+        let txtContent = `Exportação da Conversa - ${new Date().toLocaleString('pt-BR')}\n\n`;
+        messages.forEach(div => {
+            const role = div.style.alignSelf === 'flex-end' ? 'Utilizador' : 'Assistente';
+            txtContent += `--- ${role} ---\n${div.textContent}\n\n`;
+        });
+
+        const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `chat_ia_${new Date().toISOString().split('T')[0]}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Ficheiro .txt do chat gerado!', 'success');
+        vibrate();
+    });
+    // --- FIM: NOVAS FUNCIONALIDADES ---
+
 
     // --- INICIALIZAÇÃO ---
     const savedTheme = localStorage.getItem('appTheme') || 'tech';
@@ -2582,4 +2728,3 @@
 </script>
 </body>
 </html>
-

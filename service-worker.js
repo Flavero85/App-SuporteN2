@@ -3,8 +3,6 @@ const CACHE_NAME = "suporte-n2-cache-v2";
 const URLS_TO_CACHE = [
   "/",
   "/index.html",
-  "/style.css",
-  "/script.js",
   "/manifest.json",
   "/logo.png",
   "/icon-192x192.png",

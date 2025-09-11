@@ -9,12 +9,345 @@
     <link rel="apple-touch-icon" href="icon-192x192.png">
     <link rel="manifest" href="manifest.json">
 
-    <!-- LIBS -->
+    <!-- LIBS EXTERNAS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --primary-color: #00bfa5; 
+            --primary-color-hover: #00a794;
+            --secondary-button-bg: rgba(255, 255, 255, 0.1);
+            --danger-color: #e73444;
+            --danger-color-hover: #d32f2f;
+            --text-color: #ffffff;
+            --text-secondary-color: #b0bec5; 
+            --border-color: rgba(255, 255, 255, 0.2);
+            --info-color: #29b6f6; 
+            --info-background: rgba(41, 182, 246, 0.1);
+            --success-color: #66bb6a; 
+            --success-background: rgba(102, 187, 106, 0.15);
+            --warning-color: #ffa726; 
+            --gold-color: #FFD700;
+            --main-bg: linear-gradient(to right, #00261e, #004d40);
+            --card-bg: linear-gradient(to bottom right, #1a237e, #283593);
+            --card-border: #3f51b5;
+            --input-bg: rgba(0, 0, 0, 0.2);
+            --toast-bg: #333;
+        }
+
+        /* TEMA TECH (MODIFICADO) */
+        body.theme-tech {
+            --primary-color: #00c6ff;
+            --primary-color-hover: #0072ff;
+            --main-bg: #0B021D;
+            --card-bg: rgba(28, 14, 57, 0.5);
+            --card-border: #2a1a5e;
+            --text-color: #f0f0f0;
+            --text-secondary-color: #a0a0a0;
+            --input-bg: #1D103B;
+            --border-color: rgba(74, 44, 143, 0.5);
+            --info-color: #8A2BE2;
+            --info-background: rgba(138, 43, 226, 0.15);
+            --success-color: #1FF2FF;
+            --success-background: rgba(31, 242, 255, 0.15);
+            --toast-bg: #1D103B;
+            --toast-color: #f0f0f0;
+        }
+
+        /* TEMA CLARO (LIGHT) */
+        body.theme-light {
+            --text-color: #202124;
+            --text-secondary-color: #5f6368;
+            --border-color: #dadce0;
+            --main-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --card-border: #e0e0e0;
+            --input-bg: #f1f3f4;
+            --secondary-button-bg: rgba(0, 0, 0, 0.05);
+            --toast-bg: #ffffff;
+            --toast-color: #202124;
+        }
+        
+        /* TEMA VERDE MENTA */
+        body.theme-mint {
+            --primary-color: #30a080;
+            --primary-color-hover: #298a6f;
+            --main-bg: linear-gradient(to top, #f0fdf4, #dcfce7);
+            --card-bg: #ffffff;
+            --card-border: #bbf7d0;
+            --text-color: #14532d;
+            --text-secondary-color: #4d7c0f;
+            --input-bg: #f0fdf4;
+            --border-color: #d1fae5;
+            --info-color: #0ea5e9;
+            --info-background: #e0f2fe;
+            --success-color: #22c55e;
+            --success-background: #dcfce7;
+        }
+
+        /* TEMA PÔR DO SOL */
+        body.theme-sunset {
+            --primary-color: #f97316;
+            --primary-color-hover: #ea580c;
+            --main-bg: linear-gradient(135deg, #7f1d1d, #b91c1c, #f97316);
+            --card-bg: linear-gradient(to bottom right, #1f2937, #374151);
+            --card-border: #4b5563;
+            --text-color: #f9fafb;
+            --text-secondary-color: #d1d5db;
+            --input-bg: rgba(17, 24, 39, 0.5);
+            --border-color: #4b5563;
+            --info-color: #facc15;
+            --info-background: rgba(250, 204, 21, 0.1);
+        }
+
+        /* TEMA GRAFITE */
+        body.theme-graphite {
+            --primary-color: #52525b;
+            --primary-color-hover: #71717a;
+            --main-bg: #18181b;
+            --card-bg: #27272a;
+            --card-border: #3f3f46;
+            --text-color: #f4f4f5;
+            --text-secondary-color: #a1a1aa;
+            --input-bg: #3f3f46;
+            --border-color: #3f3f46;
+            --info-color: #a78bfa;
+            --info-background: rgba(167, 139, 250, 0.1);
+            --success-color: #4ade80;
+            --success-background: rgba(74, 222, 128, 0.1);
+        }
+        
+        /* ESTILOS GERAIS */
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background: var(--main-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 10px;
+            padding-bottom: 70px;
+            transition: background 0.5s, color 0.5s;
+        }
+        .page-container {
+            max-width: 1200px;
+            margin: 10px auto;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            text-align: center;
+            transition: background-color 0.3s, border 0.3s, box-shadow 0.3s, backdrop-filter 0.3s;
+        }
+        .header-metas {
+            display: flex; justify-content: center; align-items: center;
+            margin-bottom: 15px; position: relative;
+        }
+        .header-logo {
+            height: 32px; width: auto; margin-right: 10px; border-radius: 50%;
+        }
+        .header-metas h1 { 
+            margin: 0; color: var(--text-color); font-size: 1.6rem;
+        }
+        .metas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 15px;
+        }
+        .meta-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            display: flex; flex-direction: column;
+            text-align: left; overflow: hidden;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .card-header { padding: 15px; border-bottom: 1px solid var(--border-color); }
+        .card-header h2 { margin: 0 0 5px 0; color: var(--text-color); }
+        .card-header p { margin: 0; font-size: 14px; color: var(--text-secondary-color); }
+        .card-body { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; gap: 12px; }
+        .card-footer { 
+            padding: 10px 15px; 
+            border-top: 1px solid var(--border-color); 
+            display: flex; justify-content: flex-end; gap: 10px;
+            margin-top: auto;
+        }
+        .form-group { margin-bottom: 10px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: 500; color: var(--text-secondary-color); }
+        
+        /* INPUTS E BOTÕES */
+        input, select, textarea {
+            padding: 10px; font-size: 14px; border-radius: 8px;
+            background-color: var(--input-bg); border: 1px solid var(--border-color);
+            color: var(--text-color); transition: all 0.3s ease;
+            width: 100%; box-sizing: border-box;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none; border-color: var(--primary-color);
+            box-shadow: 0 0 8px 0px var(--primary-color);
+        }
+        textarea { resize: vertical; min-height: 80px;}
+        .button { 
+            background-color: var(--primary-color); color: white; padding: 10px 15px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; 
+        }
+        .button:hover { background-color: var(--primary-color-hover); transform: translateY(-2px); }
+        .button.save-button { background-color: var(--success-color); }
+        .button.reset-button { background-color: var(--danger-color); }
+        .button.secondary-button { background-color: var(--secondary-button-bg); color: var(--text-color); }
+        .icon-button {
+            background: none; border: none; padding: 5px; cursor: pointer; color: var(--text-secondary-color);
+            position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+        }
+        .icon-button svg { transition: transform 0.3s ease-in-out; }
+        .icon-button:hover svg { transform: rotate(90deg); color: var(--primary-color); }
+        .action-buttons { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; }
+        .daily-counters-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: end; }
+        
+        /* ABAS */
+        .tabs-container {
+            display: flex; justify-content: center; gap: 10px; margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color); width: 100%; overflow-x: auto;
+        }
+        .tab-button {
+            padding: 10px 15px; cursor: pointer; background: none; border: none;
+            color: var(--text-secondary-color); font-weight: bold; font-size: 0.9rem;
+            border-bottom: 3px solid transparent; transition: color 0.3s, border-color 0.3s; flex-shrink: 0;
+        }
+        .tab-button:hover { color: var(--text-color); }
+        .tab-button.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+        #tab-content-wrapper { position: relative; display: flex; width: 100%; overflow: hidden; }
+        .tab-content {
+            flex-shrink: 0; width: 100%; opacity: 1;
+            transition: transform 0.4s ease, opacity 0.4s ease; display: none;
+        }
+        .tab-content.active { display: block; }
+
+        /* HISTÓRICO DE CASOS */
+        .case-controls { display: flex; flex-wrap: nowrap; gap: 10px; margin-bottom: 15px; align-items: center; }
+        #case-search-input { flex-grow: 1; min-width: 80px; }
+        .filter-buttons-group { display: flex; gap: 5px; flex-shrink: 0; }
+        .filter-btn { padding: 8px 10px; font-size: 12px; border: 1px solid var(--border-color); }
+        .filter-btn.active { background-color: var(--primary-color); border-color: var(--primary-color); color: white; }
+        #cases-list-container { max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 5px; }
+        .case-entry {
+            background-color: var(--input-bg); border: 1px solid var(--border-color);
+            border-radius: 8px; padding: 10px; transition: all 0.3s;
+        }
+        .case-main-content { display: flex; gap: 8px; align-items: center; }
+        .case-fields { flex-grow: 1; display: flex; flex-direction: column; gap: 6px; }
+        .field-group { display: flex; gap: 8px; align-items: center; }
+        .field-group .copy-btn { padding: 6px 10px; font-size: 12px; flex-shrink: 0; }
+        .status-indicator { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
+        .status-Pendente { background-color: var(--warning-color); }
+        .status-Em-Andamento, .status-Em-andamento { background-color: var(--info-color); }
+        .status-Resolvido { background-color: var(--success-color); }
+        .expand-btn {
+            background: none; border: 1.5px solid var(--text-secondary-color); color: var(--text-secondary-color);
+            cursor: pointer; padding: 0; width: 28px; height: 28px; border-radius: 50%;
+            flex-shrink: 0; transition: all 0.2s; font-size: 1.2rem; line-height: 28px; text-align: center;
+        }
+        .expand-btn.expanded { transform: rotate(180deg); border-color: var(--primary-color); color: var(--primary-color); }
+        .case-details-content {
+            max-height: 0; overflow: hidden; transition: max-height 0.4s ease, margin-top 0.4s ease, padding-top 0.4s ease;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .case-details-content.visible { max-height: 300px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color); }
+        .details-actions { display: flex; gap: 8px; margin-top: 8px; justify-content: flex-end; }
+        .details-actions .button { padding: 6px 10px; font-size: 12px; }
+        
+        /* COMPONENTES DIVERSOS */
+        .bonus-value, .projection-value { font-size: 2.5rem; font-weight: bold; text-align: center;}
+        #bonus-formula, #projection-formula { text-align: center; font-size: 0.9rem; color: var(--text-secondary-color);}
+        #history-list, #daily-summary-cases-list { list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; }
+        #history-list li, #daily-summary-cases-list li { background-color: var(--input-bg); border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 14px; }
+        #chart-container, #category-chart-container { position: relative; height: 220px; width: 100%; }
+        .tier-container { display:flex; flex-direction:column; gap:8px; width: 100%; text-align: left;}
+        .tier-item { display:flex; justify-content:space-between; align-items:center; padding:10px; border-radius:8px; background:var(--input-bg); border:1px solid var(--border-color); }
+        .tier-item .tier-name { font-weight:700; }
+        .tier-item .tier-desc { font-size:0.9rem; color:var(--text-secondary-color); }
+        .tier-item.highlight { border-color:var(--primary-color); }
+        #report-output { border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-top: 12px; text-align: left; }
+        .report-stat { display:flex; justify-content:space-between; gap:8px; padding:8px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:8px; }
+        .resposta-copiavel { cursor: pointer; transition: transform 0.2s, background-color 0.2s; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .resposta-copiavel:hover { transform: scale(1.02); background-color: var(--info-background); }
+
+        /* MISSÃO DIÁRIA */
+        #daily-mission-list { list-style: none; padding: 0; margin: 0; text-align: left; }
+        #daily-mission-list li { margin-bottom: 8px; padding: 8px; font-size: 14px; border-radius: 6px; cursor: pointer; transition: all 0.2s; border-left: 3px solid var(--border-color); }
+        #daily-mission-list li:hover { background-color: var(--input-bg); }
+        #daily-mission-list li.completed { color: var(--success-color); text-decoration: line-through; opacity: 0.7; border-left-color: var(--success-color); }
+        #daily-mission-list li::before { content: '☐'; margin-right: 10px; font-family: monospace; }
+        #daily-mission-list li.completed::before { content: '☑'; }
+        
+        /* MODAIS */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: var(--card-bg); margin: auto; padding: 20px; border: 1px solid var(--border-color);
+            width: 90%; max-width: 500px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; }
+        .modal-header h2 { margin: 0; }
+        .close-button { color: var(--text-secondary-color); font-size: 28px; font-weight: bold; cursor: pointer; }
+        .modal-body { max-height: 70vh; overflow-y: auto; }
+        .modal-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color); }
+        #senhas-lista { display: flex; flex-direction: column; gap: 15px; }
+        .senha-item { background-color: var(--input-bg); padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary-color); }
+        .senha-item h4 { margin: 0 0 10px 0; }
+        .senha-item p { margin: 5px 0; }
+        .copyable-credential { background-color: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px; cursor: pointer; font-family: monospace; }
+        .delete-senha-btn { padding: 5px 10px; font-size: 12px; }
+
+        /* TOAST */
+        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .toast { background-color: var(--toast-bg); color: var(--toast-color, #fff); padding: 12px 20px; border-radius: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); opacity: 0; transform: translateY(20px); transition: all 0.3s; font-size: 14px; border: 1px solid var(--border-color); }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background-color: var(--success-color); color: #0B021D; } 
+        .toast.danger { background-color: var(--danger-color); color: #fff;} 
+        .toast.info { background-color: var(--info-color); color: #fff;}
+        .toast.gold { background: linear-gradient(45deg, #f0c72d, #d4a01d); color: #333; font-weight: bold; }
+        
+        /* CONQUISTAS */
+        #achievement-list { list-style: none; padding: 0; margin: 0; }
+        .achievement { opacity: 0.4; transition: opacity 0.5s, transform 0.2s; border-left: 3px solid transparent; padding: 8px; border-radius: 4px; margin-bottom: 5px;}
+        .achievement.unlocked { opacity: 1; font-weight: bold; border-left-color: var(--gold-color); transform: scale(1.02); }
+        .achievement.unlocked::before { content: '🏆 '; color: var(--gold-color); }
+
+        /* EDIÇÃO E FOOTER */
+        [data-editable="true"][contenteditable="true"] { outline: 2px dashed var(--info-color); background-color: var(--info-background); border-radius: 4px; padding: 2px 4px; cursor: text; }
+        .app-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            padding: 8px; box-sizing: border-box; background-color: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px); color: var(--text-secondary-color); font-size: 12px;
+            display: flex; align-items: center; justify-content: center;
+            gap: 20px; flex-wrap: wrap; z-index: 500; border-top: 1px solid var(--border-color);
+        }
+        .footer-link { color: var(--text-secondary-color); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .footer-logo { height: 24px; width: auto; border-radius: 50%; }
+
+        /* LINKS ÚTEIS */
+        #links-uteis-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .link-util {
+            display: block; background-color: var(--secondary-button-bg); color: var(--text-color);
+            padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 500;
+            transition: all 0.2s; text-align: center; border: 1px solid var(--border-color);
+        }
+        .link-util:hover { background-color: var(--primary-color); border-color: var(--primary-color); transform: translateY(-2px); }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 768px) { #links-uteis-container { grid-template-columns: 1fr; } }
+        @media (max-width: 600px) {
+            .metas-grid { grid-template-columns: 1fr; }
+            .action-buttons { flex-direction: column; align-items: stretch; }
+            .action-buttons .button { width: 100%; margin: 5px 0; }
+        }
+    </style>
 </head>
 <body>
     <div id="toast-container"></div>
@@ -24,8 +357,7 @@
             <img src="logo.jpg" alt="Logo" class="header-logo">
             <h1 id="main-title" data-editable="true">Suporte N2</h1>
             <button id="settings-button" class="icon-button" title="Configurações e Ações">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                 </svg>
             </button>
         </header>
@@ -45,7 +377,7 @@
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-casos" data-editable="true">Histórico de Casos</h2>
-                            <p id="subtitle-casos" data-editable="true">Pesquise e gerencie os seus casos.</p>
+                            <p id="subtitle-casos" data-editable="true">Pesquise e gira os seus casos.</p>
                         </div>
                         <div class="card-body">
                             <div class="case-controls">
@@ -73,7 +405,7 @@
                             <h4>Anotações de Bordo:</h4>
                             <textarea id="daily-summary-textarea" placeholder="Anote aqui os eventos importantes do dia..."></textarea>
                             <h4 style="margin-top: 15px;">Casos do Dia:</h4>
-                            <div id="daily-summary-cases-list"></div>
+                            <ul id="daily-summary-cases-list"></ul>
                         </div>
                         <div class="card-footer">
                              <button id="dailySummaryClearButton" class="button reset-button">Limpar Anotação</button>
@@ -84,7 +416,7 @@
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-respostas" data-editable="true">Respostas Rápidas</h2>
-                            <p id="subtitle-respostas" data-editable="true">Clique para copiar o texto completo.</p>
+                            <p id="subtitle-respostas" data-editable="true">Clique numa resposta para copiar o texto completo.</p>
                         </div>
                         <div class="card-body" id="respostas-container">
                             <!-- As respostas serão carregadas pelo JS -->
@@ -94,7 +426,7 @@
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-daily-mission" data-editable="true">Missão Diária</h2>
-                            <p id="subtitle-daily-mission" data-editable="true">Seus objetivos para hoje.</p>
+                            <p id="subtitle-daily-mission" data-editable="true">Os seus objetivos para hoje.</p>
                         </div>
                         <div class="card-body">
                             <ul id="daily-mission-list"></ul>
@@ -109,7 +441,7 @@
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-atendimentos" data-editable="true">Contadores Mensais</h2>
-                            <p id="subtitle-atendimentos" data-editable="true">Acompanhe seu progresso para a comissão.</p>
+                            <p id="subtitle-atendimentos" data-editable="true">Acompanhe o seu progresso para a comissão.</p>
                         </div>
                         <div class="card-body">
                              <div class="form-group">
@@ -137,9 +469,9 @@
                     </div>
                     <div class="meta-card">
                         <div class="card-header"><h2 id="title-projecao" data-editable="true">Projeção de Cancelamentos</h2></div>
-                        <div class="card-body">
+                        <div class="card-body" style="text-align: center;">
                             <div class="projection-value" id="projection-value">0</div>
-                            <div id="projection-formula">Aguardando histórico...</div>
+                            <div id="projection-formula">A aguardar histórico...</div>
                             <div class="tier-container" id="tier-projection-container" style="margin-top: 15px;"></div>
                         </div>
                     </div>
@@ -199,7 +531,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
                                 </button>
                             </div>
-                            <p id="subtitle-links" data-editable="true">Acesse sistemas importantes com um clique.</p>
+                            <p id="subtitle-links" data-editable="true">Aceda a sistemas importantes com um clique.</p>
                         </div>
                         <div class="card-body" id="links-uteis-container">
                             <!-- Links carregados pelo JS -->
@@ -209,7 +541,13 @@
                         <div class="card-header"><h2 id="title-comissao" data-editable="true">Comissão Estimada</h2></div>
                         <div class="card-body" style="justify-content: center; align-items: center;">
                             <div id="bonus-value" class="bonus-value">R$ 0,00</div>
-                            <div id="bonus-formula">Aguardando dados...</div>
+                            <div id="bonus-formula">A aguardar dados...</div>
+                        </div>
+                    </div>
+                    <div class="meta-card">
+                        <div class="card-header"><h2 id="title-conquistas" data-editable="true">Conquistas 🏆</h2></div>
+                        <div class="card-body">
+                            <ul id="achievement-list"></ul>
                         </div>
                     </div>
                 </div>
@@ -220,7 +558,6 @@
             <button id="saveButton" class="button save-button">Salvar Progresso</button>
             <button id="editButton" class="button secondary-button">✏️ Editar Textos</button>
             <button id="themeToggleButton" class="button">Mudar Tema</button>
-            <button id="notifyButton" class="button">🔔 Ativar Notificações</button>
         </div>
     </div>
 
@@ -258,8 +595,639 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONSTANTES E SELETORES ---
+            const doc = {
+                body: document.body,
+                settingsButton: document.getElementById('settings-button'),
+                tabButtons: document.querySelectorAll('.tab-button'),
+                tabContents: document.querySelectorAll('.tab-content'),
+                casesListContainer: document.getElementById('cases-list-container'),
+                caseSearchInput: document.getElementById('case-search-input'),
+                addCaseButton: document.getElementById('addCaseButton'),
+                clearCasesButton: document.getElementById('clearCasesButton'),
+                dailySummaryTextarea: document.getElementById('daily-summary-textarea'),
+                dailySummaryCasesList: document.getElementById('daily-summary-cases-list'),
+                dailySummarySaveButton: document.getElementById('dailySummarySaveButton'),
+                dailySummaryClearButton: document.getElementById('dailySummaryClearButton'),
+                respostasContainer: document.getElementById('respostas-container'),
+                dailyMissionList: document.getElementById('daily-mission-list'),
+                protocolosAnalisadosInput: document.getElementById('protocolosAnalisadosInput'),
+                dailyCancellationsInput: document.getElementById('dailyCancellationsInput'),
+                atendimentosInput: document.getElementById('atendimentosInput'),
+                categorySelectTop: document.getElementById('categorySelectTop'),
+                metasContainer: document.getElementById('metas-container'),
+                projectionValue: document.getElementById('projection-value'),
+                projectionFormula: document.getElementById('projection-formula'),
+                tierProjectionContainer: document.getElementById('tier-projection-container'),
+                trendChartCanvas: document.getElementById('trendChart'),
+                categoryPieChartCanvas: document.getElementById('categoryPieChart'),
+                historyList: document.getElementById('history-list'),
+                reportMonthInput: document.getElementById('report-month'),
+                generateReportBtn: document.getElementById('generateReportBtn'),
+                compareMonthsBtn: document.getElementById('compareMonthsBtn'),
+                exportPdfBtn: document.getElementById('exportPdfBtn'),
+                reportOutput: document.getElementById('report-output'),
+                linksUteisContainer: document.getElementById('links-uteis-container'),
+                senhasButton: document.getElementById('senhas-button'),
+                bonusValue: document.getElementById('bonus-value'),
+                bonusFormula: document.getElementById('bonus-formula'),
+                achievementList: document.getElementById('achievement-list'),
+                saveButton: document.getElementById('saveButton'),
+                editButton: document.getElementById('editButton'),
+                themeToggleButton: document.getElementById('themeToggleButton'),
+                settingsModal: document.getElementById('settings-modal'),
+                senhasModal: document.getElementById('senhas-modal'),
+                toastContainer: document.getElementById('toast-container'),
+            };
 
-    <script type="module" src="script.js"></script>
+            const STORAGE_KEY = "estadoN2_v7";
+            const themes = ['tech', 'default', 'light', 'mint', 'sunset', 'graphite'];
+            const { jsPDF } = window.jspdf;
+
+            // --- ESTADO DA APLICAÇÃO ---
+            let estado = {};
+            let trendChart, categoryPieChart;
+            let isEditMode = false;
+
+            const estadoPadrao = {
+                casos: [], historico: [], temaAtual: "tech", baseSalary: 2500,
+                metas: [ { target: 15, reward: 0.25 }, { target: 25, reward: 0.50 }, { target: 35, reward: 1.0 } ],
+                senhas: [
+                    { id: 1, nome: "SIG", usuario: "flavio.cardozo@desktop.tec.br", senha: "SuporteN2" },
+                    { id: 2, nome: "SalesForce", usuario: "flavio.cardozo@desktop.tec.br", senha: "@Flavero85" },
+                    { id: 3, nome: "WebMail", usuario: "flavio.cardozo@desktop.tec.br", senha: "eWJBP[ar8V" }
+                ],
+                linksUteis: [
+                    { id: 1, nome: "SIG", url: "http://172.30.0.141:8080" },
+                    { id: 2, nome: "SalesForce", url: "https://desktopsa.my.salesforce.com" },
+                    { id: 3, nome: "WebMail", url: "https://webmail.desktop.com.br" },
+                    { id: 4, nome: "NetCore", url: "https://netcore.desktop.localdomain/weboss/reprovisiona_gpon" }
+                ],
+                missoesDiarias: [
+                    { texto: "Analisar 10 protocolos", completa: false },
+                    { texto: "Zerar a fila de pendências", completa: false },
+                ],
+                textosEditaveis: {},
+                categoriasCancelamento: ["Sem Sinal", "Massivo", "Lentidão", "Quedas de Conexão", "Financeiro", "Outros"],
+                respostasRapidas: [
+                    { id: "resp1", resumo: "Visita cancelada por falha externa.", full: "Olá,\n\nAqui é Flávio, da empresa Desktop. Tudo bem com você?\n\nQuero te explicar sobre o reparo que estava agendado (protocolo [ XXXX ]): identificamos que a falha não está na sua residência, mas sim em um equipamento externo que leva o sinal até aí.\n\nPor isso, a visita técnica não seria eficaz e precisou ser cancelada.\n\nMas não se preocupe! Nossa equipe já está cuidando disso e em breve você terá seu serviço restabelecido." },
+                    { id: "resp2", resumo: "Oportunidade de melhoria na conexão.", full: "Olá, cliente Desktop!\n\nMeu nome é Flávio do Suporte Técnico N2 e estou entrando em contato com uma novidade incrível: identificamos uma oportunidade de melhorar ainda mais a qualidade da sua conexão com a Desktop — e o melhor, sem custo adicional!\n\nÉ só me informar a melhor data e horário, e cuidamos do resto!" }
+                ],
+                conquistas: {}
+            };
+
+            // --- FUNÇÕES UTILITÁRIAS ---
+            const salvarEstado = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(estado));
+            const carregarEstado = () => {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                estado = Object.assign({}, estadoPadrao, raw ? JSON.parse(raw) : {});
+            };
+            const mostrarToast = (message, type = 'info') => {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                doc.toastContainer.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            };
+            const getTodayDateString = () => new Date().toLocaleDateString('pt-BR');
+
+            // --- RENDERIZAÇÃO ---
+            const renderizarTudo = () => {
+                doc.body.className = `theme-${estado.temaAtual}`;
+                aplicarTextosEditaveis();
+                renderizarCasos();
+                renderizarContadores();
+                renderizarLinksUteis();
+                renderizarRespostasRapidas();
+                renderizarCategoriasSelect();
+                renderizarMetasProgresso();
+                calcularErenderizarComissao();
+                renderHistoryList();
+                renderDailyCasesList();
+                renderizarMissoesDiarias();
+                renderProjecaoUI();
+                renderizarConquistas();
+                atualizarGraficos(); // Chamar por último para garantir que os dados estão prontos
+            };
+
+            const aplicarTextosEditaveis = () => Object.entries(estado.textosEditaveis).forEach(([id, texto]) => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = texto;
+            });
+            
+            const renderizarCasos = (filtro = 'Todos', termoBusca = '') => {
+                const termoNormalizado = termoBusca.toLowerCase().trim();
+                const casosFiltrados = estado.casos.filter(caso => 
+                    (filtro === 'Todos' || caso.status === filtro) &&
+                    (!termoNormalizado || caso.protocolo?.toLowerCase().includes(termoNormalizado) || caso.telefone?.toLowerCase().includes(termoNormalizado))
+                );
+
+                doc.casesListContainer.innerHTML = casosFiltrados.length === 0 
+                    ? `<p style="text-align: center; color: var(--text-secondary-color);">Nenhum caso encontrado.</p>`
+                    : casosFiltrados.map(caso => `
+                        <div class="case-entry" data-id="${caso.id}">
+                            <div class="case-main-content">
+                                <div class="case-fields">
+                                    <div class="field-group"><input type="text" value="${caso.protocolo || ''}" placeholder="Protocolo" class="case-protocolo"><button class="button copy-btn" data-copy="${caso.protocolo || ''}">Copiar</button></div>
+                                    <div class="field-group" style="margin-top:8px;"><input type="text" value="${caso.telefone || ''}" placeholder="Telefone" class="case-telefone"><button class="button copy-btn" data-copy="${caso.telefone || ''}">Copiar</button></div>
+                                </div>
+                                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+                                    <div class="status-indicator status-${(caso.status || "Pendente").replace(/\s+/g, '-')}" title="${caso.status || 'Pendente'}"></div>
+                                    <button class="expand-btn"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+                                </div>
+                            </div>
+                            <div class="case-details-content">
+                                <textarea class="case-desc" placeholder="Descrição do caso...">${caso.descricao || ''}</textarea>
+                                <select class="case-status">
+                                    <option value="Pendente" ${caso.status === 'Pendente' ? 'selected' : ''}>Pendente</option>
+                                    <option value="Em-Andamento" ${caso.status === 'Em-Andamento' ? 'selected' : ''}>Em Andamento</option>
+                                    <option value="Resolvido" ${caso.status === 'Resolvido' ? 'selected' : ''}>Resolvido</option>
+                                </select>
+                                <div class="details-actions"><button class="button reset-button delete-case-btn">Excluir</button></div>
+                            </div>
+                        </div>`).join('');
+            };
+            
+            const renderizarContadores = () => {
+                const hoje = getTodayDateString();
+                const registroHoje = estado.historico.find(h => h.date === hoje);
+                doc.protocolosAnalisadosInput.value = registroHoje?.protocolos || 0;
+                doc.dailyCancellationsInput.value = registroHoje?.cancelamentosDiarios || 0;
+                
+                const mesAtual = new Date().getMonth();
+                const totalCancelamentosMes = estado.historico
+                    .filter(h => new Date(h.date.split('/').reverse().join('-')).getMonth() === mesAtual)
+                    .reduce((acc, h) => acc + (h.cancelamentosDiarios || 0), 0);
+                doc.atendimentosInput.value = totalCancelamentosMes;
+                doc.dailySummaryTextarea.value = registroHoje?.anotacao || '';
+            };
+
+            const renderHistoryList = () => {
+                 doc.historyList.innerHTML = [...estado.historico].reverse().map(h => `<li><strong>${h.date}:</strong> ${h.cancelamentosDiarios || 0} canc. | ${h.protocolos || 0} prot.</li>`).join('') || '<li>Nenhum registo salvo.</li>';
+            };
+            
+            const renderDailyCasesList = () => {
+                const hojeStr = new Date().toISOString().split('T')[0];
+                const casosDeHoje = estado.casos.filter(c => c.data.startsWith(hojeStr));
+                doc.dailySummaryCasesList.innerHTML = casosDeHoje.map(c => `<li><strong>${c.protocolo}</strong> - ${c.status}</li>`).join('') || '<li>Nenhum caso hoje.</li>';
+            };
+
+            const renderizarLinksUteis = () => doc.linksUteisContainer.innerHTML = estado.linksUteis.map(link => `<a href="${link.url}" class="link-util" target="_blank">${link.nome}</a>`).join('');
+            const renderizarRespostasRapidas = () => doc.respostasContainer.innerHTML = estado.respostasRapidas.map(resp => `<div id="${resp.id}" class="resposta-copiavel" data-full="${resp.full}">${resp.resumo}</div>`).join('');
+            const renderizarCategoriasSelect = () => doc.categorySelectTop.innerHTML = estado.categoriasCancelamento.map(cat => `<option>${cat}</option>`).join('');
+            const renderizarMetasProgresso = () => {
+                const totalCancelamentos = parseInt(doc.atendimentosInput.value) || 0;
+                doc.metasContainer.innerHTML = estado.metas.map(meta => {
+                    const percent = Math.min(100, (totalCancelamentos / meta.target) * 100);
+                    return `
+                        <div class="meta-item">
+                            <label>Meta ${meta.target} cancelamentos (${meta.reward * 100}% Bônus)</label>
+                            <div class="progress-bar-background"><div class="progress-bar-fill ${percent >= 100 ? 'completed' : ''}" style="width: ${percent}%;"></div></div>
+                        </div>`;
+                }).join('');
+            };
+            
+            const renderizarConquistas = () => {
+                 // Implementação futura
+                 doc.achievementList.innerHTML = `<li>Funcionalidade em desenvolvimento...</li>`;
+            };
+            
+            const renderizarMissoesDiarias = () => {
+                 doc.dailyMissionList.innerHTML = estado.missoesDiarias.map((missao, index) => 
+                    `<li class="${missao.completa ? 'completed' : ''}" data-index="${index}">${missao.texto}</li>`
+                ).join('');
+            };
+
+            // --- CÁLCULOS E GRÁFICOS ---
+            const calcularErenderizarComissao = () => {
+                const totalCancelamentos = parseInt(doc.atendimentosInput.value) || 0;
+                let metaAtingida = null;
+                for (const meta of [...estado.metas].reverse()) {
+                    if (totalCancelamentos >= meta.target) {
+                        metaAtingida = meta;
+                        break;
+                    }
+                }
+                if (metaAtingida) {
+                    const comissao = estado.baseSalary * metaAtingida.reward;
+                    doc.bonusValue.textContent = `R$ ${comissao.toFixed(2)}`;
+                    doc.bonusFormula.textContent = `Meta de ${metaAtingida.target} atingida (${metaAtingida.reward * 100}%)`;
+                } else {
+                    doc.bonusValue.textContent = 'R$ 0,00';
+                    doc.bonusFormula.textContent = 'Nenhuma meta de comissão atingida.';
+                }
+            };
+            
+            const renderProjecaoUI = () => {
+                const mesAtual = new Date().getMonth();
+                const historicoMes = estado.historico.filter(h => new Date(h.date.split('/').reverse().join('-')).getMonth() === mesAtual);
+                if(historicoMes.length < 2) {
+                    doc.projectionValue.textContent = "N/A";
+                    doc.projectionFormula.textContent = "Dados insuficientes.";
+                    doc.tierProjectionContainer.innerHTML = '';
+                    return;
+                }
+                const diasComRegistro = historicoMes.length;
+                const totalCancelamentos = historicoMes.reduce((sum, h) => sum + (h.cancelamentosDiarios || 0), 0);
+                const mediaDiaria = totalCancelamentos / diasComRegistro;
+                const projecao = Math.round(mediaDiaria * 22); // Média de dias úteis
+                doc.projectionValue.textContent = projecao;
+                doc.projectionFormula.textContent = `Baseado numa média de ${mediaDiaria.toFixed(1)}/dia.`;
+                
+                 let tierHtml = '';
+                estado.metas.forEach(meta => {
+                    const isAchieved = projecao >= meta.target;
+                    tierHtml += `<div class="tier-item ${isAchieved ? 'highlight' : ''}">
+                        <div>
+                            <div class="tier-name">Faixa ${meta.id} (${(meta.reward*100)}% Bônus)</div>
+                            <div class="tier-desc">${isAchieved ? 'Projeção atinge esta meta!' : 'Projeção não atinge'}</div>
+                        </div>
+                        <div><strong>${meta.target}</strong></div>
+                    </div>`;
+                });
+                doc.tierProjectionContainer.innerHTML = tierHtml;
+            };
+
+            const atualizarGraficos = () => {
+                if(trendChart) trendChart.destroy();
+                if(categoryPieChart) categoryPieChart.destroy();
+
+                const textColor = getComputedStyle(doc.body).getPropertyValue('--text-color');
+                
+                // Gráfico de Tendência
+                const labels = estado.historico.map(h => h.date);
+                trendChart = new Chart(doc.trendChartCanvas, {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Cancelamentos Diários',
+                            data: estado.historico.map(h => h.cancelamentosDiarios),
+                            borderColor: 'var(--danger-color)', tension: 0.3
+                        }, {
+                            label: 'Protocolos Diários',
+                            data: estado.historico.map(h => h.protocolos),
+                            borderColor: 'var(--info-color)', tension: 0.3
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { color: textColor }}, y: { ticks: { color: textColor }} }}
+                });
+
+                // Gráfico de Pizza
+                const contagemCategorias = estado.historico.reduce((acc, h) => {
+                    if (h.categoria) acc[h.categoria] = (acc[h.categoria] || 0) + 1;
+                    return acc;
+                }, {});
+                
+                categoryPieChart = new Chart(doc.categoryPieChartCanvas, {
+                    type: 'pie',
+                    data: {
+                        labels: Object.keys(contagemCategorias),
+                        datasets: [{ data: Object.values(contagemCategorias) }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: textColor }}}}
+                });
+            };
+
+            // --- LÓGICA PRINCIPAL ---
+            const salvarResumoDiario = () => {
+                const hoje = getTodayDateString();
+                const novoRegistro = {
+                    date: hoje,
+                    protocolos: parseInt(doc.protocolosAnalisadosInput.value) || 0,
+                    cancelamentosDiarios: parseInt(doc.dailyCancellationsInput.value) || 0,
+                    anotacao: doc.dailySummaryTextarea.value || "",
+                    categoria: doc.categorySelectTop.value
+                };
+
+                const registroIndex = estado.historico.findIndex(h => h.date === hoje);
+                if (registroIndex > -1) estado.historico[registroIndex] = novoRegistro;
+                else estado.historico.push(novoRegistro);
+                
+                salvarEstado();
+                mostrarToast("Resumo do dia salvo!", "success");
+                renderizarTudo();
+            };
+
+            const adicionarCaso = (protocolo, telefone) => {
+                if(!protocolo) return;
+                estado.casos.unshift({ id: Date.now().toString(), protocolo, telefone, descricao: "", status: "Pendente", data: new Date().toISOString() });
+                salvarEstado();
+                renderizarCasos();
+                renderDailyCasesList();
+                mostrarToast("Novo caso adicionado!", "success");
+            };
+
+            const limparCasos = () => {
+                if (confirm('Tem a certeza que deseja apagar TODOS os casos?')) {
+                    estado.casos = [];
+                    salvarEstado();
+                    renderizarCasos();
+                    renderDailyCasesList();
+                    mostrarToast('Todos os casos foram apagados.', 'danger');
+                }
+            };
+            
+            const limparAnotacaoDiaria = () => {
+                doc.dailySummaryTextarea.value = '';
+                salvarResumoDiario();
+                mostrarToast('Anotação limpa.', 'info');
+            };
+            
+            // --- ABAS ---
+            const setActiveTab = (tabId) => {
+                doc.tabContents.forEach(tc => tc.classList.remove('active'));
+                doc.tabButtons.forEach(tb => tb.classList.remove('active'));
+                document.getElementById(`tab-${tabId}`).classList.add('active');
+                document.querySelector(`.tab-button[data-tab="${tabId}"]`).classList.add('active');
+                if (tabId === 'cancelamentos' || tabId === 'relatorios') {
+                    setTimeout(atualizarGraficos, 50);
+                }
+            };
+
+            // --- MODAIS ---
+            const abrirModal = (id) => document.getElementById(id).style.display = 'flex';
+            const fecharModal = (id) => document.getElementById(id).style.display = 'none';
+
+            const renderizarModalConfiguracoes = () => {
+                const modalBody = doc.settingsModal.querySelector('.modal-body');
+                modalBody.innerHTML = `
+                    <h3>Backup de Dados</h3>
+                    <div class="modal-actions">
+                        <button id="importButton" class="button">Importar Dados</button>
+                        <button id="exportButton" class="button">Exportar Dados</button>
+                    </div>
+                    <h3>Ações Perigosas</h3>
+                    <div class="modal-actions">
+                        <button id="resetButton" class="button reset-button">Repor App</button>
+                    </div>`;
+                modalBody.querySelector('#importButton').onclick = importData;
+                modalBody.querySelector('#exportButton').onclick = exportData;
+                modalBody.querySelector('#resetButton').onclick = resetarApp;
+            };
+
+            const renderizarModalSenhas = () => {
+                const modalBody = doc.senhasModal.querySelector('.modal-body');
+                modalBody.innerHTML = `
+                    <div id="senhas-lista">
+                        ${estado.senhas.map(s => `
+                            <div class="senha-item" data-id="${s.id}">
+                                <h4>${s.nome}</h4>
+                                <p>Utilizador: <span class="copyable-credential">${s.usuario}</span></p>
+                                <p>Senha: <span class="copyable-credential">${s.senha}</span></p>
+                                <button class="button reset-button delete-senha-btn">Excluir</button>
+                            </div>`).join('')}
+                    </div>
+                    <hr>
+                    <h3>Adicionar Nova Senha</h3>
+                    <div class="form-group">
+                        <input type="text" id="nova-senha-nome" placeholder="Nome do Sistema">
+                        <input type="text" id="nova-senha-usuario" placeholder="Utilizador" style="margin-top: 8px;">
+                        <input type="text" id="nova-senha-senha" placeholder="Senha" style="margin-top: 8px;">
+                    </div>
+                    <div class="modal-actions"><button id="adicionar-senha-btn" class="button">Adicionar</button></div>`;
+            };
+
+            // --- IMPORTAR/EXPORTAR/RESETAR ---
+            const exportData = () => {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(estado));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", `backup_suporte_n2_${new Date().toISOString().slice(0,10)}.json`);
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+                mostrarToast("Backup exportado com sucesso!", "success");
+            };
+
+            const importData = () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = e => {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onload = event => {
+                        try {
+                            const data = JSON.parse(event.target.result);
+                            if(confirm("Tem a certeza? Isto irá sobrescrever todos os seus dados atuais.")){
+                                estado = data;
+                                salvarEstado();
+                                renderizarTudo();
+                                mostrarToast("Dados importados com sucesso!", "success");
+                            }
+                        } catch (err) {
+                            mostrarToast("Ficheiro de backup inválido!", "danger");
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            };
+
+            const resetarApp = () => {
+                if (confirm("TEM A CERTEZA ABSOLUTA? Todos os seus dados, incluindo senhas e personalizações, serão PERDIDOS permanentemente.")) {
+                    localStorage.removeItem(STORAGE_KEY);
+                    carregarEstado();
+                    window.location.reload();
+                }
+            };
+            
+            // --- MODO DE EDIÇÃO ---
+            const toggleEditMode = () => {
+                isEditMode = !isEditMode;
+                doc.body.querySelectorAll('[data-editable="true"]').forEach(el => el.setAttribute('contenteditable', isEditMode));
+                doc.editButton.innerHTML = isEditMode ? '✅ Salvar Textos' : '✏️ Editar Textos';
+                if (!isEditMode) {
+                    doc.body.querySelectorAll('[data-editable="true"]').forEach(el => {
+                        estado.textosEditaveis[el.id] = el.innerHTML;
+                    });
+                    salvarEstado();
+                    mostrarToast("Textos personalizados salvos!", "success");
+                }
+            };
+            
+            // --- TEMA ---
+            const mudarTema = () => {
+                const currentIndex = themes.indexOf(estado.temaAtual);
+                const nextIndex = (currentIndex + 1) % themes.length;
+                estado.temaAtual = themes[nextIndex];
+                salvarEstado();
+                doc.body.className = `theme-${estado.temaAtual}`;
+                mostrarToast(`Tema alterado para ${estado.temaAtual}`, 'info');
+                setTimeout(atualizarGraficos, 50);
+            };
+
+            // --- INICIALIZAÇÃO E EVENTOS ---
+            const adicionarEventListeners = () => {
+                doc.settingsButton.onclick = () => { renderizarModalConfiguracoes(); abrirModal('settings-modal'); };
+                doc.senhasButton.onclick = () => { renderizarModalSenhas(); abrirModal('senhas-modal'); };
+                doc.saveButton.onclick = salvarResumoDiario;
+                doc.editButton.onclick = toggleEditMode;
+                doc.themeToggleButton.onclick = mudarTema;
+                doc.addCaseButton.onclick = () => adicionarCaso(prompt("Protocolo:"), prompt("Telefone:"));
+                doc.clearCasesButton.onclick = limparCasos;
+                doc.dailySummarySaveButton.onclick = salvarResumoDiario;
+                doc.dailySummaryClearButton.onclick = limparAnotacaoDiaria;
+
+                doc.tabButtons.forEach(btn => btn.onclick = () => setActiveTab(btn.dataset.tab));
+
+                doc.settingsModal.querySelector('.close-button').onclick = () => fecharModal('settings-modal');
+                doc.senhasModal.querySelector('.close-button').onclick = () => fecharModal('senhas-modal');
+                window.onclick = e => { if (e.target.classList.contains('modal')) fecharModal(e.target.id); };
+
+                doc.caseSearchInput.oninput = e => {
+                    const filtroAtivo = document.querySelector('.filter-btn.active').dataset.filter;
+                    renderizarCasos(filtroAtivo, e.target.value);
+                };
+                doc.tabButtons.forEach(btn => btn.onclick = () => setActiveTab(btn.dataset.tab));
+                
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.onclick = () => {
+                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        renderizarCasos(btn.dataset.filter, doc.caseSearchInput.value);
+                    };
+                });
+                
+                doc.body.addEventListener('click', e => {
+                    const target = e.target;
+                    const copyBtn = target.closest('.copy-btn');
+                    if (copyBtn) {
+                        navigator.clipboard.writeText(copyBtn.dataset.copy);
+                        mostrarToast("Copiado!", "success");
+                    }
+                    if(target.closest('.resposta-copiavel')) {
+                         navigator.clipboard.writeText(target.closest('.resposta-copiavel').dataset.full.replace(/\\n/g, '\n'));
+                         mostrarToast("Resposta copiada!", "success");
+                    }
+                     if(target.closest('.copyable-credential')) {
+                        navigator.clipboard.writeText(target.closest('.copyable-credential').textContent);
+                        mostrarToast("Credencial copiada!", "success");
+                    }
+                    const caseEntry = target.closest('.case-entry');
+                    if(caseEntry){
+                        if(target.closest('.expand-btn')) {
+                            caseEntry.querySelector('.case-details-content').classList.toggle('visible');
+                            target.closest('.expand-btn').classList.toggle('expanded');
+                        }
+                        if(target.classList.contains('delete-case-btn')){
+                            if(confirm("Excluir este caso?")){
+                                estado.casos = estado.casos.filter(c => c.id !== caseEntry.dataset.id);
+                                salvarEstado(); renderizarCasos(); renderDailyCasesList();
+                            }
+                        }
+                    }
+                    const senhaItem = target.closest('.senha-item');
+                    if (senhaItem && target.classList.contains('delete-senha-btn')) {
+                        if(confirm("Excluir esta senha?")){
+                            estado.senhas = estado.senhas.filter(s => s.id != senhaItem.dataset.id);
+                            salvarEstado(); renderizarModalSenhas();
+                        }
+                    }
+                    if (target.id === 'adicionar-senha-btn') {
+                        const nome = document.getElementById('nova-senha-nome').value;
+                        const usuario = document.getElementById('nova-senha-usuario').value;
+                        const senha = document.getElementById('nova-senha-senha').value;
+                        if(nome && usuario && senha){
+                            estado.senhas.push({id: Date.now(), nome, usuario, senha});
+                            salvarEstado(); renderizarModalSenhas();
+                        } else {
+                            mostrarToast("Preencha todos os campos da senha!", "danger");
+                        }
+                    }
+                });
+                
+                doc.body.addEventListener('input', e => {
+                    const target = e.target;
+                    const caseEntry = target.closest('.case-entry');
+                    if (caseEntry) {
+                        const caseId = caseEntry.dataset.id;
+                        const caso = estado.casos.find(c => c.id === caseId);
+                        if(caso){
+                             caso.protocolo = caseEntry.querySelector('.case-protocolo').value;
+                             caso.telefone = caseEntry.querySelector('.case-telefone').value;
+                             caso.status = caseEntry.querySelector('.case-status').value;
+                             caso.descricao = caseEntry.querySelector('.case-desc').value;
+                             salvarEstado();
+                        }
+                    }
+                });
+
+                doc.reportMonthInput.valueAsDate = new Date();
+                doc.exportPdfBtn.onclick = () => { 
+                    const [year, month] = doc.reportMonthInput.value.split('-');
+                    exportReportPdf(parseInt(month), parseInt(year)); 
+                };
+            };
+            
+            async function exportReportPdf(month, year) {
+                if (!window.jspdf || !window.jspdf.jsPDF) { mostrarToast("jsPDF não carregado", "danger"); return; }
+                const { jsPDF } = window.jspdf;
+                if (!Chart) { mostrarToast("Chart.js não carregado", "danger"); return; }
+                
+                mostrarToast("A gerar relatório, aguarde...", "info");
+
+                const doc = new jsPDF();
+                
+                // Cabeçalho
+                doc.setFontSize(20);
+                doc.text("Relatório Mensal - Suporte N2", 105, 20, { align: 'center' });
+                doc.setFontSize(12);
+                doc.text(`Período: ${month}/${year}`, 105, 28, { align: 'center' });
+
+                // Dados
+                const entries = estado.historico.filter(h => {
+                    const d = new Date(h.date.split('/').reverse().join('-'));
+                    return d.getMonth() + 1 === month && d.getFullYear() === year;
+                });
+                
+                if (entries.length === 0) {
+                    doc.text("Nenhum dado encontrado para este período.", 14, 40);
+                    doc.save(`relatorio_${year}_${month}.pdf`);
+                    return;
+                }
+
+                const totalCancelamentos = entries.reduce((s, e) => s + (e.cancelamentosDiarios || 0), 0);
+                const totalProtocolos = entries.reduce((s, e) => s + (e.protocolos || 0), 0);
+                
+                doc.autoTable({
+                    startY: 40,
+                    body: [
+                        ['Total de Cancelamentos', totalCancelamentos],
+                        ['Total de Protocolos', totalProtocolos],
+                    ],
+                    theme: 'grid'
+                });
+
+                // Tabela de Entradas
+                const tableData = entries.map(e => [
+                    e.date, e.cancelamentosDiarios || 0, e.protocolos || 0, e.anotacao || '-'
+                ]);
+                
+                doc.autoTable({
+                    head: [['Data', 'Cancelamentos', 'Protocolos', 'Anotação']],
+                    body: tableData,
+                    startY: doc.autoTable.previous.finalY + 10
+                });
+
+                doc.save(`relatorio_suporte_${year}_${month}.pdf`);
+                mostrarToast("PDF gerado com sucesso!", "success");
+            }
+
+            // --- INICIALIZAÇÃO ---
+            carregarEstado();
+            renderizarTudo();
+            adicionarEventListeners();
+        });
+    </script>
 </body>
 </html>
 

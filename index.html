@@ -6,7 +6,7 @@
     <title>Suporte N2</title>
     <meta name="theme-color" content="#0B021D"/>
     <meta name="description" content="Aplicativo de acompanhamento de metas e ferramentas para o Suporte N2."/>
-    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="apple-touch-icon" href="icons/logo.png">
     <link rel="manifest" href="manifest.json">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -239,6 +239,7 @@
         
         .button { background-color: var(--primary-color); color: white; padding: 10px 15px; border: none; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
         .button:hover { background-color: var(--primary-color-hover); }
+        .button:disabled { background-color: var(--text-secondary-color); cursor: not-allowed; }
 
         /* Estilo unificado para botões no tema tech */
         body.theme-tech .button {
@@ -253,6 +254,10 @@
         body.theme-tech .button:hover {
             background-position: right center;
             transform: scale(1.05);
+        }
+         body.theme-tech .button:disabled {
+            background-image: none;
+            background-color: var(--text-secondary-color);
         }
         
         .button.save-button { background-color: var(--success-color); }
@@ -770,9 +775,29 @@
             }
         </style>
         <div class="spinner"></div>
-        <p style="margin-top: 15px;">A sincronizar com a nuvem...</p>
+        <p style="margin-top: 15px;">Aguarde...</p>
     </div>
     <!-- FIM: Ecrã de Carregamento -->
+    
+    <!-- INÍCIO: MODAL DE LOGIN POR PIN -->
+    <div id="pin-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="pin-modal-title">Aceder à Conta</h2>
+            </div>
+            <div class="modal-body">
+                <form id="pin-form">
+                    <p id="pin-modal-description">Insira o seu PIN de 4 dígitos para carregar os seus dados.</p>
+                    <div class="form-group">
+                         <input type="number" id="pin-input" placeholder="----" maxlength="4" style="font-size: 2rem; text-align: center; letter-spacing: 1rem;">
+                    </div>
+                    <button type="submit" id="pin-submit-btn" class="button" style="width: 100%; margin-top: 20px;">Entrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- FIM: MODAL DE LOGIN POR PIN -->
+
 
     <div id="toast-container"></div>
 
@@ -808,7 +833,7 @@
                         </div>
                         <div class="card-body">
                             <div class="case-controls">
-                                <input type="search" id="case-search-input" placeholder="Pesquisar...">
+                                <input type="search" id="case-search-input" placeholder="Pesquisar..." disabled>
                                 <div class="filter-buttons-group">
                                     <button type="button" class="button filter-btn active" data-filter="all">Todos</button>
                                     <button type="button" class="button filter-btn" data-filter="Pendente">Pendentes</button>
@@ -818,9 +843,9 @@
                             <div id="cases-list-container"></div>
                         </div>
                         <div class="card-footer">
-                            <button type="button" id="addCaseButton" class="button secondary-button"><span data-editable="true" id="btn-add-case-text">+ Adicionar</span></button>
-                            <button type="button" id="clearCasesButton" class="button reset-button"><span data-editable="true" id="btn-clear-cases-text">Limpar</span></button>
-                            <button type="button" id="saveCasesButton" class="button save-button"><span data-editable="true" id="btn-save-cases-text">Salvar Casos</span></button>
+                            <button type="button" id="addCaseButton" class="button secondary-button" disabled><span data-editable="true" id="btn-add-case-text">+ Adicionar</span></button>
+                            <button type="button" id="clearCasesButton" class="button reset-button" disabled><span data-editable="true" id="btn-clear-cases-text">Limpar</span></button>
+                            <button type="button" id="saveCasesButton" class="button save-button" disabled><span data-editable="true" id="btn-save-cases-text">Salvar Casos</span></button>
                         </div>
                     </div>
                     <!-- CONTADORES -->
@@ -833,32 +858,32 @@
                             <div class="form-group">
                                 <label id="label-category" for="categorySelect" data-editable="true">Categoria do Cancelamento:</label>
                                 <div class="input-with-button-container">
-                                    <select id="categorySelect">
+                                    <select id="categorySelect" disabled>
                                         <option id="category-option-1" data-editable="true">Sem Sinal</option>
                                         <option id="category-option-2" data-editable="true">Massivo</option>
                                         <option id="category-option-3" data-editable="true">Lentidão</option>
                                         <option id="category-option-4" data-editable="true">Quedas de Conexão</option>
                                         <option id="category-option-5" data-editable="true">Outros</option>
                                     </select>
-                                    <button type="button" id="incrementButton" class="button" style="width: 70px;">+1</button>
+                                    <button type="button" id="incrementButton" class="button" style="width: 70px;" disabled>+1</button>
                                 </div>
                             </div>
                             <div class="daily-counters-row">
                                 <div class="form-group">
                                     <label id="label-protocolos" for="protocolosAnalisadosInput" data-editable="true">Protocolos (Dia):</label>
                                     <div class="input-with-button-container">
-                                        <input type="number" id="protocolosAnalisadosInput" placeholder="0">
-                                        <button type="button" id="incrementProtocolosButton" class="button" style="width: 70px;">+1</button>
+                                        <input type="number" id="protocolosAnalisadosInput" placeholder="0" disabled>
+                                        <button type="button" id="incrementProtocolosButton" class="button" style="width: 70px;" disabled>+1</button>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label id="label-daily-cancellations" for="dailyCancellationsInput" data-editable="true">Cancelamentos (Dia):</label>
-                                    <input type="number" id="dailyCancellationsInput" placeholder="0">
+                                    <input type="number" id="dailyCancellationsInput" placeholder="0" disabled>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label id="label-atendimentos" for="atendimentosInput" data-editable="true">Total de Cancelamentos (Mês):</label>
-                                <input type="number" id="atendimentosInput" placeholder="0">
+                                <input type="number" id="atendimentosInput" placeholder="0" disabled>
                             </div>
                             <div id="protocol-goals-container" style="margin-top: 15px;"></div>
                             <div id="metas-container"></div>
@@ -903,8 +928,8 @@
                             <div id="daily-summary-cases-list"></div>
                         </div>
                         <div class="card-footer">
-                             <button type="button" id="dailySummaryClearButton" class="button reset-button"><span id="btn-clear-summary-text" data-editable="true">Limpar Resumo</span></button>
-                            <button type="button" id="dailySummarySaveButton" class="button save-button"><span id="btn-save-summary-text" data-editable="true">Salvar</span></button>
+                             <button type="button" id="dailySummaryClearButton" class="button reset-button" disabled><span id="btn-clear-summary-text" data-editable="true">Limpar Resumo</span></button>
+                            <button type="button" id="dailySummarySaveButton" class="button save-button" disabled><span id="btn-save-summary-text" data-editable="true">Salvar</span></button>
                         </div>
                     </div>
                 </div>
@@ -958,10 +983,10 @@
                             <p id="subtitle-logbook" data-editable="true">Anote eventos importantes do dia.</p>
                         </div>
                         <div class="card-body">
-                            <textarea id="logbook-textarea" placeholder="Ex: Instabilidade massiva na região X..."></textarea>
+                            <textarea id="logbook-textarea" placeholder="Ex: Instabilidade massiva na região X..." disabled></textarea>
                         </div>
                         <div class="card-footer">
-                            <button type="button" id="saveLogbookButton" class="button save-button"><span id="btn-save-logbook-text" data-editable="true">Salvar Anotação</span></button>
+                            <button type="button" id="saveLogbookButton" class="button save-button" disabled><span id="btn-save-logbook-text" data-editable="true">Salvar Anotação</span></button>
                         </div>
                     </div>
                     <!-- HISTÓRICO DE ENTRADAS -->
@@ -988,10 +1013,10 @@
                              <!-- FIM: ÁREA DE EXPORTAÇÃO DE PDF -->
                         </div>
                         <div class="card-footer" style="justify-content: center;">
-                            <button id="generateReportBtn" class="button"><span id="btn-gen-report-text" data-editable="true">Gerar Análise</span></button>
-                            <button id="compareMonthsBtn" class="button secondary-button"><span id="btn-comp-month-text" data-editable="true">Comparar</span></button>
+                            <button id="generateReportBtn" class="button" disabled><span id="btn-gen-report-text" data-editable="true">Gerar Análise</span></button>
+                            <button id="compareMonthsBtn" class="button secondary-button" disabled><span id="btn-comp-month-text" data-editable="true">Comparar</span></button>
                             <!-- NOVO BOTÃO PDF -->
-                            <button id="exportReportPdfBtn" class="button secondary-button">Exportar PDF</button>
+                            <button id="exportReportPdfBtn" class="button secondary-button" disabled>Exportar PDF</button>
                         </div>
                     </div>
                 </div>
@@ -1087,9 +1112,9 @@
         </div>
 
         <div class="action-buttons">
-            <button type="button" id="saveButton" class="button save-button"><span id="btn-save-progress-text" data-editable="true">Guardar Progresso</span></button>
-            <button type="button" id="editButton" class="button secondary-button"><span id="btn-edit-text" data-editable="true">✏️ Editar Textos</span></button>
-            <button type="button" id="themeToggleButton" class="button"><span id="btn-change-theme-text" data-editable="true">Mudar Tema</span></button>
+            <button type="button" id="saveButton" class="button save-button" disabled><span id="btn-save-progress-text" data-editable="true">Guardar Progresso</span></button>
+            <button type="button" id="editButton" class="button secondary-button" disabled><span id="btn-edit-text" data-editable="true">✏️ Editar Textos</span></button>
+            <button type="button" id="themeToggleButton" class="button" disabled><span id="btn-change-theme-text" data-editable="true">Mudar Tema</span></button>
         </div>
     </div>
 
@@ -1135,6 +1160,7 @@
                 </form>
 
                 <div class="modal-actions">
+                    <button type="button" id="logoutButton" class="button secondary-button">Sair (Mudar PIN)</button>
                     <button type="button" id="importButton" class="button"><span id="btn-import-text" data-editable="true">Importar Dados</span></button>
                     <button type="button" id="exportButton" class="button"><span id="btn-export-text" data-editable="true">Exportar Dados</span></button>
                     <button type="button" id="installAppButton" class="button"><span id="btn-install-text" data-editable="true">Instalar App</span></button>
@@ -1227,7 +1253,7 @@
 <script type="module">
     // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     // Your web app's Firebase configuration
@@ -1245,1562 +1271,1631 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     let userId = null; 
-    let isDataLoaded = false; // Flag para controlar o carregamento inicial
+    let isDataLoaded = false;
 
-    
+    // --- SELETORES GLOBAIS ---
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const pageContainer = document.querySelector('.page-container');
+    const pinModal = document.getElementById('pin-modal');
+    const pinForm = document.getElementById('pin-form');
+    const pinInput = document.getElementById('pin-input');
+    const pinModalTitle = document.getElementById('pin-modal-title');
+    const pinModalDescription = document.getElementById('pin-modal-description');
+    const pinSubmitBtn = document.getElementById('pin-submit-btn');
+
     document.addEventListener('DOMContentLoaded', () => {
-    // --- LÓGICA PWA ---
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./service-worker.js')
-                .then(reg => console.log('ServiceWorker registado:', reg.scope))
-                .catch(err => console.error('Falha no registo do ServiceWorker:', err));
-        });
-    }
-
-    // --- SELETORES DE ELEMENTOS ---
-    const dailyCancellationsInput = document.getElementById('dailyCancellationsInput');
-    const atendimentosInput = document.getElementById('atendimentosInput');
-    const protocolosAnalisadosInput = document.getElementById('protocolosAnalisadosInput');
-    const protocolGoalsContainer = document.getElementById('protocol-goals-container');
-    const incrementProtocolosButton = document.getElementById('incrementProtocolosButton');
-    const metasContainer = document.getElementById('metas-container');
-    const summaryText = document.getElementById('summary-text');
-    const incrementButton = document.getElementById('incrementButton');
-    const categorySelect = document.getElementById('categorySelect');
-    const categorySummaryList = document.getElementById('category-summary-list');
-    const achievementList = document.getElementById('achievement-list');
-    const saveButton = document.getElementById('saveButton');
-    const settingsButton = document.getElementById('settings-button');
-    const settingsModal = document.getElementById('settings-modal');
-    const closeSettingsModal = document.getElementById('close-settings-modal');
-    const bonusValueEl = document.getElementById('bonus-value');
-    const bonusFormulaEl = document.getElementById('bonus-formula');
-    const historyListEl = document.getElementById('history-list');
-    const projectionValueEl = document.getElementById('projection-value');
-    const projectionFormulaEl = document.getElementById('projection-formula');
-    const tierProjectionContainer = document.getElementById('tier-projection-container');
-    const trendChartCanvas = document.getElementById('trendChart');
-    const categoryPieChartCanvas = document.getElementById('categoryPieChart');
-    const toastContainer = document.getElementById('toast-container');
-    const editButton = document.getElementById('editButton');
-    const respostasContainer = document.getElementById('respostas-container');
-    const casesListContainer = document.getElementById('cases-list-container');
-    const addCaseButton = document.getElementById('addCaseButton');
-    const clearCasesButton = document.getElementById('clearCasesButton');
-    const saveCasesButton = document.getElementById('saveCasesButton');
-    const caseSearchInput = document.getElementById('case-search-input');
-    const caseFilterButtons = document.querySelectorAll('.filter-btn');
-    const themeToggleButton = document.getElementById('themeToggleButton');
-    const senhasButton = document.getElementById('senhas-button');
-    const senhasModal = document.getElementById('senhas-modal');
-    const closeSenhasModal = document.getElementById('close-senhas-modal');
-    const senhasContainer = document.getElementById('senhas-container');
-    const dailyMissionList = document.getElementById('daily-mission-list');
-    const logbookTextarea = document.getElementById('logbook-textarea');
-    const saveLogbookButton = document.getElementById('saveLogbookButton');
-    const dailySummaryLog = document.getElementById('daily-summary-log');
-    const dailySummaryCasesList = document.getElementById('daily-summary-cases-list');
-    const dailySummarySaveButton = document.getElementById('dailySummarySaveButton');
-    const dailySummaryClearButton = document.getElementById('dailySummaryClearButton');
-    const tabContentWrapper = document.getElementById('tab-content-wrapper');
-    const tabsContainer = document.querySelector('.tabs-container');
-    const tabContents = document.querySelectorAll('.tab-content');
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const reportMonthInput = document.getElementById('report-month');
-    const generateReportBtn = document.getElementById('generateReportBtn');
-    const compareMonthsBtn = document.getElementById('compareMonthsBtn');
-    const reportOutput = document.getElementById('report-output');
-    const exportReportPdfBtn = document.getElementById('exportReportPdfBtn');
-    const aiSendButton = document.getElementById('ai-send-button');
-    const aiPromptInput = document.getElementById('ai-prompt-input');
-    const aiChatMessages = document.getElementById('ai-chat-messages');
-    const saveChatBtn = document.getElementById('saveChatBtn');
-    const viewChatsBtn = document.getElementById('viewChatsBtn');
-    const exportChatTxtBtn = document.getElementById('exportChatTxtBtn');
-    const clearChatBtn = document.getElementById('clearChatBtn');
-    const savedChatsModal = document.getElementById('saved-chats-modal');
-    const closeSavedChatsModal = document.getElementById('close-saved-chats-modal');
-    const savedChatsList = document.getElementById('saved-chats-list');
-    const loadingOverlay = document.getElementById('loading-overlay'); // Seletor para o ecrã de carregamento
-    const pageContainer = document.querySelector('.page-container'); // Seletor para o conteúdo principal
-
-
-    // --- VARIÁVEIS DE ESTADO ---
-    let trendChart;
-    let categoryPieChart;
-    let deferredInstallPrompt;
-    let isEditMode = false;
-    let notificationTimeout;
-    let previousDailyCancellations = 0;
-    const themes = ['tech', 'dark', 'light', 'mint', 'sunset', 'graphite'];
-    let dailyCopyCount = 0;
-    let touchStartX = 0;
-    let touchEndX = 0;
-    
-    // --- CONSTANTES ---
-    const DAILY_PROTOCOL_GOAL = 50;
-    const MONTHLY_PROTOCOL_GOAL = 1300;
-    const TOTAL_WORKING_DAYS = 26;
-    const MIN_SWIPE_DISTANCE = 50;
-    
-    // --- ESTRUTURAS DE DADOS (Agora servem como estado temporário) ---
-    let metas = [ { id: 1, target: 10, reward: 0.24 }, { id: 2, target: 20, reward: 0.48 }, { id: 3, target: 30, reward: 0.70 } ];
-    let allCases = [];
-    let baseSalary = 0;
-    let history = [];
-    let categoryCounts = {};
-    let unlockedAchievements = {};
-    let reminderSettings = { enabled: false, time: '18:00' };
-    let usedStatuses = new Set();
-    let usedQuickResponses = new Set();
-    let dailyLogbook = {};
-    let savedAiChats = [];
-    
-    // --- FUNÇÕES AUXILIARES ---
-    const vibrate = () => { if ('vibrate' in navigator) navigator.vibrate(50); };
-    function showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = message;
-        toastContainer.appendChild(toast);
-        setTimeout(() => toast.classList.add('show'), 10);
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 3000);
-        }, 3000);
-    }
-    const parseDate = (str) => {
-        try {
-            const [day, month, year] = str.split('/').map(Number);
-            return new Date(year, month - 1, day);
-        } catch (e) {
-            return new Date();
+        // --- LÓGICA PWA ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('ServiceWorker registado:', reg.scope))
+                    .catch(err => console.error('Falha no registo do ServiceWorker:', err));
+            });
         }
-    };
-    const getTodayDateString = () => new Date().toLocaleDateString('pt-BR');
 
-    // --- FUNÇÃO DE CÓPIA UNIVERSAL ---
-    function copyToClipboard(text, successMessage) {
-        if (!text) {
-            showToast('Nada para copiar.', 'info');
-            return;
+        // --- SELETORES DE ELEMENTOS DA APP ---
+        const dailyCancellationsInput = document.getElementById('dailyCancellationsInput');
+        const atendimentosInput = document.getElementById('atendimentosInput');
+        const protocolosAnalisadosInput = document.getElementById('protocolosAnalisadosInput');
+        const protocolGoalsContainer = document.getElementById('protocol-goals-container');
+        const incrementProtocolosButton = document.getElementById('incrementProtocolosButton');
+        const metasContainer = document.getElementById('metas-container');
+        const summaryText = document.getElementById('summary-text');
+        const incrementButton = document.getElementById('incrementButton');
+        const categorySelect = document.getElementById('categorySelect');
+        const categorySummaryList = document.getElementById('category-summary-list');
+        const achievementList = document.getElementById('achievement-list');
+        const saveButton = document.getElementById('saveButton');
+        const settingsButton = document.getElementById('settings-button');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettingsModal = document.getElementById('close-settings-modal');
+        const bonusValueEl = document.getElementById('bonus-value');
+        const bonusFormulaEl = document.getElementById('bonus-formula');
+        const historyListEl = document.getElementById('history-list');
+        const projectionValueEl = document.getElementById('projection-value');
+        const projectionFormulaEl = document.getElementById('projection-formula');
+        const tierProjectionContainer = document.getElementById('tier-projection-container');
+        const trendChartCanvas = document.getElementById('trendChart');
+        const categoryPieChartCanvas = document.getElementById('categoryPieChart');
+        const toastContainer = document.getElementById('toast-container');
+        const editButton = document.getElementById('editButton');
+        const respostasContainer = document.getElementById('respostas-container');
+        const casesListContainer = document.getElementById('cases-list-container');
+        const addCaseButton = document.getElementById('addCaseButton');
+        const clearCasesButton = document.getElementById('clearCasesButton');
+        const saveCasesButton = document.getElementById('saveCasesButton');
+        const caseSearchInput = document.getElementById('case-search-input');
+        const caseFilterButtons = document.querySelectorAll('.filter-btn');
+        const themeToggleButton = document.getElementById('themeToggleButton');
+        const senhasButton = document.getElementById('senhas-button');
+        const senhasModal = document.getElementById('senhas-modal');
+        const closeSenhasModal = document.getElementById('close-senhas-modal');
+        const senhasContainer = document.getElementById('senhas-container');
+        const dailyMissionList = document.getElementById('daily-mission-list');
+        const logbookTextarea = document.getElementById('logbook-textarea');
+        const saveLogbookButton = document.getElementById('saveLogbookButton');
+        const dailySummaryLog = document.getElementById('daily-summary-log');
+        const dailySummaryCasesList = document.getElementById('daily-summary-cases-list');
+        const dailySummarySaveButton = document.getElementById('dailySummarySaveButton');
+        const dailySummaryClearButton = document.getElementById('dailySummaryClearButton');
+        const tabContentWrapper = document.getElementById('tab-content-wrapper');
+        const tabsContainer = document.querySelector('.tabs-container');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const reportMonthInput = document.getElementById('report-month');
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        const compareMonthsBtn = document.getElementById('compareMonthsBtn');
+        const reportOutput = document.getElementById('report-output');
+        const exportReportPdfBtn = document.getElementById('exportReportPdfBtn');
+        const aiSendButton = document.getElementById('ai-send-button');
+        const aiPromptInput = document.getElementById('ai-prompt-input');
+        const aiChatMessages = document.getElementById('ai-chat-messages');
+        const saveChatBtn = document.getElementById('saveChatBtn');
+        const viewChatsBtn = document.getElementById('viewChatsBtn');
+        const exportChatTxtBtn = document.getElementById('exportChatTxtBtn');
+        const clearChatBtn = document.getElementById('clearChatBtn');
+        const savedChatsModal = document.getElementById('saved-chats-modal');
+        const closeSavedChatsModal = document.getElementById('close-saved-chats-modal');
+        const savedChatsList = document.getElementById('saved-chats-list');
+        
+        // --- VARIÁVEIS DE ESTADO ---
+        let trendChart;
+        let categoryPieChart;
+        let deferredInstallPrompt;
+        let isEditMode = false;
+        let notificationTimeout;
+        let previousDailyCancellations = 0;
+        const themes = ['tech', 'dark', 'light', 'mint', 'sunset', 'graphite'];
+        let dailyCopyCount = 0;
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        // --- CONSTANTES ---
+        const DAILY_PROTOCOL_GOAL = 50;
+        const MONTHLY_PROTOCOL_GOAL = 1300;
+        const TOTAL_WORKING_DAYS = 26;
+        const MIN_SWIPE_DISTANCE = 50;
+        const PIN_STORAGE_KEY = 'appUserPin';
+        
+        // --- ESTRUTURAS DE DADOS ---
+        let metas = [ { id: 1, target: 10, reward: 0.24 }, { id: 2, target: 20, reward: 0.48 }, { id: 3, target: 30, reward: 0.70 } ];
+        let allCases = [];
+        let baseSalary = 0;
+        let history = [];
+        let categoryCounts = {};
+        let unlockedAchievements = {};
+        let reminderSettings = { enabled: false, time: '18:00' };
+        let usedStatuses = new Set();
+        let usedQuickResponses = new Set();
+        let dailyLogbook = {};
+        let savedAiChats = [];
+        
+        // --- FUNÇÕES AUXILIARES ---
+        const vibrate = () => { if ('vibrate' in navigator) navigator.vibrate(50); };
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 3000);
+            }, 3000);
         }
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(text).then(() => {
+        const parseDate = (str) => {
+            try {
+                const [day, month, year] = str.split('/').map(Number);
+                return new Date(year, month - 1, day);
+            } catch (e) {
+                return new Date();
+            }
+        };
+        const getTodayDateString = () => new Date().toLocaleDateString('pt-BR');
+
+        // --- LÓGICA DE CONTROLO DA UI ---
+        function enableUI() {
+            document.querySelectorAll('button, input, select, textarea').forEach(el => el.disabled = false);
+        }
+
+        // --- LÓGICA DE LOGIN COM PIN ---
+        const handlePinLogin = async (e) => {
+            e.preventDefault();
+            const pin = pinInput.value;
+            if (pin.length !== 4) {
+                showToast('O PIN deve ter 4 dígitos.', 'warning');
+                return;
+            }
+
+            pinSubmitBtn.disabled = true;
+            pinSubmitBtn.textContent = 'A validar...';
+            
+            // Usamos o PIN para criar um email e senha "falsos" mas consistentes
+            const email = `user-${pin}@suporte-n2.app`;
+            const password = `pin${pin}secure`; // Senha derivada do PIN
+
+            try {
+                // Tenta fazer login
+                await signInWithEmailAndPassword(auth, email, password);
+                localStorage.setItem(PIN_STORAGE_KEY, pin);
+            } catch (error) {
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                     // Se o utilizador não existe, cria uma nova conta
+                    try {
+                        await createUserWithEmailAndPassword(auth, email, password);
+                        localStorage.setItem(PIN_STORAGE_KEY, pin);
+                    } catch (creationError) {
+                        showToast('Erro ao criar nova conta.', 'danger');
+                        console.error("Erro de criação:", creationError);
+                        pinSubmitBtn.disabled = false;
+                        pinSubmitBtn.textContent = 'Entrar';
+                    }
+                } else {
+                    showToast('PIN incorreto.', 'danger');
+                    console.error("Erro de login:", error);
+                    pinSubmitBtn.disabled = false;
+                    pinSubmitBtn.textContent = 'Entrar';
+                }
+            }
+        };
+
+        const setupPinScreen = () => {
+            const savedPin = localStorage.getItem(PIN_STORAGE_KEY);
+            if (savedPin) {
+                pinModalTitle.textContent = 'Bem-vindo de volta!';
+                pinModalDescription.textContent = 'Insira o seu PIN de 4 dígitos para carregar os seus dados.';
+                pinSubmitBtn.textContent = 'Entrar';
+            } else {
+                pinModalTitle.textContent = 'Crie a sua Conta';
+                pinModalDescription.textContent = 'Crie um PIN de 4 dígitos para guardar os seus dados na nuvem com segurança. Guarde bem este PIN!';
+                pinSubmitBtn.textContent = 'Criar e Entrar';
+            }
+            pinModal.style.display = 'flex';
+            loadingOverlay.style.display = 'none'; // Esconde o spinner
+        };
+
+        // --- FUNÇÃO DE CÓPIA UNIVERSAL ---
+        function copyToClipboard(text, successMessage) {
+            if (!text) {
+                showToast('Nada para copiar.', 'info');
+                return;
+            }
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast(successMessage, 'success');
+                    vibrate();
+                }).catch(err => {
+                    console.error('Erro ao copiar com a API moderna:', err);
+                    legacyCopy(text, successMessage);
+                });
+            } else {
+                legacyCopy(text, successMessage);
+            }
+        }
+
+        function legacyCopy(text, successMessage) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'absolute';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
                 showToast(successMessage, 'success');
                 vibrate();
-            }).catch(err => {
-                console.error('Erro ao copiar com a API moderna:', err);
-                legacyCopy(text, successMessage);
-            });
-        } else {
-            legacyCopy(text, successMessage);
-        }
-    }
-
-    function legacyCopy(text, successMessage) {
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'absolute';
-        textArea.style.left = '-9999px';
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-            document.execCommand('copy');
-            showToast(successMessage, 'success');
-            vibrate();
-        } catch (err) {
-            console.error('Falha ao copiar com o método antigo:', err);
-            showToast('Falha ao copiar', 'danger');
-        }
-        document.body.removeChild(textArea);
-    }
-
-    // --- LÓGICA DE EDIÇÃO DE TEXTO ---
-    const loadCustomTexts = function(customTextsData) {
-        if (customTextsData) {
-            document.querySelectorAll('[data-editable="true"]').forEach(el => {
-                 if (customTextsData[el.id]) {
-                    if (el.classList.contains('resposta-copiavel') && typeof customTextsData[el.id] === 'object') {
-                        el.innerHTML = customTextsData[el.id].summary;
-                        el.dataset.fullText = customTextsData[el.id].fullText;
-                    } else {
-                        el.innerHTML = customTextsData[el.id];
-                        if (el.tagName === 'OPTION') el.value = customTextsData[el.id];
-                    }
-                }
-            });
-        }
-    };
-    const saveCustomTexts = function() {
-        const customTexts = {};
-        document.querySelectorAll('[data-editable="true"]').forEach(el => {
-             if (el.classList.contains('resposta-copiavel')) {
-                customTexts[el.id] = {
-                    summary: el.innerHTML,
-                    fullText: el.dataset.fullText
-                };
-            } else {
-                customTexts[el.id] = el.innerHTML;
+            } catch (err) {
+                console.error('Falha ao copiar com o método antigo:', err);
+                showToast('Falha ao copiar', 'danger');
             }
-        });
-        // A chamada para guardar no Firestore será feita na função principal de guardar
-        return customTexts;
-    };
-    const toggleEditMode = function() {
-        isEditMode = !isEditMode;
-        const editables = document.querySelectorAll('[data-editable="true"]');
-        if (isEditMode) {
-            editables.forEach(el => { 
-                if (el.tagName !== 'OPTION' && !el.classList.contains('resposta-copiavel')) {
-                    el.setAttribute('contenteditable', 'true'); 
+            document.body.removeChild(textArea);
+        }
+
+        // --- LÓGICA DE EDIÇÃO DE TEXTO ---
+        const loadCustomTexts = function(customTextsData) {
+            if (customTextsData) {
+                document.querySelectorAll('[data-editable="true"]').forEach(el => {
+                    if (customTextsData[el.id]) {
+                        if (el.classList.contains('resposta-copiavel') && typeof customTextsData[el.id] === 'object') {
+                            el.innerHTML = customTextsData[el.id].summary;
+                            el.dataset.fullText = customTextsData[el.id].fullText;
+                        } else {
+                            el.innerHTML = customTextsData[el.id];
+                            if (el.tagName === 'OPTION') el.value = customTextsData[el.id];
+                        }
+                    }
+                });
+            }
+        };
+        const saveCustomTexts = function() {
+            const customTexts = {};
+            document.querySelectorAll('[data-editable="true"]').forEach(el => {
+                if (el.classList.contains('resposta-copiavel')) {
+                    customTexts[el.id] = {
+                        summary: el.innerHTML,
+                        fullText: el.dataset.fullText
+                    };
+                } else {
+                    customTexts[el.id] = el.innerHTML;
                 }
             });
-            editButton.querySelector('span').textContent = "✅ Guardar Textos";
-            editButton.classList.add('save-button');
-            showToast("Modo de edição ativado!", 'info');
-        } else {
-            editables.forEach(el => el.setAttribute('contenteditable', 'false'));
-            editButton.querySelector('span').textContent = "✏️ Editar Textos";
-            editButton.classList.remove('save-button');
-            // Agora a função saveCustomTexts é chamada dentro de saveData()
-            saveData(); 
-            unlockAchievement('achieve-customize', 'Interface personalizada!');
-            showToast("Textos personalizados guardados online!", 'success');
-        }
-    };
-    
-    // --- LÓGICA DE CATEGORIAS, CONQUISTAS, NOTIFICAÇÕES ---
-    const renderCategorySummary = () => {
-        const categoriesWithCounts = Object.keys(categoryCounts).filter(cat => categoryCounts[cat] > 0);
-        if (categoriesWithCounts.length === 0) {
-            categorySummaryList.innerHTML = '<li>Nenhuma categoria registada.</li>';
-            return;
-        }
-        categorySummaryList.innerHTML = categoriesWithCounts
-            .sort((a, b) => categoryCounts[b] - categoryCounts[a])
-            .map(cat => `<li><strong>${cat}:</strong> ${categoryCounts[cat]}</li>`)
-            .join('');
-    };
-    const unlockAchievement = (id, text) => {
-        if (unlockedAchievements[id]) return;
-        unlockedAchievements[id] = true;
-        // O progresso será guardado no Firestore na próxima chamada a `saveData`
-        const el = document.getElementById(id);
-        if (el) el.classList.add('unlocked');
-        showToast(`Conquista: ${text}`, 'gold');
-        vibrate();
-    };
-    const renderAchievements = () => Object.keys(unlockedAchievements).forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('unlocked'); });
-    const checkAchievements = () => {
-        const currentValue = parseInt(atendimentosInput.value) || 0;
-        const currentProtocols = parseInt(protocolosAnalisadosInput.value) || 0;
-        const totalQuickResponses = document.querySelectorAll('#respostas-container .resposta-copiavel').length;
+            // A chamada para guardar no Firestore será feita na função principal de guardar
+            return customTexts;
+        };
+        const toggleEditMode = function() {
+            isEditMode = !isEditMode;
+            const editables = document.querySelectorAll('[data-editable="true"]');
+            if (isEditMode) {
+                editables.forEach(el => { 
+                    if (el.tagName !== 'OPTION' && !el.classList.contains('resposta-copiavel')) {
+                        el.setAttribute('contenteditable', 'true'); 
+                    }
+                });
+                editButton.querySelector('span').textContent = "✅ Guardar Textos";
+                editButton.classList.add('save-button');
+                showToast("Modo de edição ativado!", 'info');
+            } else {
+                editables.forEach(el => el.setAttribute('contenteditable', 'false'));
+                editButton.querySelector('span').textContent = "✏️ Editar Textos";
+                editButton.classList.remove('save-button');
+                // Agora a função saveCustomTexts é chamada dentro de saveData()
+                saveData(); 
+                unlockAchievement('achieve-customize', 'Interface personalizada!');
+                showToast("Textos personalizados guardados online!", 'success');
+            }
+        };
+        
+        // --- LÓGICA DE CATEGORIAS, CONQUISTAS, NOTIFICAÇÕES ---
+        const renderCategorySummary = () => {
+            const categoriesWithCounts = Object.keys(categoryCounts).filter(cat => categoryCounts[cat] > 0);
+            if (categoriesWithCounts.length === 0) {
+                categorySummaryList.innerHTML = '<li>Nenhuma categoria registada.</li>';
+                return;
+            }
+            categorySummaryList.innerHTML = categoriesWithCounts
+                .sort((a, b) => categoryCounts[b] - categoryCounts[a])
+                .map(cat => `<li><strong>${cat}:</strong> ${categoryCounts[cat]}</li>`)
+                .join('');
+        };
+        const unlockAchievement = (id, text) => {
+            if (unlockedAchievements[id]) return;
+            unlockedAchievements[id] = true;
+            // O progresso será guardado no Firestore na próxima chamada a `saveData`
+            const el = document.getElementById(id);
+            if (el) el.classList.add('unlocked');
+            showToast(`Conquista: ${text}`, 'gold');
+            vibrate();
+        };
+        const renderAchievements = () => Object.keys(unlockedAchievements).forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('unlocked'); });
+        const checkAchievements = () => {
+            const currentValue = parseInt(atendimentosInput.value) || 0;
+            const currentProtocols = parseInt(protocolosAnalisadosInput.value) || 0;
+            const totalQuickResponses = document.querySelectorAll('#respostas-container .resposta-copiavel').length;
 
-        if (metas.length > 0 && currentValue >= metas[0].target) unlockAchievement('achieve-bonus1', 'Primeira faixa de comissão!');
-        if (metas.length > 0 && currentValue >= metas[metas.length - 1].target) unlockAchievement('achieve-max-bonus', 'Meta máxima atingida!');
-        
-        if (history.length >= 5) {
-            const last5Dates = history.slice(-5).map(h => parseDate(h.date));
-            let isStreak = true;
-            for (let i = 1; i < last5Dates.length; i++) { if ((last5Dates[i] - last5Dates[i-1]) / 86400000 !== 1) { isStreak = false; break; } }
-            if (isStreak) unlockAchievement('achieve-5day-streak', 'Guardou por 5 dias seguidos!');
-        }
-        if (history.length >= 10) {
-            const last10Dates = history.slice(-10).map(h => parseDate(h.date));
-            let isStreak = true;
-            for (let i = 1; i < last10Dates.length; i++) { if ((last10Dates[i] - last10Dates[i-1]) / 86400000 !== 1) { isStreak = false; break; } }
-            if (isStreak) unlockAchievement('achieve-10-day-streak', 'Guardou por 10 dias seguidos!');
-        }
+            if (metas.length > 0 && currentValue >= metas[0].target) unlockAchievement('achieve-bonus1', 'Primeira faixa de comissão!');
+            if (metas.length > 0 && currentValue >= metas[metas.length - 1].target) unlockAchievement('achieve-max-bonus', 'Meta máxima atingida!');
+            
+            if (history.length >= 5) {
+                const last5Dates = history.slice(-5).map(h => parseDate(h.date));
+                let isStreak = true;
+                for (let i = 1; i < last5Dates.length; i++) { if ((last5Dates[i] - last5Dates[i-1]) / 86400000 !== 1) { isStreak = false; break; } }
+                if (isStreak) unlockAchievement('achieve-5day-streak', 'Guardou por 5 dias seguidos!');
+            }
+            if (history.length >= 10) {
+                const last10Dates = history.slice(-10).map(h => parseDate(h.date));
+                let isStreak = true;
+                for (let i = 1; i < last10Dates.length; i++) { if ((last10Dates[i] - last10Dates[i-1]) / 86400000 !== 1) { isStreak = false; break; } }
+                if (isStreak) unlockAchievement('achieve-10-day-streak', 'Guardou por 10 dias seguidos!');
+            }
 
-        if (Object.keys(categoryCounts).length >= 5) unlockAchievement('achieve-all-categories', 'Usou 5 categorias diferentes!');
-        if (history.length >= 30) unlockAchievement('achieve-30-days', 'Guardou por 30 dias diferentes!');
-        if (currentValue >= 100) unlockAchievement('achieve-100-cancellations', 'Atingiu 100 cancelamentos!');
-        if (currentValue >= 200) unlockAchievement('achieve-200-cancellations', 'Atingiu 200 cancelamentos!');
-        if (allCases.length >= 10) unlockAchievement('achieve-10-cases', 'Registou 10 casos!');
-        if (allCases.length >= 25) unlockAchievement('achieve-25-cases', 'Registou 25 casos!');
-        if (usedStatuses.size >= 3) unlockAchievement('achieve-all-status', 'Usou todos os status de caso!');
-        if (currentProtocols >= 50) unlockAchievement('achieve-50-protocols', 'Analisou 50 protocolos hoje!');
-        
-        const monthlyProtocols = history.filter(h => parseDate(h.date).getMonth() === new Date().getMonth()).reduce((sum, h) => sum + (h.protocols || 0), 0);
-        if (monthlyProtocols >= MONTHLY_PROTOCOL_GOAL) unlockAchievement('achieve-monthly-protocol-goal', 'Meta mensal de protocolos batida!');
-        
-        if (usedQuickResponses.size >= totalQuickResponses) unlockAchievement('achieve-use-all-quick-responses', 'Mestre das respostas rápidas!');
-    };
-    const scheduleReminder = () => {
-        clearTimeout(notificationTimeout);
-        if (!reminderSettings.enabled || !('Notification' in window)) return;
-        const [hour, minute] = reminderSettings.time.split(':');
-        const now = new Date();
-        let reminderDate = new Date();
-        reminderDate.setHours(hour, minute, 0, 0);
-        if (now > reminderDate) reminderDate.setDate(reminderDate.getDate() + 1);
-        const timeToReminder = reminderDate.getTime() - now.getTime();
-        notificationTimeout = setTimeout(() => {
-            Notification.requestPermission().then(perm => {
-                if (perm === 'granted') navigator.serviceWorker.ready.then(reg => reg.showNotification('Lembrete de Metas', { body: 'Não se esqueça de guardar o seu progresso de hoje!', icon: 'icons/icon-192x192.png', tag: 'metas-reminder' }));
+            if (Object.keys(categoryCounts).length >= 5) unlockAchievement('achieve-all-categories', 'Usou 5 categorias diferentes!');
+            if (history.length >= 30) unlockAchievement('achieve-30-days', 'Guardou por 30 dias diferentes!');
+            if (currentValue >= 100) unlockAchievement('achieve-100-cancellations', 'Atingiu 100 cancelamentos!');
+            if (currentValue >= 200) unlockAchievement('achieve-200-cancellations', 'Atingiu 200 cancelamentos!');
+            if (allCases.length >= 10) unlockAchievement('achieve-10-cases', 'Registou 10 casos!');
+            if (allCases.length >= 25) unlockAchievement('achieve-25-cases', 'Registou 25 casos!');
+            if (usedStatuses.size >= 3) unlockAchievement('achieve-all-status', 'Usou todos os status de caso!');
+            if (currentProtocols >= 50) unlockAchievement('achieve-50-protocols', 'Analisou 50 protocolos hoje!');
+            
+            const monthlyProtocols = history.filter(h => parseDate(h.date).getMonth() === new Date().getMonth()).reduce((sum, h) => sum + (h.protocols || 0), 0);
+            if (monthlyProtocols >= MONTHLY_PROTOCOL_GOAL) unlockAchievement('achieve-monthly-protocol-goal', 'Meta mensal de protocolos batida!');
+            
+            if (usedQuickResponses.size >= totalQuickResponses) unlockAchievement('achieve-use-all-quick-responses', 'Mestre das respostas rápidas!');
+        };
+        const scheduleReminder = () => {
+            clearTimeout(notificationTimeout);
+            if (!reminderSettings.enabled || !('Notification' in window)) return;
+            const [hour, minute] = reminderSettings.time.split(':');
+            const now = new Date();
+            let reminderDate = new Date();
+            reminderDate.setHours(hour, minute, 0, 0);
+            if (now > reminderDate) reminderDate.setDate(reminderDate.getDate() + 1);
+            const timeToReminder = reminderDate.getTime() - now.getTime();
+            notificationTimeout = setTimeout(() => {
+                Notification.requestPermission().then(perm => {
+                    if (perm === 'granted') navigator.serviceWorker.ready.then(reg => reg.showNotification('Lembrete de Metas', { body: 'Não se esqueça de guardar o seu progresso de hoje!', icon: 'icons/icon-192x192.png', tag: 'metas-reminder' }));
+                });
+                scheduleReminder();
+            }, timeToReminder);
+        };
+
+        // --- LÓGICA PARA HISTÓRICO DE CASOS ---
+        const renderCases = (filter = 'all', searchTerm = '') => {
+            casesListContainer.innerHTML = '';
+            
+            const normalizedSearch = searchTerm.toLowerCase().trim();
+            const filteredCases = allCases.filter(caseItem => {
+                const statusMatch = filter === 'all' || caseItem.status === filter;
+                const searchMatch = !normalizedSearch ||
+                    caseItem.protocol?.toLowerCase().includes(normalizedSearch) ||
+                    caseItem.phone?.toLowerCase().includes(normalizedSearch) ||
+                    caseItem.description?.toLowerCase().includes(normalizedSearch);
+                return statusMatch && searchMatch;
             });
-            scheduleReminder();
-        }, timeToReminder);
-    };
 
-    // --- LÓGICA PARA HISTÓRICO DE CASOS ---
-    const renderCases = (filter = 'all', searchTerm = '') => {
-        casesListContainer.innerHTML = '';
-        
-        const normalizedSearch = searchTerm.toLowerCase().trim();
-        const filteredCases = allCases.filter(caseItem => {
-            const statusMatch = filter === 'all' || caseItem.status === filter;
-            const searchMatch = !normalizedSearch ||
-                caseItem.protocol?.toLowerCase().includes(normalizedSearch) ||
-                caseItem.phone?.toLowerCase().includes(normalizedSearch) ||
-                caseItem.description?.toLowerCase().includes(normalizedSearch);
-            return statusMatch && searchMatch;
-        });
+            if (filteredCases.length === 0) {
+                casesListContainer.innerHTML = '<p style="font-size: 12px; color: var(--text-secondary-color); text-align: center;">Nenhum caso encontrado.</p>';
+                return;
+            }
 
-        if (filteredCases.length === 0) {
-            casesListContainer.innerHTML = '<p style="font-size: 12px; color: var(--text-secondary-color); text-align: center;">Nenhum caso encontrado.</p>';
-            return;
-        }
+            filteredCases.forEach((caseItem) => {
+                const statusClass = caseItem.status?.replace(' ', '-') || 'Pendente';
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'case-entry';
+                entryDiv.setAttribute('data-id', caseItem.id);
 
-        filteredCases.forEach((caseItem) => {
-            const statusClass = caseItem.status?.replace(' ', '-') || 'Pendente';
-            const entryDiv = document.createElement('div');
-            entryDiv.className = 'case-entry';
-            entryDiv.setAttribute('data-id', caseItem.id);
-
-            entryDiv.innerHTML = `
-                <div class="case-main-content">
-                    <button class="expand-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </button>
-                    <div class="case-fields">
-                        <div class="field-group">
-                            <input type="text" class="protocol-input" value="${caseItem.protocol || ''}" placeholder="Protocolo">
-                            <button class="button secondary-button copy-btn copy-protocol-btn">Copiar</button>
+                entryDiv.innerHTML = `
+                    <div class="case-main-content">
+                        <button class="expand-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div class="case-fields">
+                            <div class="field-group">
+                                <input type="text" class="protocol-input" value="${caseItem.protocol || ''}" placeholder="Protocolo">
+                                <button class="button secondary-button copy-btn copy-protocol-btn">Copiar</button>
+                            </div>
+                            <div class="field-group">
+                                <input type="text" class="phone-input" value="${caseItem.phone || ''}" placeholder="Telefone">
+                                <button class="button secondary-button copy-btn copy-phone-btn">Copiar</button>
+                            </div>
                         </div>
-                        <div class="field-group">
-                            <input type="text" class="phone-input" value="${caseItem.phone || ''}" placeholder="Telefone">
-                            <button class="button secondary-button copy-btn copy-phone-btn">Copiar</button>
+                        <div class="status-indicator status-${statusClass}" title="${caseItem.status || 'Pendente'}"></div>
+                    </div>
+                    <div class="case-details-content">
+                        <textarea class="description-input" placeholder="Descrição do caso...">${caseItem.description || ''}</textarea>
+                        <select class="status-select">
+                            <option value="Pendente" ${caseItem.status === 'Pendente' ? 'selected' : ''}>Pendente</option>
+                            <option value="Em Andamento" ${caseItem.status === 'Em Andamento' ? 'selected' : ''}>Em Andamento</option>
+                            <option value="Resolvido" ${caseItem.status === 'Resolvido' ? 'selected' : ''}>Resolvido</option>
+                        </select>
+                         <div style="font-size: 11px; color: var(--text-secondary-color); text-align: right; margin-top: 5px;">Criado em: ${caseItem.date}</div>
+                        <div class="details-actions">
+                            <button class="button secondary-button copy-case-all-btn">Copiar Tudo</button>
+                            <button class="button reset-button remove-case-btn">Excluir Caso</button>
                         </div>
                     </div>
-                    <div class="status-indicator status-${statusClass}" title="${caseItem.status || 'Pendente'}"></div>
+                `;
+                casesListContainer.appendChild(entryDiv);
+            });
+        };
+        
+        // --- LÓGICA DO DIÁRIO DE BORDO E RESUMO DIÁRIO ---
+        const renderDailySummary = () => {
+            const today = getTodayDateString();
+            // Atualiza anotações
+            dailySummaryLog.textContent = dailyLogbook[today] || 'Nenhuma anotação para hoje.';
+
+            // Atualiza casos do dia
+            const todayCases = allCases.filter(c => c.date === today);
+            if (todayCases.length > 0) {
+                dailySummaryCasesList.innerHTML = todayCases.map(c => 
+                    `<li><strong>${c.protocol || 'Sem Protocolo'}</strong> - ${c.status}</li>`
+                ).join('');
+            } else {
+                dailySummaryCasesList.innerHTML = '<li>Nenhum caso registado hoje.</li>';
+            }
+        };
+        
+        const clearDailySummary = () => {
+            vibrate();
+            if (confirm('Tem a certeza que quer limpar a anotação E OS CASOS de hoje? Esta ação não pode ser desfeita.')) {
+                const today = getTodayDateString();
+                
+                // Limpa a anotação
+                logbookTextarea.value = '';
+                delete dailyLogbook[today];
+                
+                // Limpa os casos do dia
+                const originalCaseCount = allCases.length;
+                allCases = allCases.filter(c => c.date !== today);
+                
+                saveData();
+                updateAll();
+                showToast('Anotação e casos do dia limpos!', 'danger');
+            }
+        };
+
+        // --- FUNÇÕES PRINCIPAIS DE RENDERIZAÇÃO E CÁLCULO ---
+        const updateDailyMission = () => {
+            const protocols = parseInt(protocolosAnalisadosInput.value) || 0;
+            const savedToday = history.some(h => h.date === getTodayDateString());
+            const dailyCancellations = parseInt(dailyCancellationsInput.value) || 0;
+            const casesAddedToday = allCases.filter(c => c.date === getTodayDateString()).length;
+
+            const missions = [
+                { id: 'mission-protocols', text: `Analisar ${DAILY_PROTOCOL_GOAL} protocolos (${protocols}/${DAILY_PROTOCOL_GOAL})`, completed: protocols >= DAILY_PROTOCOL_GOAL },
+                { id: 'mission-daily-cancellations', text: `Registar 6 cancelamentos hoje (${dailyCancellations}/6)`, completed: dailyCancellations >= 6 },
+                { id: 'mission-copy-responses', text: `Copiar 20 respostas (${dailyCopyCount}/20)`, completed: dailyCopyCount >= 20 },
+                { id: 'mission-new-cases', text: `Adicionar 3 novos casos (${casesAddedToday}/3)`, completed: casesAddedToday >= 3 },
+                { id: 'mission-save', text: 'Guardar o progresso de hoje', completed: savedToday }
+            ];
+
+            dailyMissionList.innerHTML = missions.map(mission => 
+                `<li id="${mission.id}" class="${mission.completed ? 'completed' : ''}">${mission.text}</li>`
+            ).join('');
+        };
+        const renderAtendimentoMetas = () => {
+            metasContainer.innerHTML = '';
+            metas.sort((a, b) => a.target - b.target).forEach(meta => {
+                const metaElement = document.createElement('div');
+                metaElement.className = 'meta-item';
+                metaElement.innerHTML = `<div class="meta-header"><span class="meta-label">Faixa ${meta.id}: ${meta.target} (${(meta.reward || 0) * 100}%)</span><span class="meta-percentage" id="meta${meta.id}-percent">0%</span></div><div class="progress-bar-background"><div class="progress-bar-fill" id="meta${meta.id}-fill"></div></div>`;
+                metasContainer.appendChild(metaElement);
+            });
+        };
+        const updateProtocolProgress = () => {
+            const dailyProtocols = parseInt(protocolosAnalisadosInput.value) || 0;
+            const currentMonth = new Date().getMonth();
+            const monthlyProtocols = history
+                .filter(h => parseDate(h.date).getMonth() === currentMonth)
+                .reduce((sum, h) => sum + (h.protocols || 0), 0) + dailyProtocols;
+
+            const dailyPercent = DAILY_PROTOCOL_GOAL > 0 ? Math.min(100, (dailyProtocols / DAILY_PROTOCOL_GOAL) * 100) : 0;
+            const monthlyPercent = MONTHLY_PROTOCOL_GOAL > 0 ? Math.min(100, (monthlyProtocols / MONTHLY_PROTOCOL_GOAL) * 100) : 0;
+
+            protocolGoalsContainer.innerHTML = `
+                <div class="meta-item">
+                    <div class="meta-header">
+                        <span class="meta-label">Meta Diária de Protocolos (${dailyProtocols}/${DAILY_PROTOCOL_GOAL})</span>
+                        <span class="meta-percentage">${Math.floor(dailyPercent)}%</span>
+                    </div>
+                    <div class="progress-bar-background">
+                        <div class="progress-bar-fill ${dailyPercent >= 100 ? 'completed' : ''}" style="width: ${dailyPercent}%;"></div>
+                    </div>
                 </div>
-                <div class="case-details-content">
-                    <textarea class="description-input" placeholder="Descrição do caso...">${caseItem.description || ''}</textarea>
-                    <select class="status-select">
-                        <option value="Pendente" ${caseItem.status === 'Pendente' ? 'selected' : ''}>Pendente</option>
-                        <option value="Em Andamento" ${caseItem.status === 'Em Andamento' ? 'selected' : ''}>Em Andamento</option>
-                        <option value="Resolvido" ${caseItem.status === 'Resolvido' ? 'selected' : ''}>Resolvido</option>
-                    </select>
-                     <div style="font-size: 11px; color: var(--text-secondary-color); text-align: right; margin-top: 5px;">Criado em: ${caseItem.date}</div>
-                    <div class="details-actions">
-                        <button class="button secondary-button copy-case-all-btn">Copiar Tudo</button>
-                        <button class="button reset-button remove-case-btn">Excluir Caso</button>
+                <div class="meta-item">
+                    <div class="meta-header">
+                        <span class="meta-label">Meta Mensal de Protocolos (${monthlyProtocols}/${MONTHLY_PROTOCOL_GOAL})</span>
+                        <span class="meta-percentage">${Math.floor(monthlyPercent)}%</span>
+                    </div>
+                    <div class="progress-bar-background">
+                        <div class="progress-bar-fill ${monthlyPercent >= 100 ? 'completed' : ''}" style="width: ${monthlyPercent}%;"></div>
                     </div>
                 </div>
             `;
-            casesListContainer.appendChild(entryDiv);
-        });
-    };
-    
-    // --- LÓGICA DO DIÁRIO DE BORDO E RESUMO DIÁRIO ---
-    const renderDailySummary = () => {
-        const today = getTodayDateString();
-        // Atualiza anotações
-        dailySummaryLog.textContent = dailyLogbook[today] || 'Nenhuma anotação para hoje.';
-
-        // Atualiza casos do dia
-        const todayCases = allCases.filter(c => c.date === today);
-        if (todayCases.length > 0) {
-            dailySummaryCasesList.innerHTML = todayCases.map(c => 
-                `<li><strong>${c.protocol || 'Sem Protocolo'}</strong> - ${c.status}</li>`
-            ).join('');
-        } else {
-            dailySummaryCasesList.innerHTML = '<li>Nenhum caso registado hoje.</li>';
-        }
-    };
-    
-    const clearDailySummary = () => {
-        vibrate();
-        if (confirm('Tem a certeza que quer limpar a anotação E OS CASOS de hoje? Esta ação não pode ser desfeita.')) {
-            const today = getTodayDateString();
-            
-            // Limpa a anotação
-            logbookTextarea.value = '';
-            delete dailyLogbook[today];
-            
-            // Limpa os casos do dia
-            const originalCaseCount = allCases.length;
-            allCases = allCases.filter(c => c.date !== today);
-            
-            saveData();
-            updateAll();
-            showToast('Anotação e casos do dia limpos!', 'danger');
-        }
-    };
-
-    // --- FUNÇÕES PRINCIPAIS DE RENDERIZAÇÃO E CÁLCULO ---
-    const updateDailyMission = () => {
-        const protocols = parseInt(protocolosAnalisadosInput.value) || 0;
-        const savedToday = history.some(h => h.date === getTodayDateString());
-        const dailyCancellations = parseInt(dailyCancellationsInput.value) || 0;
-        const casesAddedToday = allCases.filter(c => c.date === getTodayDateString()).length;
-
-        const missions = [
-            { id: 'mission-protocols', text: `Analisar ${DAILY_PROTOCOL_GOAL} protocolos (${protocols}/${DAILY_PROTOCOL_GOAL})`, completed: protocols >= DAILY_PROTOCOL_GOAL },
-            { id: 'mission-daily-cancellations', text: `Registar 6 cancelamentos hoje (${dailyCancellations}/6)`, completed: dailyCancellations >= 6 },
-            { id: 'mission-copy-responses', text: `Copiar 20 respostas (${dailyCopyCount}/20)`, completed: dailyCopyCount >= 20 },
-            { id: 'mission-new-cases', text: `Adicionar 3 novos casos (${casesAddedToday}/3)`, completed: casesAddedToday >= 3 },
-            { id: 'mission-save', text: 'Guardar o progresso de hoje', completed: savedToday }
-        ];
-
-        dailyMissionList.innerHTML = missions.map(mission => 
-            `<li id="${mission.id}" class="${mission.completed ? 'completed' : ''}">${mission.text}</li>`
-        ).join('');
-    };
-    const renderAtendimentoMetas = () => {
-        metasContainer.innerHTML = '';
-        metas.sort((a, b) => a.target - b.target).forEach(meta => {
-            const metaElement = document.createElement('div');
-            metaElement.className = 'meta-item';
-            metaElement.innerHTML = `<div class="meta-header"><span class="meta-label">Faixa ${meta.id}: ${meta.target} (${(meta.reward || 0) * 100}%)</span><span class="meta-percentage" id="meta${meta.id}-percent">0%</span></div><div class="progress-bar-background"><div class="progress-bar-fill" id="meta${meta.id}-fill"></div></div>`;
-            metasContainer.appendChild(metaElement);
-        });
-    };
-    const updateProtocolProgress = () => {
-        const dailyProtocols = parseInt(protocolosAnalisadosInput.value) || 0;
-        const currentMonth = new Date().getMonth();
-        const monthlyProtocols = history
-            .filter(h => parseDate(h.date).getMonth() === currentMonth)
-            .reduce((sum, h) => sum + (h.protocols || 0), 0) + dailyProtocols;
-
-        const dailyPercent = DAILY_PROTOCOL_GOAL > 0 ? Math.min(100, (dailyProtocols / DAILY_PROTOCOL_GOAL) * 100) : 0;
-        const monthlyPercent = MONTHLY_PROTOCOL_GOAL > 0 ? Math.min(100, (monthlyProtocols / MONTHLY_PROTOCOL_GOAL) * 100) : 0;
-
-        protocolGoalsContainer.innerHTML = `
-            <div class="meta-item">
-                <div class="meta-header">
-                    <span class="meta-label">Meta Diária de Protocolos (${dailyProtocols}/${DAILY_PROTOCOL_GOAL})</span>
-                    <span class="meta-percentage">${Math.floor(dailyPercent)}%</span>
-                </div>
-                <div class="progress-bar-background">
-                    <div class="progress-bar-fill ${dailyPercent >= 100 ? 'completed' : ''}" style="width: ${dailyPercent}%;"></div>
-                </div>
-            </div>
-            <div class="meta-item">
-                <div class="meta-header">
-                    <span class="meta-label">Meta Mensal de Protocolos (${monthlyProtocols}/${MONTHLY_PROTOCOL_GOAL})</span>
-                    <span class="meta-percentage">${Math.floor(monthlyPercent)}%</span>
-                </div>
-                <div class="progress-bar-background">
-                    <div class="progress-bar-fill ${monthlyPercent >= 100 ? 'completed' : ''}" style="width: ${monthlyPercent}%;"></div>
-                </div>
-            </div>
-        `;
-    };
-    const updateAtendimentoProgress = () => {
-        const currentValue = parseInt(atendimentosInput.value) || 0;
-        let highestAchieved = null;
-        metas.forEach(meta => {
-            const percent = meta.target > 0 ? Math.min(100, (currentValue / meta.target) * 100) : 0;
-            const fill = document.getElementById(`meta${meta.id}-fill`);
-            const percentText = document.getElementById(`meta${meta.id}-percent`);
-            if (fill && percentText) {
-                fill.style.width = `${percent}%`;
-                percentText.textContent = `${Math.floor(percent)}%`;
-                fill.classList.toggle('completed', percent >= 100);
-                if (percent >= 100) highestAchieved = meta;
-            }
-        });
-        if (!highestAchieved) {
-            const faltam = metas.length > 0 ? metas[0].target - currentValue : 0;
-            summaryText.innerHTML = `Faltam <strong>${faltam > 0 ? faltam : 0}</strong> para a Faixa 1 (${((metas[0] || {}).reward || 0) * 100}%).`;
-            summaryText.className = 'summary-box';
-        } else {
-            const nextMetaIndex = metas.findIndex(m => m.id === highestAchieved.id) + 1;
-            summaryText.innerHTML = nextMetaIndex < metas.length ? `Atingido: <strong>Faixa ${highestAchieved.id} (${highestAchieved.reward * 100}%)</strong>. Faltam <strong>${metas[nextMetaIndex].target - currentValue}</strong> para a próxima!` : `🏆 Meta máxima de <strong>${highestAchieved.reward * 100}%</strong> atingida!`;
-            summaryText.className = 'summary-box completed';
-        }
-        calculateBonus();
-        checkAchievements();
-    };
-    const calculateBonus = () => {
-        if (baseSalary <= 0) {
-            bonusValueEl.textContent = 'R$ 0,00';
-            bonusFormulaEl.innerHTML = 'Defina o seu <strong style="color: var(--warning-color); cursor: pointer;" onclick="document.getElementById(\'settings-button\').click()">salário base</strong> nas configurações.';
-            return;
-        }
-        const cancelamentos = parseInt(atendimentosInput.value) || 0;
-        let achievedMeta = null;
-        for (let i = metas.length - 1; i >= 0; i--) { if (cancelamentos >= metas[i].target) { achievedMeta = metas[i]; break; } }
-        
-        if (achievedMeta) {
-            const bonus = baseSalary * achievedMeta.reward;
-            bonusValueEl.textContent = `R$ ${bonus.toFixed(2).replace('.', ',')}`;
-            bonusFormulaEl.innerHTML = `Atingido: ${achievedMeta.reward * 100}% de R$${baseSalary.toFixed(2).replace('.',',')}`;
-        } else if (metas.length > 0) {
-            const firstTierBonus = baseSalary * metas[0].reward;
-            bonusValueEl.textContent = `R$ ${firstTierBonus.toFixed(2).replace('.', ',')}`;
-            bonusFormulaEl.innerHTML = `Meta para Faixa 1 (${metas[0].target} cancelamentos)`;
-        } else {
-            bonusValueEl.textContent = 'R$ 0,00';
-            bonusFormulaEl.innerHTML = 'Nenhuma meta definida.';
-        }
-    };
-    const updateProjection = () => {
-        const currentMonth = new Date().getMonth();
-        const monthHistory = history.map(e => ({...e, dateObj: parseDate(e.date)}))
-                                  .filter(e => e.dateObj.getMonth() === currentMonth)
-                                  .sort((a, b) => a.dateObj - b.dateObj);
-        
-        const daysWithEntries = new Set(monthHistory.map(h => h.date)).size;
-
-        if (monthHistory.length < 2) {
-            projectionValueEl.textContent = "N/A";
-            projectionFormulaEl.textContent = "Guarde por pelo menos 2 dias neste mês.";
-            tierProjectionContainer.innerHTML = '';
-            return;
-        }
-        const firstEntry = monthHistory[0];
-        const lastEntry = monthHistory[monthHistory.length - 1];
-        const cancellationsInPeriod = lastEntry.atendimentos - firstEntry.atendimentos;
-
-        if (daysWithEntries <= 1 || cancellationsInPeriod < 0) {
-            projectionFormulaEl.textContent = "Dados insuficientes.";
-            projectionValueEl.textContent = "N/A";
-        } else {
-            const dailyAvg = cancellationsInPeriod / (daysWithEntries - 1);
-            const projectedTotal = firstEntry.atendimentos + (dailyAvg * (TOTAL_WORKING_DAYS - 1));
-            projectionValueEl.textContent = Math.round(projectedTotal);
-            projectionFormulaEl.textContent = `Média de ${dailyAvg.toFixed(1)}/dia. Projeção para ${TOTAL_WORKING_DAYS} dias úteis.`;
-        }
-        
-        const currentValue = parseInt(atendimentosInput.value) || 0;
-        const remainingWorkingDays = TOTAL_WORKING_DAYS - daysWithEntries;
-
-        if (remainingWorkingDays <= 0) {
-            tierProjectionContainer.innerHTML = '<p style="font-size: 12px; color: var(--text-secondary-color);">Mês de trabalho concluído.</p>';
-        } else {
-            let tierHtml = `<p style="font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">Média diária necessária:</p><ul style="list-style: none; padding: 0; margin: 0; text-align: left; font-size: 13px;">`;
+        };
+        const updateAtendimentoProgress = () => {
+            const currentValue = parseInt(atendimentosInput.value) || 0;
+            let highestAchieved = null;
             metas.forEach(meta => {
-                const remainingCancellations = meta.target - currentValue;
-                if (remainingCancellations <= 0) {
-                    tierHtml += `<li style="color: var(--success-color); margin-bottom: 4px;">✅ <strong>Faixa ${meta.id} (${meta.target}):</strong> Atingida!</li>`;
-                } else {
-                    const requiredAvg = remainingCancellations / remainingWorkingDays;
-                    tierHtml += `<li style="margin-bottom: 4px;">🎯 <strong>Faixa ${meta.id} (${meta.target}):</strong> Faltam ${remainingCancellations}. Média de <strong>${requiredAvg.toFixed(1)}/dia</strong>.</li>`;
+                const percent = meta.target > 0 ? Math.min(100, (currentValue / meta.target) * 100) : 0;
+                const fill = document.getElementById(`meta${meta.id}-fill`);
+                const percentText = document.getElementById(`meta${meta.id}-percent`);
+                if (fill && percentText) {
+                    fill.style.width = `${percent}%`;
+                    percentText.textContent = `${Math.floor(percent)}%`;
+                    fill.classList.toggle('completed', percent >= 100);
+                    if (percent >= 100) highestAchieved = meta;
                 }
             });
-            tierHtml += '</ul>';
-            tierProjectionContainer.innerHTML = tierHtml;
-        }
-    };
-    const renderHistory = () => {
-        historyListEl.innerHTML = '';
-        if (history.length === 0) { historyListEl.innerHTML = '<li>Nenhum registo guardado.</li>'; return; }
-        [...history].sort((a, b) => parseDate(b.date) - parseDate(a.date)).forEach(entry => {
-            const li = document.createElement('li');
-            const dailyCancellations = entry.dailyCancellations !== undefined ? entry.dailyCancellations : 'N/A';
-            const protocols = entry.protocols !== undefined ? entry.protocols : 'N/A';
-            li.innerHTML = `<strong>${entry.date}:</strong> ${dailyCancellations} canc. | ${protocols} protoc.`;
-            historyListEl.appendChild(li);
-        });
-    };
-    const renderTrendChart = () => {
-        if (trendChart) trendChart.destroy();
-        if(!document.getElementById('tab-cancelamentos').classList.contains('active')) return;
-        const labels = history.map(e => e.date);
-        const data = history.map(e => e.atendimentos);
-        const textColor = getComputedStyle(document.body).getPropertyValue('--text-secondary-color');
-        const primaryColor = getComputedStyle(document.body).getPropertyValue('--primary-color').trim();
-        try {
-            trendChart = new Chart(trendChartCanvas, {
-                type: 'line', data: { labels, datasets: [{ label: 'Cancelamentos (Total)', data, fill: true, backgroundColor: `${primaryColor}33`, borderColor: primaryColor, tension: 0.4, pointBackgroundColor: '#fff', pointBorderColor: primaryColor }] },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    scales: { 
-                        y: { 
-                            ticks: { color: textColor, stepSize: 1 },
-                            beginAtZero: true
+            if (!highestAchieved) {
+                const faltam = metas.length > 0 ? metas[0].target - currentValue : 0;
+                summaryText.innerHTML = `Faltam <strong>${faltam > 0 ? faltam : 0}</strong> para a Faixa 1 (${((metas[0] || {}).reward || 0) * 100}%).`;
+                summaryText.className = 'summary-box';
+            } else {
+                const nextMetaIndex = metas.findIndex(m => m.id === highestAchieved.id) + 1;
+                summaryText.innerHTML = nextMetaIndex < metas.length ? `Atingido: <strong>Faixa ${highestAchieved.id} (${highestAchieved.reward * 100}%)</strong>. Faltam <strong>${metas[nextMetaIndex].target - currentValue}</strong> para a próxima!` : `🏆 Meta máxima de <strong>${highestAchieved.reward * 100}%</strong> atingida!`;
+                summaryText.className = 'summary-box completed';
+            }
+            calculateBonus();
+            checkAchievements();
+        };
+        const calculateBonus = () => {
+            if (baseSalary <= 0) {
+                bonusValueEl.textContent = 'R$ 0,00';
+                bonusFormulaEl.innerHTML = 'Defina o seu <strong style="color: var(--warning-color); cursor: pointer;" onclick="document.getElementById(\'settings-button\').click()">salário base</strong> nas configurações.';
+                return;
+            }
+            const cancelamentos = parseInt(atendimentosInput.value) || 0;
+            let achievedMeta = null;
+            for (let i = metas.length - 1; i >= 0; i--) { if (cancelamentos >= metas[i].target) { achievedMeta = metas[i]; break; } }
+            
+            if (achievedMeta) {
+                const bonus = baseSalary * achievedMeta.reward;
+                bonusValueEl.textContent = `R$ ${bonus.toFixed(2).replace('.', ',')}`;
+                bonusFormulaEl.innerHTML = `Atingido: ${achievedMeta.reward * 100}% de R$${baseSalary.toFixed(2).replace('.',',')}`;
+            } else if (metas.length > 0) {
+                const firstTierBonus = baseSalary * metas[0].reward;
+                bonusValueEl.textContent = `R$ ${firstTierBonus.toFixed(2).replace('.', ',')}`;
+                bonusFormulaEl.innerHTML = `Meta para Faixa 1 (${metas[0].target} cancelamentos)`;
+            } else {
+                bonusValueEl.textContent = 'R$ 0,00';
+                bonusFormulaEl.innerHTML = 'Nenhuma meta definida.';
+            }
+        };
+        const updateProjection = () => {
+            const currentMonth = new Date().getMonth();
+            const monthHistory = history.map(e => ({...e, dateObj: parseDate(e.date)}))
+                                      .filter(e => e.dateObj.getMonth() === currentMonth)
+                                      .sort((a, b) => a.dateObj - b.dateObj);
+            
+            const daysWithEntries = new Set(monthHistory.map(h => h.date)).size;
+
+            if (monthHistory.length < 2) {
+                projectionValueEl.textContent = "N/A";
+                projectionFormulaEl.textContent = "Guarde por pelo menos 2 dias neste mês.";
+                tierProjectionContainer.innerHTML = '';
+                return;
+            }
+            const firstEntry = monthHistory[0];
+            const lastEntry = monthHistory[monthHistory.length - 1];
+            const cancellationsInPeriod = lastEntry.atendimentos - firstEntry.atendimentos;
+
+            if (daysWithEntries <= 1 || cancellationsInPeriod < 0) {
+                projectionFormulaEl.textContent = "Dados insuficientes.";
+                projectionValueEl.textContent = "N/A";
+            } else {
+                const dailyAvg = cancellationsInPeriod / (daysWithEntries - 1);
+                const projectedTotal = firstEntry.atendimentos + (dailyAvg * (TOTAL_WORKING_DAYS - 1));
+                projectionValueEl.textContent = Math.round(projectedTotal);
+                projectionFormulaEl.textContent = `Média de ${dailyAvg.toFixed(1)}/dia. Projeção para ${TOTAL_WORKING_DAYS} dias úteis.`;
+            }
+            
+            const currentValue = parseInt(atendimentosInput.value) || 0;
+            const remainingWorkingDays = TOTAL_WORKING_DAYS - daysWithEntries;
+
+            if (remainingWorkingDays <= 0) {
+                tierProjectionContainer.innerHTML = '<p style="font-size: 12px; color: var(--text-secondary-color);">Mês de trabalho concluído.</p>';
+            } else {
+                let tierHtml = `<p style="font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">Média diária necessária:</p><ul style="list-style: none; padding: 0; margin: 0; text-align: left; font-size: 13px;">`;
+                metas.forEach(meta => {
+                    const remainingCancellations = meta.target - currentValue;
+                    if (remainingCancellations <= 0) {
+                        tierHtml += `<li style="color: var(--success-color); margin-bottom: 4px;">✅ <strong>Faixa ${meta.id} (${meta.target}):</strong> Atingida!</li>`;
+                    } else {
+                        const requiredAvg = remainingCancellations / remainingWorkingDays;
+                        tierHtml += `<li style="margin-bottom: 4px;">🎯 <strong>Faixa ${meta.id} (${meta.target}):</strong> Faltam ${remainingCancellations}. Média de <strong>${requiredAvg.toFixed(1)}/dia</strong>.</li>`;
+                    }
+                });
+                tierHtml += '</ul>';
+                tierProjectionContainer.innerHTML = tierHtml;
+            }
+        };
+        const renderHistory = () => {
+            historyListEl.innerHTML = '';
+            if (history.length === 0) { historyListEl.innerHTML = '<li>Nenhum registo guardado.</li>'; return; }
+            [...history].sort((a, b) => parseDate(b.date) - parseDate(a.date)).forEach(entry => {
+                const li = document.createElement('li');
+                const dailyCancellations = entry.dailyCancellations !== undefined ? entry.dailyCancellations : 'N/A';
+                const protocols = entry.protocols !== undefined ? entry.protocols : 'N/A';
+                li.innerHTML = `<strong>${entry.date}:</strong> ${dailyCancellations} canc. | ${protocols} protoc.`;
+                historyListEl.appendChild(li);
+            });
+        };
+        const renderTrendChart = () => {
+            if (trendChart) trendChart.destroy();
+            if(!document.getElementById('tab-cancelamentos').classList.contains('active')) return;
+            const labels = history.map(e => e.date);
+            const data = history.map(e => e.atendimentos);
+            const textColor = getComputedStyle(document.body).getPropertyValue('--text-secondary-color');
+            const primaryColor = getComputedStyle(document.body).getPropertyValue('--primary-color').trim();
+            try {
+                trendChart = new Chart(trendChartCanvas, {
+                    type: 'line', data: { labels, datasets: [{ label: 'Cancelamentos (Total)', data, fill: true, backgroundColor: `${primaryColor}33`, borderColor: primaryColor, tension: 0.4, pointBackgroundColor: '#fff', pointBorderColor: primaryColor }] },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        scales: { 
+                            y: { 
+                                ticks: { color: textColor, stepSize: 1 },
+                                beginAtZero: true
+                            }, 
+                            x: { 
+                                ticks: { color: textColor } 
+                            } 
                         }, 
-                        x: { 
-                            ticks: { color: textColor } 
+                        plugins: { 
+                            legend: { display: false } 
                         } 
-                    }, 
-                    plugins: { 
-                        legend: { display: false } 
-                    } 
-                }
-            });
-        } catch (e) { console.error("Falha ao renderizar o gráfico de tendência:", e); }
-    };
-    const renderCategoryPieChart = () => {
-        if (categoryPieChart) categoryPieChart.destroy();
-        if(!document.getElementById('tab-cancelamentos').classList.contains('active')) return;
-        
-        const labels = Object.keys(categoryCounts).filter(cat => categoryCounts[cat] > 0);
-        const data = Object.values(categoryCounts).filter(count => count > 0);
-        
-        if (labels.length === 0) return;
+                    }
+                });
+            } catch (e) { console.error("Falha ao renderizar o gráfico de tendência:", e); }
+        };
+        const renderCategoryPieChart = () => {
+            if (categoryPieChart) categoryPieChart.destroy();
+            if(!document.getElementById('tab-cancelamentos').classList.contains('active')) return;
+            
+            const labels = Object.keys(categoryCounts).filter(cat => categoryCounts[cat] > 0);
+            const data = Object.values(categoryCounts).filter(count => count > 0);
+            
+            if (labels.length === 0) return;
 
-        const textColor = getComputedStyle(document.body).getPropertyValue('--text-color');
+            const textColor = getComputedStyle(document.body).getPropertyValue('--text-color');
 
-        try {
-            categoryPieChart = new Chart(categoryPieChartCanvas, {
-                type: 'pie',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Cancelamentos por Categoria',
-                        data: data,
-                        backgroundColor: ['#e73444', '#ffa726', '#1FF2FF', '#66bb6a', '#a78bfa', '#facc15'],
-                        borderColor: getComputedStyle(document.body).getPropertyValue('--card-bg'),
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                color: textColor,
-                                boxWidth: 12,
-                                padding: 15
+            try {
+                categoryPieChart = new Chart(categoryPieChartCanvas, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Cancelamentos por Categoria',
+                            data: data,
+                            backgroundColor: ['#e73444', '#ffa726', '#1FF2FF', '#66bb6a', '#a78bfa', '#facc15'],
+                            borderColor: getComputedStyle(document.body).getPropertyValue('--card-bg'),
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    color: textColor,
+                                    boxWidth: 12,
+                                    padding: 15
+                                }
                             }
                         }
                     }
-                }
-            });
-        } catch (e) {
-            console.error("Falha ao renderizar o gráfico de pizza:", e);
-        }
-    };
-    
-    function updateAll() {
-        renderHistory();
-        renderAtendimentoMetas();
-        updateProtocolProgress();
-        updateAtendimentoProgress();
-        renderCategorySummary();
-        renderAchievements();
-        checkAchievements();
-        updateProjection();
-        updateDailyMission();
-        renderTrendChart();
-        renderCategoryPieChart();
-        renderCases(document.querySelector('.filter-btn.active')?.dataset.filter || 'all', caseSearchInput.value);
-        renderDailySummary();
-    }
-    
-    // *** INÍCIO: FUNÇÕES DO FIRESTORE ***
-    async function saveData() {
-        if (!isDataLoaded) { // Alterado para verificar se os dados foram carregados
-            showToast('Aguarde, a aplicação está a sincronizar com a nuvem.', 'warning');
-            return;
-        }
-        if (!userId) { // Verificação adicional
-             showToast('Erro de autenticação. Tente recarregar a página.', 'danger');
-             return;
-        }
-        
-        vibrate();
-        const date = getTodayDateString();
-        const newEntry = { 
-            date, 
-            atendimentos: parseInt(atendimentosInput.value) || 0,
-            dailyCancellations: parseInt(dailyCancellationsInput.value) || 0,
-            protocols: parseInt(protocolosAnalisadosInput.value) || 0
-        };
-
-        const todayIndex = history.findIndex(entry => entry.date === date);
-        if (todayIndex > -1) { 
-            history[todayIndex] = newEntry;
-        } else { 
-            history.push(newEntry); 
-        }
-        history.sort((a, b) => parseDate(a.date) - parseDate(b.date));
-
-        const dataToSave = {
-            atendimentosCount: atendimentosInput.value,
-            protocolosAnalisadosCount: protocolosAnalisadosInput.value,
-            dailyCancellationsCount: dailyCancellationsInput.value,
-            lastUsedDate: getTodayDateString(),
-            dailyCopyCount: dailyCopyCount,
-            metas,
-            allCases,
-            baseSalary,
-            history,
-            categoryCounts,
-            unlockedAchievements,
-            reminderSettings,
-            usedStatuses: Array.from(usedStatuses),
-            usedQuickResponses: Array.from(usedQuickResponses),
-            dailyLogbook,
-            savedAiChats,
-            customTexts: saveCustomTexts(),
-            appTheme: document.body.className.replace('theme-','') || 'tech'
-        };
-
-        try {
-            const userDocRef = doc(db, 'users', userId);
-            await setDoc(userDocRef, dataToSave);
-            unlockAchievement('achieve-first-save', 'Primeiro progresso guardado online!');
-            updateAll();
-            showToast('Progresso guardado online!', 'success');
-        } catch (error) {
-            console.error("Erro ao guardar dados no Firestore:", error);
-            showToast('Falha ao guardar online.', 'danger');
-        }
-    }
-
-    async function loadDataFromFirestore() {
-        if (!userId) return;
-        
-        const userDocRef = doc(db, 'users', userId);
-        try {
-            const docSnap = await getDoc(userDocRef);
-
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                
-                metas = data.metas || metas;
-                allCases = data.allCases || [];
-                baseSalary = data.baseSalary || 0;
-                history = data.history || [];
-                categoryCounts = data.categoryCounts || {};
-                unlockedAchievements = data.unlockedAchievements || {};
-                reminderSettings = data.reminderSettings || reminderSettings;
-                usedStatuses = new Set(data.usedStatuses || []);
-                usedQuickResponses = new Set(data.usedQuickResponses || []);
-                dailyLogbook = data.dailyLogbook || {};
-                savedAiChats = data.savedAiChats || [];
-                
-                loadCustomTexts(data.customTexts);
-                applyTheme(data.appTheme || 'tech');
-
-                const todayStr = getTodayDateString();
-                if (data.lastUsedDate === todayStr) {
-                    dailyCancellationsInput.value = data.dailyCancellationsCount || 0;
-                    protocolosAnalisadosInput.value = data.protocolosAnalisadosCount || 0;
-                    dailyCopyCount = data.dailyCopyCount || 0;
-                } else {
-                    dailyCancellationsInput.value = 0;
-                    protocolosAnalisadosInput.value = 0;
-                    dailyCopyCount = 0;
-                }
-                previousDailyCancellations = parseInt(dailyCancellationsInput.value) || 0;
-                atendimentosInput.value = data.atendimentosCount || '';
-                logbookTextarea.value = dailyLogbook[todayStr] || '';
-                
-            } else {
-                console.log("Nenhum documento encontrado para este utilizador, a usar dados padrão.");
-            }
-        } catch (error) {
-             console.error("Erro ao carregar dados do Firestore:", error);
-             showToast("Falha ao carregar dados da nuvem.", "danger");
-        } finally {
-            isDataLoaded = true;
-            updateAll(); 
-            scheduleReminder();
-            // Esconde o ecrã de carregamento e mostra o conteúdo
-            loadingOverlay.style.opacity = '0';
-            pageContainer.style.visibility = 'visible';
-            setTimeout(() => { loadingOverlay.style.display = 'none'; }, 300);
-        }
-    }
-    // *** FIM: FUNÇÕES DO FIRESTORE ***
-
-
-    function resetData() {
-        vibrate();
-        if (confirm('Tem a certeza que deseja repor TODOS os seus dados ONLINE? Esta ação é irreversível.')) {
-            metas = [ { id: 1, target: 10, reward: 0.24 }, { id: 2, target: 20, reward: 0.48 }, { id: 3, target: 30, reward: 0.70 } ];
-            allCases = [];
-            baseSalary = 0;
-            history = [];
-            categoryCounts = {};
-            unlockedAchievements = {};
-            saveData().then(() => {
-                 showToast('Dados repostos!', 'danger');
-                 setTimeout(() => window.location.reload(), 1000);
-            });
-        }
-    }
-    function exportData() {
-        if (!isDataLoaded) {
-            showToast('Aguarde o carregamento dos dados antes de exportar.', 'warning');
-            return;
-        }
-        unlockAchievement('achieve-export', 'Primeiro backup realizado!');
-        vibrate();
-
-        const currentMonth = new Date().getMonth();
-        const monthlyProtocols = history
-            .filter(h => parseDate(h.date).getMonth() === currentMonth)
-            .reduce((sum, h) => sum + (h.protocols || 0), 0);
-
-        const dataToExport = {
-            atendimentosCount: atendimentosInput.value,
-            protocolosAnalisadosCount: protocolosAnalisadosInput.value,
-            casesList: allCases,
-            baseSalary: baseSalary,
-            customMetas: metas,
-            history: history,
-            customTexts: saveCustomTexts(),
-            categoryCounts: categoryCounts,
-            unlockedAchievements: unlockedAchievements,
-            reminderSettings: reminderSettings,
-            usedQuickResponses: Array.from(usedQuickResponses),
-            dailyLogbook: dailyLogbook,
-            savedAiChats: savedAiChats
-        };
-        const dateStr = new Date().toISOString().split('T')[0];
-        
-        const blobJson = new Blob([JSON.stringify(dataToExport, null, 2)], {type: 'application/json'});
-        const urlJson = URL.createObjectURL(blobJson);
-        const aJson = document.createElement('a');
-        aJson.href = urlJson;
-        aJson.download = `backup_completo_metas_${dateStr}.json`;
-        aJson.click();
-        URL.revokeObjectURL(urlJson);
-        showToast('Backup .json exportado!', 'info');
-    }
-    function importData() {
-        vibrate();
-        const input = document.createElement('input'); input.type = 'file'; input.accept = '.json';
-        input.onchange = e => {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = readerEvent => {
-                try {
-                    const importedData = JSON.parse(readerEvent.target.result);
-                    if (confirm('Isto irá sobrescrever os seus dados online atuais. Deseja continuar?')) {
-                        atendimentosInput.value = importedData.atendimentosCount || '';
-                        protocolosAnalisadosInput.value = importedData.protocolosAnalisadosCount || '';
-                        allCases = importedData.casesList || [];
-                        baseSalary = importedData.baseSalary || 0;
-                        metas = importedData.customMetas || metas;
-                        history = importedData.history || [];
-                        categoryCounts = importedData.categoryCounts || {};
-                        unlockedAchievements = importedData.unlockedAchievements || {};
-                        reminderSettings = importedData.reminderSettings || reminderSettings;
-                        usedQuickResponses = new Set(importedData.usedQuickResponses || []);
-                        dailyLogbook = importedData.dailyLogbook || {};
-                        savedAiChats = importedData.savedAiChats || [];
-                        loadCustomTexts(importedData.customTexts);
-                        saveData().then(() => {
-                             showToast('Dados importados com sucesso!', 'success');
-                             setTimeout(() => window.location.reload(), 1000);
-                        });
-                    }
-                } catch (err) { showToast('Erro ao ler o ficheiro. Verifique o formato.', 'danger'); console.error(err); }
-            }
-            reader.readAsText(file, 'UTF-8');
-        }
-        input.click();
-    }
-    
-    function openSettingsModal() {
-        const modalBody = settingsModal.querySelector('.modal-body');
-        modalBody.innerHTML = `
-            <form id="settings-form">
-                <h4 data-editable="true">Salário Base (para cálculo)</h4>
-                <div class="form-group"><input type="number" id="baseSalaryInput" value="${baseSalary}" step="0.01"></div>
-                <h4 data-editable="true">Metas de Cancelamento</h4>
-                <div id="settings-metas-container"></div>
-                <hr style="border-color: var(--border-color); margin: 20px 0;">
-                <h4 data-editable="true">Notificações</h4>
-                <div class="form-group" style="display: flex; align-items: center; gap: 15px; justify-content: center;">
-                    <input type="checkbox" id="reminderEnabled" style="width: auto;">
-                    <label for="reminderEnabled" style="margin: 0;" data-editable="true">Ativar lembrete diário</label>
-                    <input type="time" id="reminderTime">
-                </div>
-                <button type="submit" class="button save-button" style="width: 100%; margin-top: 20px;">Guardar Configurações</button>
-            </form>
-            <div class="modal-actions">
-                <button type="button" id="notificationButton" class="button">Ativar Notificação</button>
-                <button type="button" id="installAppButton" class="button">Instalar App</button>
-                <button type="button" id="clearCacheButton" class="button reset-button">Limpar Cache</button>
-            </div>
-            <div class="modal-actions">
-                <button type="button" id="importButton" class="button">Importar</button>
-                <button type="button" id="exportButton" class="button">Exportar</button>
-                <button type="button" id="resetButton" class="button reset-button">Repor App</button>
-            </div>
-        `;
-        const metasContainer = modalBody.querySelector('#settings-metas-container');
-        metas.forEach(meta => {
-            const group = document.createElement('div');
-            group.className = 'form-group';
-            group.innerHTML = `<label>Faixa ${meta.id}</label><div class="indicators-grid"><input type="number" placeholder="Qtd." value="${meta.target}" data-id="${meta.id}" data-type="target"><input type="number" placeholder="Comissão %" value="${(meta.reward || 0) * 100}" data-id="${meta.id}" data-type="reward"></div>`;
-            metasContainer.appendChild(group);
-        });
-
-        const reminderEnabledInput = modalBody.querySelector('#reminderEnabled');
-        const reminderTimeInput = modalBody.querySelector('#reminderTime');
-        reminderEnabledInput.checked = reminderSettings.enabled;
-        reminderTimeInput.value = reminderSettings.time;
-        
-        modalBody.querySelector('#settings-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            baseSalary = parseFloat(modalBody.querySelector('#baseSalaryInput').value) || 0;
-            const newMetas = [];
-            metasContainer.querySelectorAll('.form-group').forEach(group => {
-                const id = parseInt(group.querySelector('label').textContent.replace('Faixa ', ''));
-                const target = parseInt(group.querySelector('input[data-type="target"]').value);
-                const reward = parseFloat(group.querySelector('input[data-type="reward"]').value) / 100;
-                if (!isNaN(id) && !isNaN(target) && !isNaN(reward)) newMetas.push({ id, target, reward });
-            });
-            metas = newMetas;
-            reminderSettings.enabled = reminderEnabledInput.checked;
-            reminderSettings.time = reminderTimeInput.value;
-            
-            showToast('Configurações guardadas!', 'success');
-            settingsModal.style.display = 'none';
-            scheduleReminder();
-            saveData(); // Guarda as novas configurações no Firestore
-        });
-
-        modalBody.querySelector('#importButton').onclick = importData;
-        modalBody.querySelector('#exportButton').onclick = exportData;
-        modalBody.querySelector('#resetButton').onclick = resetData;
-        modalBody.querySelector('#installAppButton').onclick = () => {
-             if (deferredInstallPrompt) { 
-                deferredInstallPrompt.prompt(); 
-                deferredInstallPrompt.userChoice.then(({ outcome }) => {
-                    if (outcome === 'accepted') {
-                        showToast('App instalado com sucesso!', 'success');
-                    }
                 });
-                deferredInstallPrompt = null; 
-            } else { 
-                showToast('App já instalado ou não é possível instalar agora.', 'info');
-            }
-        };
-        modalBody.querySelector('#notificationButton').onclick = () => {
-            Notification.requestPermission().then(permission => {
-                if (permission === 'granted') {
-                    showToast('Notificações ativadas!', 'success');
-                } else {
-                    showToast('Notificações bloqueadas.', 'warning');
-                }
-            });
-        };
-        modalBody.querySelector('#clearCacheButton').onclick = () => {
-            if ('caches' in window && 'serviceWorker' in navigator) {
-                caches.keys().then(function(cacheNames) {
-                    return Promise.all(
-                        cacheNames.map(function(cacheName) {
-                            return caches.delete(cacheName);
-                        })
-                    );
-                }).then(() => {
-                    navigator.serviceWorker.getRegistrations().then(registrations => {
-                        for(let registration of registrations) {
-                            registration.unregister();
-                        }
-                        showToast('Cache limpo! A página será recarregada.', 'success');
-                        setTimeout(() => window.location.reload(true), 2000);
-                    });
-                });
-            } else {
-                showToast('Recurso não suportado neste navegador.', 'danger');
+            } catch (e) {
+                console.error("Falha ao renderizar o gráfico de pizza:", e);
             }
         };
         
-        settingsModal.style.display = 'flex';
-    }
-
-    function applyTheme(theme) {
-        document.body.className = ''; 
-        if(theme !== 'default') document.body.classList.add(`theme-${theme}`);
-        setTimeout(() => {
-            if (trendChart) renderTrendChart();
-            if (categoryPieChart) renderCategoryPieChart();
-        }, 50);
-    }
-
-    // --- EVENT LISTENERS ---
-    atendimentosInput.addEventListener('input', () => { 
-        updateAtendimentoProgress();
-        updateProjection(); 
-        updateDailyMission();
-    });
-    protocolosAnalisadosInput.addEventListener('input', () => { 
-        checkAchievements();
-        updateProtocolProgress();
-        updateDailyMission();
-    });
-    dailyCancellationsInput.addEventListener('input', () => {
-        const newDailyValue = parseInt(dailyCancellationsInput.value) || 0;
-        const currentTotal = parseInt(atendimentosInput.value) || 0;
-        const difference = newDailyValue - previousDailyCancellations;
-
-        atendimentosInput.value = currentTotal + difference;
-        previousDailyCancellations = newDailyValue;
-        atendimentosInput.dispatchEvent(new Event('input'));
-    });
-    incrementButton.addEventListener('click', () => {
-        vibrate();
-        let currentDaily = (parseInt(dailyCancellationsInput.value) || 0) + 1;
-        dailyCancellationsInput.value = currentDaily;
-        dailyCancellationsInput.dispatchEvent(new Event('input')); 
-        const category = categorySelect.value;
-        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-        renderCategorySummary();
-        renderCategoryPieChart();
-    });
-    saveLogbookButton.addEventListener('click', () => {
-        vibrate();
-        const today = getTodayDateString();
-        dailyLogbook[today] = logbookTextarea.value;
-        saveData();
-        showToast('Anotação salva com sucesso!', 'success');
-    });
-
-    incrementProtocolosButton.addEventListener('click', () => {
-        vibrate();
-        const newValue = (parseInt(protocolosAnalisadosInput.value) || 0) + 1;
-        protocolosAnalisadosInput.value = newValue;
-        protocolosAnalisadosInput.dispatchEvent(new Event('input'));
-    });
-    
-    casesListContainer.addEventListener('click', (e) => {
-        const target = e.target;
-        const caseEntry = target.closest('.case-entry');
-        if (!caseEntry) return;
-
-        const caseId = caseEntry.dataset.id;
-        const caseItem = allCases.find(c => c.id === caseId);
-
-        if (!caseItem) return;
-
-        const expandButton = target.closest('.expand-btn');
-        if (expandButton) {
-            const details = caseEntry.querySelector('.case-details-content');
-            details.classList.toggle('visible');
-            expandButton.classList.toggle('expanded');
-            return; 
-        }
-
-        if (target.closest('.copy-protocol-btn')) copyToClipboard(caseEntry.querySelector('.protocol-input').value, 'Protocolo copiado!');
-        if (target.closest('.copy-phone-btn')) copyToClipboard(caseEntry.querySelector('.phone-input').value, 'Telefone copiado!');
-        if (target.closest('.copy-case-all-btn')) copyToClipboard(`Status: ${caseItem.status}\nProtocolo: ${caseItem.protocol || 'N/A'}\nTelefone: ${caseItem.phone || 'N/A'}\nDescrição: ${caseItem.description || 'N/A'}`, 'Dados do caso copiados!');
-        if (target.closest('.remove-case-btn')) { 
-            if (confirm('Tem a certeza de que quer excluir este caso?')) {
-                allCases = allCases.filter(c => c.id !== caseId);
-                saveData(); // Guarda a remoção no Firestore
-                renderCases(document.querySelector('.filter-btn.active').dataset.filter, caseSearchInput.value);
-                renderDailySummary();
-                updateDailyMission();
-                vibrate();
-            }
-        }
-    });
-
-    casesListContainer.addEventListener('input', (e) => {
-        const target = e.target;
-        const caseEntry = target.closest('.case-entry');
-        if (!caseEntry) return;
-        const caseId = caseEntry.dataset.id;
-        const caseIndex = allCases.findIndex(c => c.id === caseId);
-
-        if (caseIndex === -1) return;
-
-        if (target.classList.contains('protocol-input')) allCases[caseIndex].protocol = target.value;
-        if (target.classList.contains('phone-input')) allCases[caseIndex].phone = target.value;
-        if (target.classList.contains('description-input')) allCases[caseIndex].description = target.value;
-        if (target.classList.contains('status-select')) {
-             allCases[caseIndex].status = target.value;
-             usedStatuses.add(target.value);
-             renderCases(document.querySelector('.filter-btn.active').dataset.filter, caseSearchInput.value);
-        }
-        renderDailySummary();
-        updateDailyMission();
-    });
-    
-    addCaseButton.addEventListener('click', () => {
-        const newCase = { 
-            id: `case_${new Date().getTime()}`,
-            protocol: '', 
-            phone: '', 
-            description: '', 
-            status: 'Pendente',
-            date: getTodayDateString()
-        };
-        allCases.unshift(newCase);
-        unlockAchievement('achieve-first-case', 'Primeiro caso adicionado!');
-        saveData(); // Salva o novo caso
-        renderCases();
-        updateDailyMission();
-        renderDailySummary();
-        vibrate();
-    });
-
-    clearCasesButton.addEventListener('click', () => {
-        vibrate();
-        if (confirm('Tem certeza de que quer excluir TODOS os casos? Esta ação é irreversível.')) {
-            allCases = [];
-            saveData(); // Guarda a lista vazia
-            renderCases();
-            renderDailySummary();
-            updateDailyMission();
-            showToast('Todos os casos foram excluídos!', 'danger');
-        }
-    });
-
-    saveCasesButton.addEventListener('click', saveData);
-
-    caseSearchInput.addEventListener('input', () => {
-        const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-        renderCases(activeFilter, caseSearchInput.value);
-    });
-
-    caseFilterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            caseFilterButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            renderCases(button.dataset.filter, caseSearchInput.value);
-        });
-    });
-
-    saveButton.addEventListener('click', saveData);
-    dailySummarySaveButton.addEventListener('click', saveData);
-    dailySummaryClearButton.addEventListener('click', clearDailySummary);
-    
-    editButton.addEventListener('click', toggleEditMode);
-    
-    categorySelect.addEventListener('click', (e) => {
-        if (isEditMode) {
-            e.preventDefault();
-            const selectedOption = categorySelect.options[categorySelect.selectedIndex];
-            if (!selectedOption) return;
-            const newText = prompt(`Editar categoria "${selectedOption.textContent}":`, selectedOption.textContent);
-            if (newText && newText.trim() && newText.trim() !== selectedOption.textContent) {
-                const trimmedText = newText.trim();
-                const originalValue = selectedOption.value;
-                selectedOption.textContent = trimmedText;
-                selectedOption.value = trimmedText;
-                if (categoryCounts[originalValue]) {
-                    categoryCounts[trimmedText] = categoryCounts[originalValue];
-                    delete categoryCounts[originalValue];
-                }
-                showToast('Categoria atualizada. Clique em "Guardar Textos" para persistir.', 'info');
-                renderCategorySummary();
-                renderCategoryPieChart();
-            }
-        }
-    });
-
-    respostasContainer.addEventListener('click', e => {
-        const target = e.target.closest('.resposta-copiavel');
-        if (!target) return;
-
-        if (isEditMode) {
-            e.preventDefault();
-            const currentSummary = target.innerText;
-            const currentFullText = target.dataset.fullText;
-            
-            const newSummary = prompt("Edite o resumo visível (máx. 2 linhas):", currentSummary);
-            if (newSummary === null) return; 
-
-            const newFullText = prompt("Edite o texto completo a ser copiado:", currentFullText);
-            if (newFullText === null) return; 
-
-            target.innerText = newSummary;
-            target.dataset.fullText = newFullText;
-            showToast('Resposta rápida atualizada. Não se esqueça de guardar!', 'info');
-
-        } else {
-            const fullText = target.dataset.fullText || target.innerText;
-            copyToClipboard(fullText, 'Resposta copiada!');
-            dailyCopyCount++;
-            updateDailyMission();
-            unlockAchievement('achieve-copy-response', 'Resposta rápida copiada!');
-            usedQuickResponses.add(target.id);
+        function updateAll() {
+            renderHistory();
+            renderAtendimentoMetas();
+            updateProtocolProgress();
+            updateAtendimentoProgress();
+            renderCategorySummary();
+            renderAchievements();
             checkAchievements();
-        }
-    });
-    
-    settingsButton.addEventListener('click', openSettingsModal);
-    if(closeSettingsModal) closeSettingsModal.addEventListener('click', () => settingsModal.style.display = 'none');
-    
-    senhasButton.addEventListener('click', () => senhasModal.style.display = 'block');
-    if(closeSenhasModal) closeSenhasModal.addEventListener('click', () => senhasModal.style.display = 'none');
-    senhasContainer.addEventListener('click', e => {
-        if (e.target.classList.contains('copyable-credential')) {
-            copyToClipboard(e.target.innerText, 'Credencial copiada!');
-        }
-    });
-    
-    window.addEventListener('click', e => { 
-        if (e.target == settingsModal) settingsModal.style.display = 'none'; 
-        if (e.target == senhasModal) senhasModal.style.display = 'none'; 
-        if (e.target == savedChatsModal) savedChatsModal.style.display = 'none';
-    });
-    
-    
-    window.addEventListener('beforeinstallprompt', e => { 
-        e.preventDefault(); 
-        deferredInstallPrompt = e; 
-        const installBtn = document.getElementById('installAppButton');
-        if(installBtn) installBtn.style.display = 'block';
-    });
-
-    themeToggleButton.addEventListener('click', () => {
-        const currentTheme = document.body.className.replace('theme-','');
-        const currentIndex = themes.indexOf(currentTheme);
-        const nextIndex = (currentIndex + 1) % themes.length;
-        const newTheme = themes[nextIndex];
-        
-        applyTheme(newTheme);
-        showToast(`Tema alterado para ${newTheme}!`, 'info');
-        unlockAchievement('achieve-change-theme', 'Novo visual!');
-    });
-    
-    tabsContainer.addEventListener('click', (e) => {
-        const button = e.target.closest('.tab-button');
-        if (!button) return;
-        
-        const currentActive = document.querySelector('.tab-button.active');
-        const buttonArray = Array.from(tabButtons);
-        const currentIndex = buttonArray.indexOf(currentActive);
-        const nextIndex = buttonArray.indexOf(button);
-        
-        const direction = nextIndex > currentIndex ? 'left' : 'right';
-
-        switchTab(button.dataset.tab, direction);
-    });
-
-    function switchTab(tabId, direction) {
-        const currentActiveTab = document.querySelector('.tab-content.active');
-        const nextTab = document.getElementById(`tab-${tabId}`);
-        
-        if (currentActiveTab === nextTab) return;
-
-        tabButtons.forEach(button => {
-            button.classList.toggle('active', button.dataset.tab === tabId);
-        });
-
-        tabContents.forEach(tab => {
-            tab.classList.remove('active');
-        });
-        nextTab.classList.add('active');
-
-        if(tabId === 'cancelamentos' || tabId === 'relatorios') {
-            setTimeout(() => {
-                renderTrendChart();
-                renderCategoryPieChart();
-            }, 50);
-        }
-    }
-
-    // --- LÓGICA DE SWIPE PARA ABAS ---
-    function handleSwipe() {
-        const swipeDistance = touchEndX - touchStartX;
-        if (Math.abs(swipeDistance) < MIN_SWIPE_DISTANCE) return;
-
-        const currentActive = document.querySelector('.tab-button.active');
-        const buttonArray = Array.from(tabButtons);
-        const currentIndex = buttonArray.indexOf(currentActive);
-        let nextIndex;
-
-        if (swipeDistance < 0) { // Swipe para a esquerda
-            nextIndex = (currentIndex + 1) % buttonArray.length;
-        } else { // Swipe para a direita
-            nextIndex = (currentIndex - 1 + buttonArray.length) % buttonArray.length;
+            updateProjection();
+            updateDailyMission();
+            renderTrendChart();
+            renderCategoryPieChart();
+            renderCases(document.querySelector('.filter-btn.active')?.dataset.filter || 'all', caseSearchInput.value);
+            renderDailySummary();
         }
         
-        switchTab(buttonArray[nextIndex].dataset.tab);
-    }
-
-    tabContentWrapper.addEventListener('touchstart', e => {
-        touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
-
-    tabContentWrapper.addEventListener('touchend', e => {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-    });
-
-    generateReportBtn.addEventListener('click', () => {
-        if (!reportMonthInput.value) {
-            showToast('Por favor, selecione um mês.', 'warning');
-            return;
-        }
-        const [year, month] = reportMonthInput.value.split('-').map(Number);
-        const entries = history.filter(h => {
-            const d = parseDate(h.date);
-            return d.getFullYear() === year && d.getMonth() + 1 === month;
-        });
-        
-        if (entries.length === 0) {
-            reportOutput.innerHTML = '<p>Nenhum dado encontrado para este mês.</p>';
-            return;
-        }
-
-        const totalCancellations = entries.reduce((sum, e) => sum + (e.dailyCancellations || 0), 0);
-        const totalProtocols = entries.reduce((sum, e) => sum + (e.protocols || 0), 0);
-        const avgCancellations = totalCancellations / entries.length;
-        const avgProtocols = totalProtocols / entries.length;
-
-        reportOutput.innerHTML = `
-            <div class="report-stat"><span>Total de Cancelamentos:</span> <strong>${totalCancellations}</strong></div>
-            <div class="report-stat"><span>Total de Protocolos:</span> <strong>${totalProtocols}</strong></div>
-            <div class="report-stat"><span>Média Diária de Cancelamentos:</span> <strong>${avgCancellations.toFixed(2)}</strong></div>
-            <div class="report-stat"><span>Média Diária de Protocolos:</span> <strong>${avgProtocols.toFixed(2)}</strong></div>
-        `;
-    });
-
-    compareMonthsBtn.addEventListener('click', () => {
-         if (!reportMonthInput.value) {
-            showToast('Por favor, selecione um mês para comparar.', 'warning');
-            return;
-        }
-        const [year, month] = reportMonthInput.value.split('-').map(Number);
-        
-        const getDateForComparison = (y, m) => {
-            if (m === 1) return { year: y - 1, month: 12 };
-            return { year: y, month: m - 1};
-        }
-
-        const prevDate = getDateForComparison(year, month);
-        
-        const currentEntries = history.filter(h => {
-            const d = parseDate(h.date);
-            return d.getFullYear() === year && d.getMonth() + 1 === month;
-        });
-
-        const prevEntries = history.filter(h => {
-            const d = parseDate(h.date);
-            return d.getFullYear() === prevDate.year && d.getMonth() + 1 === prevDate.month;
-        });
-
-        const currentTotal = currentEntries.reduce((sum, e) => sum + (e.dailyCancellations || 0), 0);
-        const prevTotal = prevEntries.reduce((sum, e) => sum + (e.dailyCancellations || 0), 0);
-        const difference = currentTotal - prevTotal;
-
-        reportOutput.innerHTML = `
-            <div class="report-stat"><span>Cancelamentos Mês Atual (${month}/${year}):</span> <strong>${currentTotal}</strong></div>
-            <div class="report-stat"><span>Cancelamentos Mês Anterior (${prevDate.month}/${prevDate.year}):</span> <strong>${prevTotal}</strong></div>
-            <div class="report-stat"><span>Diferença:</span> <strong style="color: ${difference > 0 ? 'var(--danger-color)' : 'var(--success-color)'}">${difference}</strong></div>
-        `;
-    });
-    
-    // --- LÓGICA DE EXPORTAÇÃO E IA ---
-
-    // Lógica para exportar Relatório para PDF
-    exportReportPdfBtn.addEventListener('click', () => {
-        const reportContent = reportOutput.innerHTML.trim();
-        if (!reportContent || reportContent.includes('Nenhum dado encontrado')) {
-            showToast('Gere um relatório primeiro para poder exportar.', 'warning');
-            return;
-        }
-
-        if (confirm('Deseja gerar o relatório em PDF e abri-lo numa nova aba?')) {
-            showToast('A gerar o PDF...', 'info');
-            vibrate();
+        // *** INÍCIO: FUNÇÕES DO FIRESTORE ***
+        async function saveData() {
+            if (!isDataLoaded || !userId) {
+                showToast('A sincronização ainda não terminou. Tente novamente em alguns segundos.', 'warning');
+                return;
+            }
             
-            const element = document.getElementById('report-export-area');
-            const opt = {
-                margin:       0.5,
-                filename:     `relatorio_metas_${reportMonthInput.value}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            vibrate();
+            const date = getTodayDateString();
+            const newEntry = { 
+                date, 
+                atendimentos: parseInt(atendimentosInput.value) || 0,
+                dailyCancellations: parseInt(dailyCancellationsInput.value) || 0,
+                protocols: parseInt(protocolosAnalisadosInput.value) || 0
             };
 
-            html2pdf().from(element).set(opt).outputPdf('bloburl').then((bloburl) => {
-                window.open(bloburl, '_blank');
-            }).catch(err => {
-                showToast('Erro ao gerar o PDF.', 'danger');
-                console.error(err);
-            });
-        }
-    });
-
-    // --- LÓGICA DO ASSISTENTE IA ---
-    const callGeminiAPI = async (prompt) => {
-        const apiKey = "AIzaSyB4VSoVXwJACSxlf9njB2uUbJF59q7MmNw";
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
-
-        aiSendButton.disabled = true;
-        aiSendButton.textContent = '...';
-
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error("Erro da API:", errorData);
-                throw new Error(`HTTP error! status: ${response.status}`);
+            const todayIndex = history.findIndex(entry => entry.date === date);
+            if (todayIndex > -1) { 
+                history[todayIndex] = newEntry;
+            } else { 
+                history.push(newEntry); 
             }
+            history.sort((a, b) => parseDate(a.date) - parseDate(b.date));
 
-            const data = await response.json();
-            if (data.candidates && data.candidates.length > 0) {
-                const text = data.candidates[0].content.parts[0].text;
-                addMessageToChat('model', text);
-            } else {
-                 addMessageToChat('model', 'Não recebi uma resposta válida da IA. Verifique as configurações ou a sua chave de API.');
+            const dataToSave = {
+                atendimentosCount: atendimentosInput.value,
+                protocolosAnalisadosCount: protocolosAnalisadosInput.value,
+                dailyCancellationsCount: dailyCancellationsInput.value,
+                lastUsedDate: getTodayDateString(),
+                dailyCopyCount: dailyCopyCount,
+                metas,
+                allCases,
+                baseSalary,
+                history,
+                categoryCounts,
+                unlockedAchievements,
+                reminderSettings,
+                usedStatuses: Array.from(usedStatuses),
+                usedQuickResponses: Array.from(usedQuickResponses),
+                dailyLogbook,
+                savedAiChats,
+                customTexts: saveCustomTexts(),
+                appTheme: document.body.className.replace('theme-','') || 'tech'
+            };
+
+            try {
+                const userDocRef = doc(db, 'users', userId);
+                await setDoc(userDocRef, { data: dataToSave }); // Guarda tudo dentro de um campo 'data'
+                unlockAchievement('achieve-first-save', 'Primeiro progresso guardado online!');
+                updateAll();
+                showToast('Progresso guardado online!', 'success');
+            } catch (error) {
+                console.error("Erro ao guardar dados no Firestore:", error);
+                showToast('Falha ao guardar online.', 'danger');
             }
-
-        } catch (error) {
-            console.error("Erro ao chamar a API Gemini:", error);
-            addMessageToChat('model', 'Desculpe, ocorreu um erro ao contactar a IA.');
-        } finally {
-            aiSendButton.disabled = false;
-            aiSendButton.textContent = 'Enviar';
         }
-    };
 
-    const addMessageToChat = (role, text) => {
-        const messageDiv = document.createElement('div');
-        messageDiv.style.padding = '8px 12px';
-        messageDiv.style.borderRadius = '8px';
-        messageDiv.style.maxWidth = '80%';
-        messageDiv.style.wordBreak = 'break-word';
+        async function loadDataFromFirestore() {
+            if (!userId) return;
+            
+            const userDocRef = doc(db, 'users', userId);
+            try {
+                const docSnap = await getDoc(userDocRef);
 
-        if (role === 'user') {
-            messageDiv.style.backgroundColor = 'var(--primary-color)';
-            messageDiv.style.alignSelf = 'flex-end';
-            messageDiv.style.color = 'white';
-        } else {
-            messageDiv.style.backgroundColor = 'var(--input-bg)';
-            messageDiv.style.alignSelf = 'flex-start';
-        }
-        messageDiv.textContent = text;
-        aiChatMessages.appendChild(messageDiv);
-        aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
-    };
-    
-    aiSendButton.addEventListener('click', () => {
-        const prompt = aiPromptInput.value.trim();
-        if (prompt) {
-            addMessageToChat('user', prompt);
-            callGeminiAPI(prompt);
-            aiPromptInput.value = '';
-        }
-    });
-    
-    aiPromptInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            aiSendButton.click();
-        }
-    });
+                if (docSnap.exists() && docSnap.data().data) {
+                    const data = docSnap.data().data; // Acede ao campo 'data'
+                    
+                    metas = data.metas || metas;
+                    allCases = data.allCases || [];
+                    baseSalary = data.baseSalary || 0;
+                    history = data.history || [];
+                    categoryCounts = data.categoryCounts || {};
+                    unlockedAchievements = data.unlockedAchievements || {};
+                    reminderSettings = data.reminderSettings || reminderSettings;
+                    usedStatuses = new Set(data.usedStatuses || []);
+                    usedQuickResponses = new Set(data.usedQuickResponses || []);
+                    dailyLogbook = data.dailyLogbook || {};
+                    savedAiChats = data.savedAiChats || [];
+                    
+                    loadCustomTexts(data.customTexts);
+                    applyTheme(data.appTheme || 'tech');
 
-    // Lógica dos novos botões do chat IA
-    clearChatBtn.addEventListener('click', () => {
-        if (aiChatMessages.children.length > 0 && confirm('Tem a certeza que quer limpar a conversa atual?')) {
-            aiChatMessages.innerHTML = '';
-            showToast('Conversa limpa.', 'info');
+                    const todayStr = getTodayDateString();
+                    if (data.lastUsedDate === todayStr) {
+                        dailyCancellationsInput.value = data.dailyCancellationsCount || 0;
+                        protocolosAnalisadosInput.value = data.protocolosAnalisadosCount || 0;
+                        dailyCopyCount = data.dailyCopyCount || 0;
+                    } else {
+                        dailyCancellationsInput.value = 0;
+                        protocolosAnalisadosInput.value = 0;
+                        dailyCopyCount = 0;
+                    }
+                    previousDailyCancellations = parseInt(dailyCancellationsInput.value) || 0;
+                    atendimentosInput.value = data.atendimentosCount || '';
+                    logbookTextarea.value = dailyLogbook[todayStr] || '';
+                    
+                } else {
+                    console.log("Nenhum documento encontrado para este utilizador, a usar dados padrão.");
+                }
+            } catch (error) {
+                 console.error("Erro ao carregar dados do Firestore:", error);
+                 showToast("Falha ao carregar dados da nuvem.", "danger");
+            } finally {
+                isDataLoaded = true;
+                updateAll(); 
+                scheduleReminder();
+                loadingOverlay.style.opacity = '0';
+                pageContainer.style.visibility = 'visible';
+                setTimeout(() => { loadingOverlay.style.display = 'none'; enableUI(); }, 300);
+            }
+        }
+        // *** FIM: FUNÇÕES DO FIRESTORE ***
+        
+        function resetData() {
             vibrate();
+            if (confirm('Tem a certeza que deseja repor TODOS os seus dados ONLINE? Esta ação é irreversível.')) {
+                metas = [ { id: 1, target: 10, reward: 0.24 }, { id: 2, target: 20, reward: 0.48 }, { id: 3, target: 30, reward: 0.70 } ];
+                allCases = [];
+                baseSalary = 0;
+                history = [];
+                categoryCounts = {};
+                unlockedAchievements = {};
+                saveData().then(() => {
+                     showToast('Dados repostos!', 'danger');
+                     setTimeout(() => window.location.reload(), 1000);
+                });
+            }
         }
-    });
+        function exportData() {
+            if (!isDataLoaded) {
+                showToast('Aguarde o carregamento dos dados antes de exportar.', 'warning');
+                return;
+            }
+            unlockAchievement('achieve-export', 'Primeiro backup realizado!');
+            vibrate();
 
-    saveChatBtn.addEventListener('click', () => {
-        const messages = Array.from(aiChatMessages.children).map(div => ({
-            role: div.style.alignSelf === 'flex-end' ? 'user' : 'model',
-            text: div.textContent
-        }));
+            const currentMonth = new Date().getMonth();
+            const monthlyProtocols = history
+                .filter(h => parseDate(h.date).getMonth() === currentMonth)
+                .reduce((sum, h) => sum + (h.protocols || 0), 0);
 
-        if (messages.length === 0) {
-            showToast('A conversa está vazia.', 'warning');
-            return;
+            const dataToExport = {
+                atendimentosCount: atendimentosInput.value,
+                protocolosAnalisadosCount: protocolosAnalisadosInput.value,
+                casesList: allCases,
+                baseSalary: baseSalary,
+                customMetas: metas,
+                history: history,
+                customTexts: saveCustomTexts(),
+                categoryCounts: categoryCounts,
+                unlockedAchievements: unlockedAchievements,
+                reminderSettings: reminderSettings,
+                usedQuickResponses: Array.from(usedQuickResponses),
+                dailyLogbook: dailyLogbook,
+                savedAiChats: savedAiChats
+            };
+            const dateStr = new Date().toISOString().split('T')[0];
+            
+            const blobJson = new Blob([JSON.stringify(dataToExport, null, 2)], {type: 'application/json'});
+            const urlJson = URL.createObjectURL(blobJson);
+            const aJson = document.createElement('a');
+            aJson.href = urlJson;
+            aJson.download = `backup_completo_metas_${dateStr}.json`;
+            aJson.click();
+            URL.revokeObjectURL(urlJson);
+            showToast('Backup .json exportado!', 'info');
+        }
+        function importData() {
+            vibrate();
+            const input = document.createElement('input'); input.type = 'file'; input.accept = '.json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = readerEvent => {
+                    try {
+                        const importedData = JSON.parse(readerEvent.target.result);
+                        if (confirm('Isto irá sobrescrever os seus dados online atuais. Deseja continuar?')) {
+                            atendimentosInput.value = importedData.atendimentosCount || '';
+                            protocolosAnalisadosInput.value = importedData.protocolosAnalisadosCount || '';
+                            allCases = importedData.casesList || [];
+                            baseSalary = importedData.baseSalary || 0;
+                            metas = importedData.customMetas || metas;
+                            history = importedData.history || [];
+                            categoryCounts = importedData.categoryCounts || {};
+                            unlockedAchievements = importedData.unlockedAchievements || {};
+                            reminderSettings = importedData.reminderSettings || reminderSettings;
+                            usedQuickResponses = new Set(importedData.usedQuickResponses || []);
+                            dailyLogbook = importedData.dailyLogbook || {};
+                            savedAiChats = importedData.savedAiChats || [];
+                            loadCustomTexts(importedData.customTexts);
+                            saveData().then(() => {
+                                 showToast('Dados importados com sucesso!', 'success');
+                                 setTimeout(() => window.location.reload(), 1000);
+                            });
+                        }
+                    } catch (err) { showToast('Erro ao ler o ficheiro. Verifique o formato.', 'danger'); console.error(err); }
+                }
+                reader.readAsText(file, 'UTF-8');
+            }
+            input.click();
         }
         
-        const newChat = {
-            id: `chat_${new Date().getTime()}`,
-            title: messages[0].text.substring(0, 40) + '...',
-            date: new Date().toLocaleString('pt-BR'),
-            messages: messages
-        };
-        savedAiChats.unshift(newChat);
-        saveData(); // Guarda o chat no Firestore
-        showToast('Conversa salva com sucesso!', 'success');
-        vibrate();
-    });
-
-    viewChatsBtn.addEventListener('click', () => {
-        savedChatsList.innerHTML = '';
-
-        if (savedAiChats.length === 0) {
-            savedChatsList.innerHTML = '<li>Nenhuma conversa salva.</li>';
-        } else {
-            savedAiChats.forEach(chat => {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>${chat.title}</strong><br><small>${chat.date}</small>`;
-                li.dataset.chatId = chat.id;
-                li.addEventListener('click', () => {
-                    aiChatMessages.innerHTML = '';
-                    chat.messages.forEach(msg => {
-                        addMessageToChat(msg.role, msg.text);
-                    });
-                    savedChatsModal.style.display = 'none';
-                    showToast('Conversa carregada!', 'info');
-                });
-                savedChatsList.appendChild(li);
+        function openSettingsModal() {
+            const modalBody = settingsModal.querySelector('.modal-body');
+            modalBody.innerHTML = `
+                <form id="settings-form">
+                    <h4 data-editable="true">Salário Base (para cálculo)</h4>
+                    <div class="form-group"><input type="number" id="baseSalaryInput" value="${baseSalary}" step="0.01"></div>
+                    <h4 data-editable="true">Metas de Cancelamento</h4>
+                    <div id="settings-metas-container"></div>
+                    <hr style="border-color: var(--border-color); margin: 20px 0;">
+                    <h4 data-editable="true">Notificações</h4>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 15px; justify-content: center;">
+                        <input type="checkbox" id="reminderEnabled" style="width: auto;">
+                        <label for="reminderEnabled" style="margin: 0;" data-editable="true">Ativar lembrete diário</label>
+                        <input type="time" id="reminderTime">
+                    </div>
+                    <button type="submit" class="button save-button" style="width: 100%; margin-top: 20px;">Guardar Configurações</button>
+                </form>
+                <div class="modal-actions">
+                    <button type="button" id="logoutButton" class="button secondary-button">Sair (Mudar PIN)</button>
+                    <button type="button" id="notificationButton" class="button">Ativar Notificação</button>
+                    <button type="button" id="installAppButton" class="button">Instalar App</button>
+                    <button type="button" id="clearCacheButton" class="button reset-button">Limpar Cache</button>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="importButton" class="button">Importar</button>
+                    <button type="button" id="exportButton" class="button">Exportar</button>
+                    <button type="button" id="resetButton" class="button reset-button">Repor App</button>
+                </div>
+            `;
+            const metasContainer = modalBody.querySelector('#settings-metas-container');
+            metas.forEach(meta => {
+                const group = document.createElement('div');
+                group.className = 'form-group';
+                group.innerHTML = `<label>Faixa ${meta.id}</label><div class="indicators-grid"><input type="number" placeholder="Qtd." value="${meta.target}" data-id="${meta.id}" data-type="target"><input type="number" placeholder="Comissão %" value="${(meta.reward || 0) * 100}" data-id="${meta.id}" data-type="reward"></div>`;
+                metasContainer.appendChild(group);
             });
+
+            const reminderEnabledInput = modalBody.querySelector('#reminderEnabled');
+            const reminderTimeInput = modalBody.querySelector('#reminderTime');
+            reminderEnabledInput.checked = reminderSettings.enabled;
+            reminderTimeInput.value = reminderSettings.time;
+            
+            modalBody.querySelector('#settings-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                baseSalary = parseFloat(modalBody.querySelector('#baseSalaryInput').value) || 0;
+                const newMetas = [];
+                metasContainer.querySelectorAll('.form-group').forEach(group => {
+                    const id = parseInt(group.querySelector('label').textContent.replace('Faixa ', ''));
+                    const target = parseInt(group.querySelector('input[data-type="target"]').value);
+                    const reward = parseFloat(group.querySelector('input[data-type="reward"]').value) / 100;
+                    if (!isNaN(id) && !isNaN(target) && !isNaN(reward)) newMetas.push({ id, target, reward });
+                });
+                metas = newMetas;
+                reminderSettings.enabled = reminderEnabledInput.checked;
+                reminderSettings.time = reminderTimeInput.value;
+                
+                showToast('Configurações guardadas!', 'success');
+                settingsModal.style.display = 'none';
+                scheduleReminder();
+                saveData(); // Guarda as novas configurações no Firestore
+            });
+
+            modalBody.querySelector('#logoutButton').addEventListener('click', () => {
+                if (confirm('Tem a certeza de que quer sair? Terá de inserir o seu PIN novamente.')) {
+                    signOut(auth).then(() => {
+                        localStorage.removeItem(PIN_STORAGE_KEY);
+                        window.location.reload();
+                    });
+                }
+            });
+            modalBody.querySelector('#importButton').onclick = importData;
+            modalBody.querySelector('#exportButton').onclick = exportData;
+            modalBody.querySelector('#resetButton').onclick = resetData;
+            modalBody.querySelector('#installAppButton').onclick = () => {
+                 if (deferredInstallPrompt) { 
+                    deferredInstallPrompt.prompt(); 
+                    deferredInstallPrompt.userChoice.then(({ outcome }) => {
+                        if (outcome === 'accepted') {
+                            showToast('App instalado com sucesso!', 'success');
+                        }
+                    });
+                    deferredInstallPrompt = null; 
+                } else { 
+                    showToast('App já instalado ou não é possível instalar agora.', 'info');
+                }
+            };
+            modalBody.querySelector('#notificationButton').onclick = () => {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        showToast('Notificações ativadas!', 'success');
+                    } else {
+                        showToast('Notificações bloqueadas.', 'warning');
+                    }
+                });
+            };
+            modalBody.querySelector('#clearCacheButton').onclick = () => {
+                if ('caches' in window && 'serviceWorker' in navigator) {
+                    caches.keys().then(function(cacheNames) {
+                        return Promise.all(
+                            cacheNames.map(function(cacheName) {
+                                return caches.delete(cacheName);
+                            })
+                        );
+                    }).then(() => {
+                        navigator.serviceWorker.getRegistrations().then(registrations => {
+                            for(let registration of registrations) {
+                                registration.unregister();
+                            }
+                            showToast('Cache limpo! A página será recarregada.', 'success');
+                            setTimeout(() => window.location.reload(true), 2000);
+                        });
+                    });
+                } else {
+                    showToast('Recurso não suportado neste navegador.', 'danger');
+                }
+            };
+            
+            settingsModal.style.display = 'flex';
         }
-        savedChatsModal.style.display = 'flex';
-    });
 
-    closeSavedChatsModal.addEventListener('click', () => {
-        savedChatsModal.style.display = 'none';
-    });
-
-    exportChatTxtBtn.addEventListener('click', () => {
-        const messages = Array.from(aiChatMessages.children);
-        if (messages.length === 0) {
-            showToast('Não há nada para exportar.', 'warning');
-            return;
+        function applyTheme(theme) {
+            document.body.className = ''; 
+            if(theme !== 'default') document.body.classList.add(`theme-${theme}`);
+            setTimeout(() => {
+                if (trendChart) renderTrendChart();
+                if (categoryPieChart) renderCategoryPieChart();
+            }, 50);
         }
 
-        let txtContent = `Exportação da Conversa - ${new Date().toLocaleString('pt-BR')}\n\n`;
-        messages.forEach(div => {
-            const role = div.style.alignSelf === 'flex-end' ? 'Utilizador' : 'Assistente';
-            txtContent += `--- ${role} ---\n${div.textContent}\n\n`;
+        // --- EVENT LISTENERS ---
+        atendimentosInput.addEventListener('input', () => { 
+            updateAtendimentoProgress();
+            updateProjection(); 
+            updateDailyMission();
+        });
+        protocolosAnalisadosInput.addEventListener('input', () => { 
+            checkAchievements();
+            updateProtocolProgress();
+            updateDailyMission();
+        });
+        dailyCancellationsInput.addEventListener('input', () => {
+            const newDailyValue = parseInt(dailyCancellationsInput.value) || 0;
+            const currentTotal = parseInt(atendimentosInput.value) || 0;
+            const difference = newDailyValue - previousDailyCancellations;
+
+            atendimentosInput.value = currentTotal + difference;
+            previousDailyCancellations = newDailyValue;
+            atendimentosInput.dispatchEvent(new Event('input'));
+        });
+        incrementButton.addEventListener('click', () => {
+            vibrate();
+            let currentDaily = (parseInt(dailyCancellationsInput.value) || 0) + 1;
+            dailyCancellationsInput.value = currentDaily;
+            dailyCancellationsInput.dispatchEvent(new Event('input')); 
+            const category = categorySelect.value;
+            categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+            renderCategorySummary();
+            renderCategoryPieChart();
+        });
+        saveLogbookButton.addEventListener('click', () => {
+            vibrate();
+            const today = getTodayDateString();
+            dailyLogbook[today] = logbookTextarea.value;
+            saveData();
+            showToast('Anotação salva com sucesso!', 'success');
         });
 
-        const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `chat_ia_${new Date().toISOString().split('T')[0]}.txt`;
-        a.click();
-        URL.revokeObjectURL(url);
-        showToast('Ficheiro .txt do chat gerado!', 'success');
-        vibrate();
-    });
-    
-    // --- INICIALIZAÇÃO e AUTENTICAÇÃO ---
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            // Utilizador está logado (anonimamente ou não)
-            if (userId !== user.uid) { 
+        incrementProtocolosButton.addEventListener('click', () => {
+            vibrate();
+            const newValue = (parseInt(protocolosAnalisadosInput.value) || 0) + 1;
+            protocolosAnalisadosInput.value = newValue;
+            protocolosAnalisadosInput.dispatchEvent(new Event('input'));
+        });
+        
+        casesListContainer.addEventListener('click', (e) => {
+            const target = e.target;
+            const caseEntry = target.closest('.case-entry');
+            if (!caseEntry) return;
+
+            const caseId = caseEntry.dataset.id;
+            const caseItem = allCases.find(c => c.id === caseId);
+
+            if (!caseItem) return;
+
+            const expandButton = target.closest('.expand-btn');
+            if (expandButton) {
+                const details = caseEntry.querySelector('.case-details-content');
+                details.classList.toggle('visible');
+                expandButton.classList.toggle('expanded');
+                return; 
+            }
+
+            if (target.closest('.copy-protocol-btn')) copyToClipboard(caseEntry.querySelector('.protocol-input').value, 'Protocolo copiado!');
+            if (target.closest('.copy-phone-btn')) copyToClipboard(caseEntry.querySelector('.phone-input').value, 'Telefone copiado!');
+            if (target.closest('.copy-case-all-btn')) copyToClipboard(`Status: ${caseItem.status}\nProtocolo: ${caseItem.protocol || 'N/A'}\nTelefone: ${caseItem.phone || 'N/A'}\nDescrição: ${caseItem.description || 'N/A'}`, 'Dados do caso copiados!');
+            if (target.closest('.remove-case-btn')) { 
+                if (confirm('Tem a certeza de que quer excluir este caso?')) {
+                    allCases = allCases.filter(c => c.id !== caseId);
+                    saveData(); // Guarda a remoção no Firestore
+                    renderCases(document.querySelector('.filter-btn.active').dataset.filter, caseSearchInput.value);
+                    renderDailySummary();
+                    updateDailyMission();
+                    vibrate();
+                }
+            }
+        });
+
+        casesListContainer.addEventListener('input', (e) => {
+            const target = e.target;
+            const caseEntry = target.closest('.case-entry');
+            if (!caseEntry) return;
+            const caseId = caseEntry.dataset.id;
+            const caseIndex = allCases.findIndex(c => c.id === caseId);
+
+            if (caseIndex === -1) return;
+
+            if (target.classList.contains('protocol-input')) allCases[caseIndex].protocol = target.value;
+            if (target.classList.contains('phone-input')) allCases[caseIndex].phone = target.value;
+            if (target.classList.contains('description-input')) allCases[caseIndex].description = target.value;
+            if (target.classList.contains('status-select')) {
+                 allCases[caseIndex].status = target.value;
+                 usedStatuses.add(target.value);
+                 renderCases(document.querySelector('.filter-btn.active').dataset.filter, caseSearchInput.value);
+            }
+            renderDailySummary();
+            updateDailyMission();
+        });
+        
+        addCaseButton.addEventListener('click', () => {
+            const newCase = { 
+                id: `case_${new Date().getTime()}`,
+                protocol: '', 
+                phone: '', 
+                description: '', 
+                status: 'Pendente',
+                date: getTodayDateString()
+            };
+            allCases.unshift(newCase);
+            unlockAchievement('achieve-first-case', 'Primeiro caso adicionado!');
+            saveData(); // Salva o novo caso
+            renderCases();
+            updateDailyMission();
+            renderDailySummary();
+            vibrate();
+        });
+
+        clearCasesButton.addEventListener('click', () => {
+            vibrate();
+            if (confirm('Tem certeza de que quer excluir TODOS os casos? Esta ação é irreversível.')) {
+                allCases = [];
+                saveData(); // Guarda a lista vazia
+                renderCases();
+                renderDailySummary();
+                updateDailyMission();
+                showToast('Todos os casos foram excluídos!', 'danger');
+            }
+        });
+
+        saveCasesButton.addEventListener('click', saveData);
+
+        caseSearchInput.addEventListener('input', () => {
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            renderCases(activeFilter, caseSearchInput.value);
+        });
+
+        caseFilterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                caseFilterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                renderCases(button.dataset.filter, caseSearchInput.value);
+            });
+        });
+
+        saveButton.addEventListener('click', saveData);
+        dailySummarySaveButton.addEventListener('click', saveData);
+        dailySummaryClearButton.addEventListener('click', clearDailySummary);
+        
+        editButton.addEventListener('click', toggleEditMode);
+        
+        categorySelect.addEventListener('click', (e) => {
+            if (isEditMode) {
+                e.preventDefault();
+                const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+                if (!selectedOption) return;
+                const newText = prompt(`Editar categoria "${selectedOption.textContent}":`, selectedOption.textContent);
+                if (newText && newText.trim() && newText.trim() !== selectedOption.textContent) {
+                    const trimmedText = newText.trim();
+                    const originalValue = selectedOption.value;
+                    selectedOption.textContent = trimmedText;
+                    selectedOption.value = trimmedText;
+                    if (categoryCounts[originalValue]) {
+                        categoryCounts[trimmedText] = categoryCounts[originalValue];
+                        delete categoryCounts[originalValue];
+                    }
+                    showToast('Categoria atualizada. Clique em "Guardar Textos" para persistir.', 'info');
+                    renderCategorySummary();
+                    renderCategoryPieChart();
+                }
+            }
+        });
+
+        respostasContainer.addEventListener('click', e => {
+            const target = e.target.closest('.resposta-copiavel');
+            if (!target) return;
+
+            if (isEditMode) {
+                e.preventDefault();
+                const currentSummary = target.innerText;
+                const currentFullText = target.dataset.fullText;
+                
+                const newSummary = prompt("Edite o resumo visível (máx. 2 linhas):", currentSummary);
+                if (newSummary === null) return; 
+
+                const newFullText = prompt("Edite o texto completo a ser copiado:", currentFullText);
+                if (newFullText === null) return; 
+
+                target.innerText = newSummary;
+                target.dataset.fullText = newFullText;
+                showToast('Resposta rápida atualizada. Não se esqueça de guardar!', 'info');
+
+            } else {
+                const fullText = target.dataset.fullText || target.innerText;
+                copyToClipboard(fullText, 'Resposta copiada!');
+                dailyCopyCount++;
+                updateDailyMission();
+                unlockAchievement('achieve-copy-response', 'Resposta rápida copiada!');
+                usedQuickResponses.add(target.id);
+                checkAchievements();
+            }
+        });
+        
+        settingsButton.addEventListener('click', openSettingsModal);
+        if(closeSettingsModal) closeSettingsModal.addEventListener('click', () => settingsModal.style.display = 'none');
+        
+        senhasButton.addEventListener('click', () => senhasModal.style.display = 'block');
+        if(closeSenhasModal) closeSenhasModal.addEventListener('click', () => senhasModal.style.display = 'none');
+        senhasContainer.addEventListener('click', e => {
+            if (e.target.classList.contains('copyable-credential')) {
+                copyToClipboard(e.target.innerText, 'Credencial copiada!');
+            }
+        });
+        
+        window.addEventListener('click', e => { 
+            if (e.target == settingsModal) settingsModal.style.display = 'none'; 
+            if (e.target == senhasModal) senhasModal.style.display = 'none'; 
+            if (e.target == savedChatsModal) savedChatsModal.style.display = 'none';
+        });
+        
+        
+        window.addEventListener('beforeinstallprompt', e => { 
+            e.preventDefault(); 
+            deferredInstallPrompt = e; 
+            const installBtn = document.getElementById('installAppButton');
+            if(installBtn) installBtn.style.display = 'block';
+        });
+
+        themeToggleButton.addEventListener('click', () => {
+            const currentTheme = document.body.className.replace('theme-','');
+            const currentIndex = themes.indexOf(currentTheme);
+            const nextIndex = (currentIndex + 1) % themes.length;
+            const newTheme = themes[nextIndex];
+            
+            applyTheme(newTheme);
+            showToast(`Tema alterado para ${newTheme}!`, 'info');
+            unlockAchievement('achieve-change-theme', 'Novo visual!');
+        });
+        
+        tabsContainer.addEventListener('click', (e) => {
+            const button = e.target.closest('.tab-button');
+            if (!button) return;
+            
+            const currentActive = document.querySelector('.tab-button.active');
+            const buttonArray = Array.from(tabButtons);
+            const currentIndex = buttonArray.indexOf(currentActive);
+            const nextIndex = buttonArray.indexOf(button);
+            
+            const direction = nextIndex > currentIndex ? 'left' : 'right';
+
+            switchTab(button.dataset.tab, direction);
+        });
+
+        function switchTab(tabId, direction) {
+            const currentActiveTab = document.querySelector('.tab-content.active');
+            const nextTab = document.getElementById(`tab-${tabId}`);
+            
+            if (currentActiveTab === nextTab) return;
+
+            tabButtons.forEach(button => {
+                button.classList.toggle('active', button.dataset.tab === tabId);
+            });
+
+            tabContents.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            nextTab.classList.add('active');
+
+            if(tabId === 'cancelamentos' || tabId === 'relatorios') {
+                setTimeout(() => {
+                    renderTrendChart();
+                    renderCategoryPieChart();
+                }, 50);
+            }
+        }
+
+        // --- LÓGICA DE SWIPE PARA ABAS ---
+        function handleSwipe() {
+            const swipeDistance = touchEndX - touchStartX;
+            if (Math.abs(swipeDistance) < MIN_SWIPE_DISTANCE) return;
+
+            const currentActive = document.querySelector('.tab-button.active');
+            const buttonArray = Array.from(tabButtons);
+            const currentIndex = buttonArray.indexOf(currentActive);
+            let nextIndex;
+
+            if (swipeDistance < 0) { // Swipe para a esquerda
+                nextIndex = (currentIndex + 1) % buttonArray.length;
+            } else { // Swipe para a direita
+                nextIndex = (currentIndex - 1 + buttonArray.length) % buttonArray.length;
+            }
+            
+            switchTab(buttonArray[nextIndex].dataset.tab);
+        }
+
+        tabContentWrapper.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        tabContentWrapper.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        generateReportBtn.addEventListener('click', () => {
+            if (!reportMonthInput.value) {
+                showToast('Por favor, selecione um mês.', 'warning');
+                return;
+            }
+            const [year, month] = reportMonthInput.value.split('-').map(Number);
+            const entries = history.filter(h => {
+                const d = parseDate(h.date);
+                return d.getFullYear() === year && d.getMonth() + 1 === month;
+            });
+            
+            if (entries.length === 0) {
+                reportOutput.innerHTML = '<p>Nenhum dado encontrado para este mês.</p>';
+                return;
+            }
+
+            const totalCancellations = entries.reduce((sum, e) => sum + (e.dailyCancellations || 0), 0);
+            const totalProtocols = entries.reduce((sum, e) => sum + (e.protocols || 0), 0);
+            const avgCancellations = totalCancellations / entries.length;
+            const avgProtocols = totalProtocols / entries.length;
+
+            reportOutput.innerHTML = `
+                <div class="report-stat"><span>Total de Cancelamentos:</span> <strong>${totalCancellations}</strong></div>
+                <div class="report-stat"><span>Total de Protocolos:</span> <strong>${totalProtocols}</strong></div>
+                <div class="report-stat"><span>Média Diária de Cancelamentos:</span> <strong>${avgCancellations.toFixed(2)}</strong></div>
+                <div class="report-stat"><span>Média Diária de Protocolos:</span> <strong>${avgProtocols.toFixed(2)}</strong></div>
+            `;
+        });
+
+        compareMonthsBtn.addEventListener('click', () => {
+             if (!reportMonthInput.value) {
+                showToast('Por favor, selecione um mês para comparar.', 'warning');
+                return;
+            }
+            const [year, month] = reportMonthInput.value.split('-').map(Number);
+            
+            const getDateForComparison = (y, m) => {
+                if (m === 1) return { year: y - 1, month: 12 };
+                return { year: y, month: m - 1};
+            }
+
+            const prevDate = getDateForComparison(year, month);
+            
+            const currentEntries = history.filter(h => {
+                const d = parseDate(h.date);
+                return d.getFullYear() === year && d.getMonth() + 1 === month;
+            });
+
+            const prevEntries = history.filter(h => {
+                const d = parseDate(h.date);
+                return d.getFullYear() === prevDate.year && d.getMonth() + 1 === prevDate.month;
+            });
+
+            const currentTotal = currentEntries.reduce((sum, e) => sum + (e.dailyCancellations || 0), 0);
+            const prevTotal = prevEntries.reduce((sum, e) => sum + (e.dailyCancellations || 0), 0);
+            const difference = currentTotal - prevTotal;
+
+            reportOutput.innerHTML = `
+                <div class="report-stat"><span>Cancelamentos Mês Atual (${month}/${year}):</span> <strong>${currentTotal}</strong></div>
+                <div class="report-stat"><span>Cancelamentos Mês Anterior (${prevDate.month}/${prevDate.year}):</span> <strong>${prevTotal}</strong></div>
+                <div class="report-stat"><span>Diferença:</span> <strong style="color: ${difference > 0 ? 'var(--danger-color)' : 'var(--success-color)'}">${difference}</strong></div>
+            `;
+        });
+        
+        // --- LÓGICA DE EXPORTAÇÃO E IA ---
+
+        // Lógica para exportar Relatório para PDF
+        exportReportPdfBtn.addEventListener('click', () => {
+            const reportContent = reportOutput.innerHTML.trim();
+            if (!reportContent || reportContent.includes('Nenhum dado encontrado')) {
+                showToast('Gere um relatório primeiro para poder exportar.', 'warning');
+                return;
+            }
+
+            if (confirm('Deseja gerar o relatório em PDF e abri-lo numa nova aba?')) {
+                showToast('A gerar o PDF...', 'info');
+                vibrate();
+                
+                const element = document.getElementById('report-export-area');
+                const opt = {
+                    margin:       0.5,
+                    filename:     `relatorio_metas_${reportMonthInput.value}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2 },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+
+                html2pdf().from(element).set(opt).outputPdf('bloburl').then((bloburl) => {
+                    window.open(bloburl, '_blank');
+                }).catch(err => {
+                    showToast('Erro ao gerar o PDF.', 'danger');
+                    console.error(err);
+                });
+            }
+        });
+
+        // --- LÓGICA DO ASSISTENTE IA ---
+        const callGeminiAPI = async (prompt) => {
+            const apiKey = "AIzaSyB4VSoVXwJACSxlf9njB2uUbJF59q7MmNw";
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+
+            aiSendButton.disabled = true;
+            aiSendButton.textContent = '...';
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error("Erro da API:", errorData);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.candidates && data.candidates.length > 0) {
+                    const text = data.candidates[0].content.parts[0].text;
+                    addMessageToChat('model', text);
+                } else {
+                     addMessageToChat('model', 'Não recebi uma resposta válida da IA. Verifique as configurações ou a sua chave de API.');
+                }
+
+            } catch (error) {
+                console.error("Erro ao chamar a API Gemini:", error);
+                addMessageToChat('model', 'Desculpe, ocorreu um erro ao contactar a IA.');
+            } finally {
+                aiSendButton.disabled = false;
+                aiSendButton.textContent = 'Enviar';
+            }
+        };
+
+        const addMessageToChat = (role, text) => {
+            const messageDiv = document.createElement('div');
+            messageDiv.style.padding = '8px 12px';
+            messageDiv.style.borderRadius = '8px';
+            messageDiv.style.maxWidth = '80%';
+            messageDiv.style.wordBreak = 'break-word';
+
+            if (role === 'user') {
+                messageDiv.style.backgroundColor = 'var(--primary-color)';
+                messageDiv.style.alignSelf = 'flex-end';
+                messageDiv.style.color = 'white';
+            } else {
+                messageDiv.style.backgroundColor = 'var(--input-bg)';
+                messageDiv.style.alignSelf = 'flex-start';
+            }
+            messageDiv.textContent = text;
+            aiChatMessages.appendChild(messageDiv);
+            aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+        };
+        
+        aiSendButton.addEventListener('click', () => {
+            const prompt = aiPromptInput.value.trim();
+            if (prompt) {
+                addMessageToChat('user', prompt);
+                callGeminiAPI(prompt);
+                aiPromptInput.value = '';
+            }
+        });
+        
+        aiPromptInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                aiSendButton.click();
+            }
+        });
+
+        // Lógica dos novos botões do chat IA
+        clearChatBtn.addEventListener('click', () => {
+            if (aiChatMessages.children.length > 0 && confirm('Tem a certeza que quer limpar a conversa atual?')) {
+                aiChatMessages.innerHTML = '';
+                showToast('Conversa limpa.', 'info');
+                vibrate();
+            }
+        });
+
+        saveChatBtn.addEventListener('click', () => {
+            const messages = Array.from(aiChatMessages.children).map(div => ({
+                role: div.style.alignSelf === 'flex-end' ? 'user' : 'model',
+                text: div.textContent
+            }));
+
+            if (messages.length === 0) {
+                showToast('A conversa está vazia.', 'warning');
+                return;
+            }
+            
+            const newChat = {
+                id: `chat_${new Date().getTime()}`,
+                title: messages[0].text.substring(0, 40) + '...',
+                date: new Date().toLocaleString('pt-BR'),
+                messages: messages
+            };
+            savedAiChats.unshift(newChat);
+            saveData(); // Guarda o chat no Firestore
+            showToast('Conversa salva com sucesso!', 'success');
+            vibrate();
+        });
+
+        viewChatsBtn.addEventListener('click', () => {
+            savedChatsList.innerHTML = '';
+
+            if (savedAiChats.length === 0) {
+                savedChatsList.innerHTML = '<li>Nenhuma conversa salva.</li>';
+            } else {
+                savedAiChats.forEach(chat => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${chat.title}</strong><br><small>${chat.date}</small>`;
+                    li.dataset.chatId = chat.id;
+                    li.addEventListener('click', () => {
+                        aiChatMessages.innerHTML = '';
+                        chat.messages.forEach(msg => {
+                            addMessageToChat(msg.role, msg.text);
+                        });
+                        savedChatsModal.style.display = 'none';
+                        showToast('Conversa carregada!', 'info');
+                    });
+                    savedChatsList.appendChild(li);
+                });
+            }
+            savedChatsModal.style.display = 'flex';
+        });
+
+        closeSavedChatsModal.addEventListener('click', () => {
+            savedChatsModal.style.display = 'none';
+        });
+
+        exportChatTxtBtn.addEventListener('click', () => {
+            const messages = Array.from(aiChatMessages.children);
+            if (messages.length === 0) {
+                showToast('Não há nada para exportar.', 'warning');
+                return;
+            }
+
+            let txtContent = `Exportação da Conversa - ${new Date().toLocaleString('pt-BR')}\n\n`;
+            messages.forEach(div => {
+                const role = div.style.alignSelf === 'flex-end' ? 'Utilizador' : 'Assistente';
+                txtContent += `--- ${role} ---\n${div.textContent}\n\n`;
+            });
+
+            const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `chat_ia_${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Ficheiro .txt do chat gerado!', 'success');
+            vibrate();
+        });
+        
+        // --- INICIALIZAÇÃO e AUTENTICAÇÃO ---
+        pinForm.addEventListener('submit', handlePinLogin);
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
                 userId = user.uid;
                 console.log("Utilizador autenticado com ID:", userId);
-                loadDataFromFirestore();
+                pinModal.style.display = 'none';
+                loadingOverlay.style.display = 'flex';
+                await loadDataFromFirestore();
+            } else {
+                // Se não há utilizador (logout ou primeira visita)
+                userId = null;
+                isDataLoaded = false;
+                setupPinScreen();
             }
-        } else {
-            // Utilizador não está logado, tenta fazer login anónimo
-            signInAnonymously(auth).catch((error) => {
-                console.error("Erro no login anónimo:", error);
-                loadingOverlay.innerHTML = "<p>Falha na conexão. Tente recarregar a página.</p>"
-                showToast("Não foi possível conectar à base de dados.", "danger");
-            });
-        }
+        });
     });
-
-});
 </script>
 </body>
 </html>

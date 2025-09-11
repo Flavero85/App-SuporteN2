@@ -206,6 +206,7 @@
         input[type="number"],
         input[type="search"],
         input[type="time"],
+        input[type="month"],
         select,
         textarea {
             padding: 10px;
@@ -222,6 +223,7 @@
         input[type="number"]:focus,
         input[type="search"]:focus,
         input[type="time"]:focus,
+        input[type="month"]:focus,
         select:focus,
         textarea:focus {
             outline: none;
@@ -435,9 +437,13 @@
             gap: 8px;
             align-items: center;
         }
+        .field-group input {
+            padding: 6px 8px;
+            font-size: 13px;
+        }
         .field-group .copy-btn {
-            padding: 6px 10px;
-            font-size: 12px;
+            padding: 6px 8px;
+            font-size: 11px;
             flex-shrink: 0;
         }
         
@@ -689,7 +695,7 @@
         }
 
 
-        /* --- ESTILOS DO RESUMO DO DIA --- */
+        /* --- ESTILOS DO RESUMO DO DIA E RELATÓRIOS --- */
         #daily-summary-log {
             white-space: pre-wrap; /* Mantém a formatação do texto */
             background-color: var(--input-bg);
@@ -699,6 +705,34 @@
             font-size: 14px;
             max-height: 150px;
             overflow-y: auto;
+        }
+        #report-output {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .report-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+        .report-stat:last-child {
+            border-bottom: none;
+        }
+        .report-stat:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        .report-stat span {
+            color: var(--text-secondary-color);
+        }
+        .report-stat strong {
+            font-size: 1.2rem;
+            color: var(--primary-color);
         }
         
         /* Media Query para organização de botões em smartphones */
@@ -759,9 +793,9 @@
                             <div id="cases-list-container"></div>
                         </div>
                         <div class="card-footer">
-                            <button type="button" id="addCaseButton" class="button secondary-button">+ Adicionar</button>
-                            <button type="button" id="clearCasesButton" class="button reset-button">Limpar</button>
-                            <button type="button" id="saveCasesButton" class="button save-button">Salvar Casos</button>
+                            <button type="button" id="addCaseButton" class="button secondary-button"><span data-editable="true" id="btn-add-case-text">+ Adicionar</span></button>
+                            <button type="button" id="clearCasesButton" class="button reset-button"><span data-editable="true" id="btn-clear-cases-text">Limpar</span></button>
+                            <button type="button" id="saveCasesButton" class="button save-button"><span data-editable="true" id="btn-save-cases-text">Salvar Casos</span></button>
                         </div>
                     </div>
                     <!-- CONTADORES -->
@@ -771,6 +805,19 @@
                             <p id="subtitle-atendimentos" data-editable="true">Acompanhe o seu progresso para a comissão.</p>
                         </div>
                         <div class="card-body">
+                            <div class="form-group">
+                                <label id="label-category" for="categorySelect" data-editable="true">Categoria do Cancelamento:</label>
+                                <div class="input-with-button-container">
+                                    <select id="categorySelect">
+                                        <option id="category-option-1" data-editable="true">Sem Sinal</option>
+                                        <option id="category-option-2" data-editable="true">Massivo</option>
+                                        <option id="category-option-3" data-editable="true">Lentidão</option>
+                                        <option id="category-option-4" data-editable="true">Quedas de Conexão</option>
+                                        <option id="category-option-5" data-editable="true">Outros</option>
+                                    </select>
+                                    <button type="button" id="incrementButton" class="button" style="width: 70px;">+1</button>
+                                </div>
+                            </div>
                             <div class="daily-counters-row">
                                 <div class="form-group">
                                     <label id="label-protocolos" for="protocolosAnalisadosInput" data-editable="true">Protocolos (Dia):</label>
@@ -790,20 +837,7 @@
                             </div>
                             <div id="protocol-goals-container" style="margin-top: 15px;"></div>
                             <div id="metas-container"></div>
-                            <div class="form-group">
-                                <label id="label-category" for="categorySelect" data-editable="true">Categoria do Cancelamento:</label>
-                                <div class="input-with-button-container">
-                                    <select id="categorySelect">
-                                        <option id="category-option-1" data-editable="true">Sem Sinal</option>
-                                        <option id="category-option-2" data-editable="true">Massivo</option>
-                                        <option id="category-option-3" data-editable="true">Lentidão</option>
-                                        <option id="category-option-4" data-editable="true">Quedas de Conexão</option>
-                                        <option id="category-option-5" data-editable="true">Outros</option>
-                                    </select>
-                                    <button type="button" id="incrementButton" class="button" style="width: 70px;">+1</button>
-                                </div>
-                            </div>
-                            <div id="summary-text" class="summary-box">A aguardar os seus dados...</div>
+                            <div id="summary-text" class="summary-box" data-editable="true">A aguardar os seus dados...</div>
                         </div>
                     </div>
                     <!-- RESPOSTAS RÁPIDAS -->
@@ -813,12 +847,12 @@
                             <p id="subtitle-respostas" data-editable="true">Clique numa resposta para copiar o texto completo.</p>
                         </div>
                         <div class="card-body" id="respostas-container">
-                            <div id="resposta-1" class="summary-box resposta-copiavel" data-full-text="Olá, &#10;&#10;Aqui é Flávio, da empresa Desktop. Tudo bem com você?&#10;&#10;Quero te explicar sobre o reparo que estava agendado (protocolo [ XXXX ]): identificamos que a falha não está na sua residência, mas sim em um equipamento externo que leva o sinal até aí.&#10;&#10;Por isso, a visita técnica não seria eficaz e precisou ser cancelada.&#10;&#10;Mas não se preocupe! Nossa equipe já está cuidando disso e em breve você terá seu serviço restabelecido.&#10;&#10;Conte sempre com a Desktop. Estamos juntos para garantir sua melhor experiência!">Visita cancelada por falha externa. Equipa a atuar na correção.</div>
-                            <div id="resposta-2" class="summary-box resposta-copiavel" data-full-text="Olá, cliente Desktop!&#10;&#10;Meu nome é Flávio do Suporte Técnico N2 e estou entrando em contato com uma novidade incrível: identificamos uma oportunidade de melhorar ainda mais a qualidade da sua conexão com a Desktop — e o melhor, sem custo adicional!&#10;&#10;Nosso time técnico acompanha de perto o desempenho dos nossos clientes e notamos que uma atualização no seu equipamento pode proporcionar uma experiência ainda melhor.&#10;&#10;É só me informar a melhor data e horário, e cuidamos do resto!&#10;&#10;Fico no aguardo da sua resposta.&#10;&#10;Até mais!&#10;Flávio N2&#10;Equipe Desktop">Oportunidade de melhoria na conexão sem custo. Agende a atualização.</div>
-                            <div id="resposta-3" class="summary-box resposta-copiavel" data-full-text="Olá, cliente TOP!&#10;&#10;Sou o Flávio do Suporte Técnico N2, da empresa DESKTOP INTERNET!&#10;&#10;O motivo do nosso contato, é referente ao problema protocolo [ XXXX ] que estava causando falta de acesso à sua internet.&#10;Foi feita uma atualização e correção via sistema. Conseguimos resolver remotamente o seu problema.&#10;Poderia nos informar se a sua internet normalizou e se podemos cancelar sua visita?&#10;&#10;Seu protocolo de agendamento é: &#10;&#10;Se ainda estiver com problemas, a visita com o técnico no local será mantida para validação.">Problema resolvido remotamente. Confirme se a internet normalizou.</div>
-                            <div id="resposta-4" class="summary-box resposta-copiavel" data-full-text="Nesse caso vamos ter que prosseguir com a visita técnica Ok">Vamos prosseguir com a visita técnica para resolver o problema.</div>
-                            <div id="resposta-5" class="summary-box resposta-copiavel" data-full-text="A equipe N2 do suporte técnico da Desktop agradece e tudo de bom !">A equipa N2 da Desktop agradece. Tenha um ótimo dia!</div>
-                            <div id="resposta-6" class="summary-box resposta-copiavel" data-full-text="Frase reserva">Frase de reserva para uso geral em atendimentos.</div>
+                            <div id="resposta-1" class="summary-box resposta-copiavel" data-full-text="Olá, &#10;&#10;Aqui é Flávio, da empresa Desktop. Tudo bem com você?&#10;&#10;Quero te explicar sobre o reparo que estava agendado (protocolo [ XXXX ]): identificamos que a falha não está na sua residência, mas sim em um equipamento externo que leva o sinal até aí.&#10;&#10;Por isso, a visita técnica não seria eficaz e precisou ser cancelada.&#10;&#10;Mas não se preocupe! Nossa equipe já está cuidando disso e em breve você terá seu serviço restabelecido.&#10;&#10;Conte sempre com a Desktop. Estamos juntos para garantir sua melhor experiência!" data-editable="true">Visita cancelada por falha externa. Equipa a atuar na correção.</div>
+                            <div id="resposta-2" class="summary-box resposta-copiavel" data-full-text="Olá, cliente Desktop!&#10;&#10;Meu nome é Flávio do Suporte Técnico N2 e estou entrando em contato com uma novidade incrível: identificamos uma oportunidade de melhorar ainda mais a qualidade da sua conexão com a Desktop — e o melhor, sem custo adicional!&#10;&#10;Nosso time técnico acompanha de perto o desempenho dos nossos clientes e notamos que uma atualização no seu equipamento pode proporcionar uma experiência ainda melhor.&#10;&#10;É só me informar a melhor data e horário, e cuidamos do resto!&#10;&#10;Fico no aguardo da sua resposta.&#10;&#10;Até mais!&#10;Flávio N2&#10;Equipe Desktop" data-editable="true">Oportunidade de melhoria na conexão sem custo. Agende a atualização.</div>
+                            <div id="resposta-3" class="summary-box resposta-copiavel" data-full-text="Olá, cliente TOP!&#10;&#10;Sou o Flávio do Suporte Técnico N2, da empresa DESKTOP INTERNET!&#10;&#10;O motivo do nosso contato, é referente ao problema protocolo [ XXXX ] que estava causando falta de acesso à sua internet.&#10;Foi feita uma atualização e correção via sistema. Conseguimos resolver remotamente o seu problema.&#10;Poderia nos informar se a sua internet normalizou e se podemos cancelar sua visita?&#10;&#10;Seu protocolo de agendamento é: &#10;&#10;Se ainda estiver com problemas, a visita com o técnico no local será mantida para validação." data-editable="true">Problema resolvido remotamente. Confirme se a internet normalizou.</div>
+                            <div id="resposta-4" class="summary-box resposta-copiavel" data-full-text="Nesse caso vamos ter que prosseguir com a visita técnica Ok" data-editable="true">Vamos prosseguir com a visita técnica para resolver o problema.</div>
+                            <div id="resposta-5" class="summary-box resposta-copiavel" data-full-text="A equipe N2 do suporte técnico da Desktop agradece e tudo de bom !" data-editable="true">A equipa N2 da Desktop agradece. Tenha um ótimo dia!</div>
+                            <div id="resposta-6" class="summary-box resposta-copiavel" data-full-text="Frase reserva" data-editable="true">Frase de reserva para uso geral em atendimentos.</div>
                         </div>
                     </div>
                     <!-- MISSÃO DIÁRIA -->
@@ -834,18 +868,18 @@
                     <!-- RESUMO DO DIA -->
                     <div class="meta-card">
                         <div class="card-header">
-                            <h2 data-editable="true">Resumo do Dia</h2>
-                            <p data-editable="true">Suas anotações e casos de hoje.</p>
+                            <h2 id="title-summary" data-editable="true">Resumo do Dia</h2>
+                            <p id="subtitle-summary" data-editable="true">Suas anotações e casos de hoje.</p>
                         </div>
                         <div class="card-body">
-                            <h4>Anotações de Bordo:</h4>
+                            <h4 id="title-log" data-editable="true">Anotações de Bordo:</h4>
                             <div id="daily-summary-log">Nenhuma anotação para hoje.</div>
-                            <h4 style="margin-top: 15px;">Casos do Dia:</h4>
+                            <h4 id="title-day-cases" style="margin-top: 15px;" data-editable="true">Casos do Dia:</h4>
                             <div id="daily-summary-cases-list"></div>
                         </div>
                         <div class="card-footer">
-                             <button type="button" id="dailySummaryClearButton" class="button reset-button">Limpar Anotação</button>
-                            <button type="button" id="dailySummarySaveButton" class="button save-button">Salvar</button>
+                             <button type="button" id="dailySummaryClearButton" class="button reset-button"><span id="btn-clear-summary-text" data-editable="true">Limpar Resumo</span></button>
+                            <button type="button" id="dailySummarySaveButton" class="button save-button"><span id="btn-save-summary-text" data-editable="true">Salvar</span></button>
                         </div>
                     </div>
                 </div>
@@ -853,19 +887,6 @@
 
             <div id="tab-cancelamentos" class="tab-content">
                 <div class="metas-grid">
-                    <!-- DIÁRIO DE BORDO -->
-                    <div class="meta-card">
-                        <div class="card-header">
-                            <h2 id="title-logbook" data-editable="true">Diário de Bordo</h2>
-                            <p id="subtitle-logbook" data-editable="true">Anote eventos importantes do dia.</p>
-                        </div>
-                        <div class="card-body">
-                            <textarea id="logbook-textarea" placeholder="Ex: Instabilidade massiva na região X..."></textarea>
-                        </div>
-                        <div class="card-footer">
-                            <button type="button" id="saveLogbookButton" class="button save-button">Salvar Anotação</button>
-                        </div>
-                    </div>
                     <!-- HISTÓRICO DE ENTRADAS -->
                     <div class="meta-card">
                         <div class="card-header"><h2 id="title-historico" data-editable="true">Histórico de Entradas</h2></div>
@@ -899,6 +920,14 @@
                             <div id="chart-container"><canvas id="trendChart"></canvas></div>
                         </div>
                     </div>
+                    <!-- COMISSÃO -->
+                    <div class="meta-card">
+                        <div class="card-header"><h2 id="title-comissao" data-editable="true">Comissão Estimada</h2></div>
+                        <div class="card-body" style="justify-content: center; align-items: center;">
+                            <div id="bonus-value" class="bonus-value" style="color: var(--success-color);">R$ 0,00</div>
+                            <div id="bonus-formula">A aguardar dados...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -906,19 +935,32 @@
                 <div class="metas-grid">
                     <div class="meta-card">
                         <div class="card-header">
-                            <h2>Geração de Relatório</h2>
-                            <p>Selecione o mês para gerar o relatório detalhado.</p>
+                            <h2 id="title-report-gen" data-editable="true">Geração de Relatório</h2>
+                            <p id="subtitle-report-gen" data-editable="true">Selecione o mês para gerar o relatório detalhado.</p>
                         </div>
                         <div class="card-body">
                             <div class="form-group">
-                                <label for="report-month">Mês e Ano:</label>
+                                <label for="report-month" id="label-report-month" data-editable="true">Mês e Ano:</label>
                                 <input type="month" id="report-month" />
                             </div>
                              <div class="card-footer" style="justify-content: center;">
-                                <button id="generateReportBtn" class="button">Gerar Análise</button>
-                                <button id="compareMonthsBtn" class="button secondary-button">Comparar</button>
+                                <button id="generateReportBtn" class="button"><span id="btn-gen-report-text" data-editable="true">Gerar Análise</span></button>
+                                <button id="compareMonthsBtn" class="button secondary-button"><span id="btn-comp-month-text" data-editable="true">Comparar</span></button>
                             </div>
                             <div id="report-output"></div>
+                        </div>
+                    </div>
+                    <!-- DIÁRIO DE BORDO -->
+                    <div class="meta-card">
+                        <div class="card-header">
+                            <h2 id="title-logbook" data-editable="true">Diário de Bordo</h2>
+                            <p id="subtitle-logbook" data-editable="true">Anote eventos importantes do dia.</p>
+                        </div>
+                        <div class="card-body">
+                            <textarea id="logbook-textarea" placeholder="Ex: Instabilidade massiva na região X..."></textarea>
+                        </div>
+                        <div class="card-footer">
+                            <button type="button" id="saveLogbookButton" class="button save-button"><span id="btn-save-logbook-text" data-editable="true">Salvar Anotação</span></button>
                         </div>
                     </div>
                 </div>
@@ -956,14 +998,7 @@
                             </div>
                         </div>
                     </div>
-                    <!-- COMISSÃO -->
-                    <div class="meta-card">
-                        <div class="card-header"><h2 id="title-comissao" data-editable="true">Comissão Estimada</h2></div>
-                        <div class="card-body" style="justify-content: center; align-items: center;">
-                            <div id="bonus-value" class="bonus-value" style="color: var(--success-color);">R$ 0,00</div>
-                            <div id="bonus-formula">A aguardar dados...</div>
-                        </div>
-                    </div>
+                    
                     <!-- CONQUISTAS -->
                     <div class="meta-card">
                         <div class="card-header"><h2 id="title-conquistas" data-editable="true">Conquistas 🏆</h2></div>
@@ -997,9 +1032,9 @@
         </div>
 
         <div class="action-buttons">
-            <button type="button" id="saveButton" class="button save-button">Guardar Progresso</button>
-            <button type="button" id="editButton" class="button secondary-button">✏️ Editar Textos</button>
-            <button type="button" id="themeToggleButton" class="button">Mudar Tema</button>
+            <button type="button" id="saveButton" class="button save-button"><span id="btn-save-progress-text" data-editable="true">Guardar Progresso</span></button>
+            <button type="button" id="editButton" class="button secondary-button"><span id="btn-edit-text" data-editable="true">✏️ Editar Textos</span></button>
+            <button type="button" id="themeToggleButton" class="button"><span id="btn-change-theme-text" data-editable="true">Mudar Tema</span></button>
         </div>
     </div>
 
@@ -1041,15 +1076,15 @@
                         <label for="reminderEnabled" style="margin: 0;" id="label-modal-lembrete" data-editable="true">Ativar lembrete diário</label>
                         <input type="time" id="reminderTime">
                     </div>
-                    <button type="submit" class="button save-button" style="width: 100%; margin-top: 20px;">Guardar Configurações</button>
+                    <button type="submit" class="button save-button" style="width: 100%; margin-top: 20px;"><span id="btn-save-settings-text" data-editable="true">Guardar Configurações</span></button>
                 </form>
 
                 <div class="modal-actions">
-                    <button type="button" id="importButton" class="button">Importar Dados</button>
-                    <button type="button" id="exportButton" class="button">Exportar Dados</button>
-                    <button type="button" id="installAppButton" class="button">Instalar App</button>
-                    <button type="button" id="clearCacheButton" class="button reset-button">Limpar Cache</button>
-                    <button type="button" id="resetButton" class="button reset-button">Repor Todos os Dados</button>
+                    <button type="button" id="importButton" class="button"><span id="btn-import-text" data-editable="true">Importar Dados</span></button>
+                    <button type="button" id="exportButton" class="button"><span id="btn-export-text" data-editable="true">Exportar Dados</span></button>
+                    <button type="button" id="installAppButton" class="button"><span id="btn-install-text" data-editable="true">Instalar App</span></button>
+                    <button type="button" id="clearCacheButton" class="button reset-button"><span id="btn-clear-cache-text" data-editable="true">Limpar Cache</span></button>
+                    <button type="button" id="resetButton" class="button reset-button"><span id="btn-reset-text" data-editable="true">Repor Todos os Dados</span></button>
                 </div>
             </div>
         </div>
@@ -1502,16 +1537,24 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const clearDailySummary = () => {
         vibrate();
-        if (confirm('Tem a certeza que quer limpar a anotação do diário de bordo de hoje? Esta ação não pode ser desfeita.')) {
+        if (confirm('Tem a certeza que quer limpar a anotação E OS CASOS de hoje? Esta ação não pode ser desfeita.')) {
             const today = getTodayDateString();
             
-            // Limpa apenas o logbook do dia
+            // Limpa a anotação
             logbookTextarea.value = '';
             delete dailyLogbook[today];
             localStorage.setItem('dailyLogbook', JSON.stringify(dailyLogbook));
+
+            // Limpa os casos do dia
+            const originalCaseCount = allCases.length;
+            allCases = allCases.filter(c => c.date !== today);
             
-            updateAll(); // Atualiza a UI, incluindo o card de resumo
-            showToast('Anotação do dia limpa!', 'danger');
+            if(originalCaseCount > allCases.length) {
+                saveCases();
+            }
+            
+            updateAll();
+            showToast('Anotação e casos do dia limpos!', 'danger');
         }
     };
 
@@ -2204,10 +2247,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     settingsButton.addEventListener('click', openSettingsModal);
-    closeSettingsModal.addEventListener('click', () => settingsModal.style.display = 'none');
+    if(closeSettingsModal) closeSettingsModal.addEventListener('click', () => settingsModal.style.display = 'none');
     
     senhasButton.addEventListener('click', () => senhasModal.style.display = 'block');
-    closeSenhasModal.addEventListener('click', () => senhasModal.style.display = 'none');
+    if(closeSenhasModal) closeSenhasModal.addEventListener('click', () => senhasModal.style.display = 'none');
     senhasContainer.addEventListener('click', e => {
         if (e.target.classList.contains('copyable-credential')) {
             copyToClipboard(e.target.innerText, 'Credencial copiada!');
@@ -2338,6 +2381,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     generateReportBtn.addEventListener('click', () => {
+        if (!reportMonthInput.value) {
+            showToast('Por favor, selecione um mês.', 'warning');
+            return;
+        }
         const [year, month] = reportMonthInput.value.split('-').map(Number);
         const entries = history.filter(h => {
             const d = parseDate(h.date);
@@ -2361,6 +2408,42 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="report-stat"><span>Média Diária de Protocolos:</span> <strong>${avgProtocols.toFixed(2)}</strong></div>
         `;
     });
+
+    compareMonthsBtn.addEventListener('click', () => {
+         if (!reportMonthInput.value) {
+            showToast('Por favor, selecione um mês para comparar.', 'warning');
+            return;
+        }
+        const [year, month] = reportMonthInput.value.split('-').map(Number);
+        
+        const getDateForComparison = (y, m) => {
+            if (m === 1) return { year: y - 1, month: 12 };
+            return { year: y, month: m - 1};
+        }
+
+        const prevDate = getDateForComparison(year, month);
+        
+        const currentEntries = history.filter(h => {
+            const d = parseDate(h.date);
+            return d.getFullYear() === year && d.getMonth() + 1 === month;
+        });
+
+        const prevEntries = history.filter(h => {
+            const d = parseDate(h.date);
+            return d.getFullYear() === prevDate.year && d.getMonth() + 1 === prevDate.month;
+        });
+
+        const currentTotal = currentEntries.reduce((sum, e) => sum + (e.dailyCancellations || 0), 0);
+        const prevTotal = prevEntries.reduce((sum, e) => sum + (e.dailyCancellations || 0), 0);
+        const difference = currentTotal - prevTotal;
+
+        reportOutput.innerHTML = `
+            <div class="report-stat"><span>Cancelamentos Mês Atual (${month}/${year}):</span> <strong>${currentTotal}</strong></div>
+            <div class="report-stat"><span>Cancelamentos Mês Anterior (${prevDate.month}/${prevDate.year}):</span> <strong>${prevTotal}</strong></div>
+            <div class="report-stat"><span>Diferença:</span> <strong style="color: ${difference > 0 ? 'var(--danger-color)' : 'var(--success-color)'}">${difference}</strong></div>
+        `;
+    });
+
 
     // --- INICIALIZAÇÃO ---
     const savedTheme = localStorage.getItem('appTheme') || 'tech';

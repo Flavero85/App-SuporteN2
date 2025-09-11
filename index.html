@@ -6,10 +6,12 @@
     <title>Suporte N2</title>
     <meta name="theme-color" content="#0B021D"/>
     <meta name="description" content="Aplicativo de acompanhamento de metas para Suporte N2."/>
-    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="apple-touch-icon" href="icons/logo.png">
     <link rel="manifest" href="manifest.json">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     
     <style>
         :root {
@@ -769,6 +771,7 @@
             <button class="tab-button" data-tab="cancelamentos">Cancelamentos</button>
             <button class="tab-button" data-tab="relatorios">Relatórios</button>
             <button class="tab-button" data-tab="outros">Outros</button>
+            <button class="tab-button" data-tab="assistente">Assistente IA</button>
         </div>
         
         <div id="tab-content-wrapper">
@@ -1025,6 +1028,23 @@
                                 <li id="achieve-50-protocols" class="achievement">Analisar 50 protocolos num dia.</li>
                                 <li id="achieve-monthly-protocol-goal" class="achievement">Atingir a meta mensal de 1300 protocolos.</li>
                             </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <div id="tab-assistente" class="tab-content">
+                <div class="meta-card">
+                    <div class="card-header">
+                        <h2 data-editable="true">Assistente IA (Gemini)</h2>
+                        <p data-editable="true">Faça perguntas, peça para gerar textos, resumir casos e mais.</p>
+                    </div>
+                    <div class="card-body" id="ai-chat-body" style="height: 400px; justify-content: flex-end;">
+                        <div id="ai-chat-messages" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+                            <!-- Mensagens do chat aparecem aqui -->
+                        </div>
+                        <div id="ai-chat-input-container" style="display: flex; gap: 10px; margin-top: 15px;">
+                            <input type="text" id="ai-prompt-input" placeholder="Digite sua mensagem...">
+                            <button id="ai-send-button" class="button">Enviar</button>
                         </div>
                     </div>
                 </div>
@@ -1450,7 +1470,7 @@
         const timeToReminder = reminderDate.getTime() - now.getTime();
         notificationTimeout = setTimeout(() => {
             Notification.requestPermission().then(perm => {
-                if (perm === 'granted') navigator.serviceWorker.ready.then(reg => reg.showNotification('Lembrete de Metas', { body: 'Não se esqueça de guardar o seu progresso de hoje!', icon: '/icon-192x192.png', tag: 'metas-reminder' }));
+                if (perm === 'granted') navigator.serviceWorker.ready.then(reg => reg.showNotification('Lembrete de Metas', { body: 'Não se esqueça de guardar o seu progresso de hoje!', icon: 'icons/icon-192x192.png', tag: 'metas-reminder' }));
             });
             scheduleReminder();
         }, timeToReminder);

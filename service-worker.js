@@ -83,3 +83,4 @@ async function syncCasos() {
   // placeholder: se usar IndexedDB, leia e envie para API aqui
   return;
 }
+

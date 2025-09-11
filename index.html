@@ -6,7 +6,7 @@
     <title>Suporte N2</title>
     <meta name="theme-color" content="#0B021D"/>
     <meta name="description" content="Aplicativo de acompanhamento de metas para Suporte N2."/>
-    <link rel="apple-touch-icon" href="icons/logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
     <link rel="manifest" href="manifest.json">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -926,6 +926,26 @@
             
             <div id="tab-relatorios" class="tab-content">
                 <div class="metas-grid">
+                    <!-- DIÁRIO DE BORDO -->
+                    <div class="meta-card">
+                        <div class="card-header">
+                            <h2 id="title-logbook" data-editable="true">Diário de Bordo</h2>
+                            <p id="subtitle-logbook" data-editable="true">Anote eventos importantes do dia.</p>
+                        </div>
+                        <div class="card-body">
+                            <textarea id="logbook-textarea" placeholder="Ex: Instabilidade massiva na região X..."></textarea>
+                        </div>
+                        <div class="card-footer">
+                            <button type="button" id="saveLogbookButton" class="button save-button"><span id="btn-save-logbook-text" data-editable="true">Salvar Anotação</span></button>
+                        </div>
+                    </div>
+                    <!-- HISTÓRICO DE ENTRADAS -->
+                    <div class="meta-card">
+                        <div class="card-header"><h2 id="title-historico" data-editable="true">Histórico de Entradas</h2></div>
+                        <div class="card-body">
+                            <ul id="history-list"></ul>
+                        </div>
+                    </div>
                     <div class="meta-card">
                         <div class="card-header">
                             <h2 id="title-report-gen" data-editable="true">Geração de Relatório</h2>
@@ -941,26 +961,6 @@
                                 <button id="compareMonthsBtn" class="button secondary-button"><span id="btn-comp-month-text" data-editable="true">Comparar</span></button>
                             </div>
                             <div id="report-output"></div>
-                        </div>
-                    </div>
-                    <!-- HISTÓRICO DE ENTRADAS -->
-                    <div class="meta-card">
-                        <div class="card-header"><h2 id="title-historico" data-editable="true">Histórico de Entradas</h2></div>
-                        <div class="card-body">
-                            <ul id="history-list"></ul>
-                        </div>
-                    </div>
-                    <!-- DIÁRIO DE BORDO -->
-                    <div class="meta-card">
-                        <div class="card-header">
-                            <h2 id="title-logbook" data-editable="true">Diário de Bordo</h2>
-                            <p id="subtitle-logbook" data-editable="true">Anote eventos importantes do dia.</p>
-                        </div>
-                        <div class="card-body">
-                            <textarea id="logbook-textarea" placeholder="Ex: Instabilidade massiva na região X..."></textarea>
-                        </div>
-                        <div class="card-footer">
-                            <button type="button" id="saveLogbookButton" class="button save-button"><span id="btn-save-logbook-text" data-editable="true">Salvar Anotação</span></button>
                         </div>
                     </div>
                 </div>
@@ -1153,8 +1153,26 @@
         </div>
     </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCdQYNKJdTYEeOaejZy_ZxU9tVq7bF1x34",
+      authDomain: "app-suporte-n2.firebaseapp.com",
+      projectId: "app-suporte-n2",
+      storageBucket: "app-suporte-n2.firebasestorage.app",
+      messagingSenderId: "257470368604",
+      appId: "1:257470368604:web:42fcc4973851eb02b78f99"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    
+    document.addEventListener('DOMContentLoaded', () => {
     // --- LÓGICA PWA ---
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -1432,7 +1450,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const timeToReminder = reminderDate.getTime() - now.getTime();
         notificationTimeout = setTimeout(() => {
             Notification.requestPermission().then(perm => {
-                if (perm === 'granted') navigator.serviceWorker.ready.then(reg => reg.showNotification('Lembrete de Metas', { body: 'Não se esqueça de guardar o seu progresso de hoje!', icon: 'icons/icon-192x192.png', tag: 'metas-reminder' }));
+                if (perm === 'granted') navigator.serviceWorker.ready.then(reg => reg.showNotification('Lembrete de Metas', { body: 'Não se esqueça de guardar o seu progresso de hoje!', icon: '/icon-192x192.png', tag: 'metas-reminder' }));
             });
             scheduleReminder();
         }, timeToReminder);

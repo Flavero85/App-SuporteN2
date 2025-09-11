@@ -6,7 +6,7 @@
     <title>Suporte N2</title>
     <meta name="theme-color" content="#0B021D"/>
     <meta name="description" content="Aplicativo de acompanhamento de metas e ferramentas para o Suporte N2."/>
-    <link rel="apple-touch-icon" href="icons/logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
     <link rel="manifest" href="manifest.json">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -753,9 +753,30 @@
     </style>
 </head>
 <body>
+    <!-- INÍCIO: Ecrã de Carregamento -->
+    <div id="loading-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--main-bg); z-index: 9999; display: flex; justify-content: center; align-items: center; color: var(--text-color); flex-direction: column; transition: opacity 0.3s;">
+        <style>
+            .spinner {
+                border: 4px solid rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                border-top: 4px solid var(--text-color);
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
+        <div class="spinner"></div>
+        <p style="margin-top: 15px;">A sincronizar com a nuvem...</p>
+    </div>
+    <!-- FIM: Ecrã de Carregamento -->
+
     <div id="toast-container"></div>
 
-    <div class="page-container">
+    <div class="page-container" style="visibility: hidden;"> <!-- Escondido inicialmente -->
         <div class="header-metas">
             <img src="logo.png" alt="Logo" class="header-logo">
             <h1 id="main-title" data-editable="true">Suporte N2</h1>
@@ -1301,6 +1322,8 @@
     const savedChatsModal = document.getElementById('saved-chats-modal');
     const closeSavedChatsModal = document.getElementById('close-saved-chats-modal');
     const savedChatsList = document.getElementById('saved-chats-list');
+    const loadingOverlay = document.getElementById('loading-overlay'); // Seletor para o ecrã de carregamento
+    const pageContainer = document.querySelector('.page-container'); // Seletor para o conteúdo principal
 
 
     // --- VARIÁVEIS DE ESTADO ---
@@ -1876,9 +1899,13 @@
     
     // *** INÍCIO: FUNÇÕES DO FIRESTORE ***
     async function saveData() {
-        if (!userId || !isDataLoaded) {
+        if (!isDataLoaded) { // Alterado para verificar se os dados foram carregados
             showToast('Aguarde, a aplicação está a sincronizar com a nuvem.', 'warning');
             return;
+        }
+        if (!userId) { // Verificação adicional
+             showToast('Erro de autenticação. Tente recarregar a página.', 'danger');
+             return;
         }
         
         vibrate();
@@ -1898,7 +1925,6 @@
         }
         history.sort((a, b) => parseDate(a.date) - parseDate(b.date));
 
-        // Objeto com todos os dados a serem guardados
         const dataToSave = {
             atendimentosCount: atendimentosInput.value,
             protocolosAnalisadosCount: protocolosAnalisadosInput.value,
@@ -1942,7 +1968,6 @@
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 
-                // Repopulate state variables
                 metas = data.metas || metas;
                 allCases = data.allCases || [];
                 baseSalary = data.baseSalary || 0;
@@ -1958,7 +1983,6 @@
                 loadCustomTexts(data.customTexts);
                 applyTheme(data.appTheme || 'tech');
 
-                // Handle daily counters
                 const todayStr = getTodayDateString();
                 if (data.lastUsedDate === todayStr) {
                     dailyCancellationsInput.value = data.dailyCancellationsCount || 0;
@@ -1980,9 +2004,13 @@
              console.error("Erro ao carregar dados do Firestore:", error);
              showToast("Falha ao carregar dados da nuvem.", "danger");
         } finally {
-            isDataLoaded = true; // Marca que o carregamento (ou tentativa) terminou
-            updateAll(); // Atualiza a interface com os dados carregados ou os padrão
+            isDataLoaded = true;
+            updateAll(); 
             scheduleReminder();
+            // Esconde o ecrã de carregamento e mostra o conteúdo
+            loadingOverlay.style.opacity = '0';
+            pageContainer.style.visibility = 'visible';
+            setTimeout(() => { loadingOverlay.style.display = 'none'; }, 300);
         }
     }
     // *** FIM: FUNÇÕES DO FIRESTORE ***
@@ -1991,14 +2019,12 @@
     function resetData() {
         vibrate();
         if (confirm('Tem a certeza que deseja repor TODOS os seus dados ONLINE? Esta ação é irreversível.')) {
-            // Limpa o estado local
             metas = [ { id: 1, target: 10, reward: 0.24 }, { id: 2, target: 20, reward: 0.48 }, { id: 3, target: 30, reward: 0.70 } ];
             allCases = [];
             baseSalary = 0;
             history = [];
             categoryCounts = {};
             unlockedAchievements = {};
-            // Guarda um objeto vazio no Firestore para "limpar" os dados
             saveData().then(() => {
                  showToast('Dados repostos!', 'danger');
                  setTimeout(() => window.location.reload(), 1000);
@@ -2054,7 +2080,6 @@
                 try {
                     const importedData = JSON.parse(readerEvent.target.result);
                     if (confirm('Isto irá sobrescrever os seus dados online atuais. Deseja continuar?')) {
-                        // Atualiza as variáveis de estado com os dados importados
                         atendimentosInput.value = importedData.atendimentosCount || '';
                         protocolosAnalisadosInput.value = importedData.protocolosAnalisadosCount || '';
                         allCases = importedData.casesList || [];
@@ -2068,8 +2093,6 @@
                         dailyLogbook = importedData.dailyLogbook || {};
                         savedAiChats = importedData.savedAiChats || [];
                         loadCustomTexts(importedData.customTexts);
-
-                        // Guarda tudo no Firestore
                         saveData().then(() => {
                              showToast('Dados importados com sucesso!', 'success');
                              setTimeout(() => window.location.reload(), 1000);
@@ -2569,7 +2592,7 @@
         `;
     });
     
-    // --- INÍCIO: NOVAS FUNCIONALIDADES (PDF e IA) ---
+    // --- LÓGICA DE EXPORTAÇÃO E IA ---
 
     // Lógica para exportar Relatório para PDF
     exportReportPdfBtn.addEventListener('click', () => {
@@ -2757,13 +2780,12 @@
         showToast('Ficheiro .txt do chat gerado!', 'success');
         vibrate();
     });
-    // --- FIM: NOVAS FUNCIONALIDADES ---
     
     // --- INICIALIZAÇÃO e AUTENTICAÇÃO ---
     onAuthStateChanged(auth, (user) => {
         if (user) {
             // Utilizador está logado (anonimamente ou não)
-            if (userId !== user.uid) { // Evita recarregamentos desnecessários
+            if (userId !== user.uid) { 
                 userId = user.uid;
                 console.log("Utilizador autenticado com ID:", userId);
                 loadDataFromFirestore();
@@ -2772,6 +2794,7 @@
             // Utilizador não está logado, tenta fazer login anónimo
             signInAnonymously(auth).catch((error) => {
                 console.error("Erro no login anónimo:", error);
+                loadingOverlay.innerHTML = "<p>Falha na conexão. Tente recarregar a página.</p>"
                 showToast("Não foi possível conectar à base de dados.", "danger");
             });
         }

@@ -1255,6 +1255,9 @@
     const generateReportBtn = document.getElementById('generateReportBtn');
     const compareMonthsBtn = document.getElementById('compareMonthsBtn');
     const reportOutput = document.getElementById('report-output');
+    const aiSendButton = document.getElementById('ai-send-button');
+    const aiPromptInput = document.getElementById('ai-prompt-input');
+    const aiChatMessages = document.getElementById('ai-chat-messages');
 
 
     // --- VARIÁVEIS DE ESTADO ---
@@ -2498,6 +2501,73 @@
             <div class="report-stat"><span>Cancelamentos Mês Anterior (${prevDate.month}/${prevDate.year}):</span> <strong>${prevTotal}</strong></div>
             <div class="report-stat"><span>Diferença:</span> <strong style="color: ${difference > 0 ? 'var(--danger-color)' : 'var(--success-color)'}">${difference}</strong></div>
         `;
+    });
+    
+    // --- LÓGICA DO ASSISTENTE IA ---
+    const callGeminiAPI = async (prompt) => {
+        const apiKey = "AIzaSyB4VSoVXwJACSxlf9njB2uUbJF59q7MmNw";
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+        aiSendButton.disabled = true;
+        aiSendButton.textContent = '...';
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const text = data.candidates[0].content.parts[0].text;
+            addMessageToChat('model', text);
+
+        } catch (error) {
+            console.error("Erro ao chamar a API Gemini:", error);
+            addMessageToChat('model', 'Desculpe, ocorreu um erro ao contactar a IA.');
+        } finally {
+            aiSendButton.disabled = false;
+            aiSendButton.textContent = 'Enviar';
+        }
+    };
+
+    const addMessageToChat = (role, text) => {
+        const messageDiv = document.createElement('div');
+        messageDiv.style.padding = '8px 12px';
+        messageDiv.style.borderRadius = '8px';
+        messageDiv.style.maxWidth = '80%';
+        messageDiv.style.wordBreak = 'break-word';
+
+        if (role === 'user') {
+            messageDiv.style.backgroundColor = 'var(--primary-color)';
+            messageDiv.style.alignSelf = 'flex-end';
+            messageDiv.style.color = 'white';
+        } else {
+            messageDiv.style.backgroundColor = 'var(--input-bg)';
+            messageDiv.style.alignSelf = 'flex-start';
+        }
+        messageDiv.textContent = text;
+        aiChatMessages.appendChild(messageDiv);
+        aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+    };
+    
+    aiSendButton.addEventListener('click', () => {
+        const prompt = aiPromptInput.value.trim();
+        if (prompt) {
+            addMessageToChat('user', prompt);
+            callGeminiAPI(prompt);
+            aiPromptInput.value = '';
+        }
+    });
+    
+    aiPromptInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            aiSendButton.click();
+        }
     });
 
 

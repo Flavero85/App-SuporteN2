@@ -1206,10 +1206,8 @@
 <script type="module">
     // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    // *** INÍCIO: Importações do Firebase para Auth e Firestore ***
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    // *** FIM: Importações do Firebase ***
 
     // Your web app's Firebase configuration
     const firebaseConfig = {
@@ -1223,11 +1221,11 @@
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    // *** INÍCIO: Inicialização do Auth e Firestore ***
     const auth = getAuth(app);
     const db = getFirestore(app);
-    let userId = null; // Variável para guardar o ID do utilizador
-    // *** FIM: Inicialização do Auth e Firestore ***
+    let userId = null; 
+    let isDataLoaded = false; // Flag para controlar o carregamento inicial
+
     
     document.addEventListener('DOMContentLoaded', () => {
     // --- LÓGICA PWA ---
@@ -1292,8 +1290,6 @@
     const generateReportBtn = document.getElementById('generateReportBtn');
     const compareMonthsBtn = document.getElementById('compareMonthsBtn');
     const reportOutput = document.getElementById('report-output');
-    
-    // --- NOVOS SELETORES (PDF e IA) ---
     const exportReportPdfBtn = document.getElementById('exportReportPdfBtn');
     const aiSendButton = document.getElementById('ai-send-button');
     const aiPromptInput = document.getElementById('ai-prompt-input');
@@ -1880,8 +1876,8 @@
     
     // *** INÍCIO: FUNÇÕES DO FIRESTORE ***
     async function saveData() {
-        if (!userId) {
-            showToast('Erro: utilizador não autenticado.', 'danger');
+        if (!userId || !isDataLoaded) {
+            showToast('Aguarde, a aplicação está a sincronizar com a nuvem.', 'warning');
             return;
         }
         
@@ -1940,48 +1936,54 @@
         if (!userId) return;
         
         const userDocRef = doc(db, 'users', userId);
-        const docSnap = await getDoc(userDocRef);
+        try {
+            const docSnap = await getDoc(userDocRef);
 
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            
-            // Repopulate state variables
-            metas = data.metas || metas;
-            allCases = data.allCases || [];
-            baseSalary = data.baseSalary || 0;
-            history = data.history || [];
-            categoryCounts = data.categoryCounts || {};
-            unlockedAchievements = data.unlockedAchievements || {};
-            reminderSettings = data.reminderSettings || reminderSettings;
-            usedStatuses = new Set(data.usedStatuses || []);
-            usedQuickResponses = new Set(data.usedQuickResponses || []);
-            dailyLogbook = data.dailyLogbook || {};
-            savedAiChats = data.savedAiChats || [];
-            
-            loadCustomTexts(data.customTexts);
-            applyTheme(data.appTheme || 'tech');
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                
+                // Repopulate state variables
+                metas = data.metas || metas;
+                allCases = data.allCases || [];
+                baseSalary = data.baseSalary || 0;
+                history = data.history || [];
+                categoryCounts = data.categoryCounts || {};
+                unlockedAchievements = data.unlockedAchievements || {};
+                reminderSettings = data.reminderSettings || reminderSettings;
+                usedStatuses = new Set(data.usedStatuses || []);
+                usedQuickResponses = new Set(data.usedQuickResponses || []);
+                dailyLogbook = data.dailyLogbook || {};
+                savedAiChats = data.savedAiChats || [];
+                
+                loadCustomTexts(data.customTexts);
+                applyTheme(data.appTheme || 'tech');
 
-            // Handle daily counters
-            const todayStr = getTodayDateString();
-            if (data.lastUsedDate === todayStr) {
-                dailyCancellationsInput.value = data.dailyCancellationsCount || 0;
-                protocolosAnalisadosInput.value = data.protocolosAnalisadosCount || 0;
-                dailyCopyCount = data.dailyCopyCount || 0;
+                // Handle daily counters
+                const todayStr = getTodayDateString();
+                if (data.lastUsedDate === todayStr) {
+                    dailyCancellationsInput.value = data.dailyCancellationsCount || 0;
+                    protocolosAnalisadosInput.value = data.protocolosAnalisadosCount || 0;
+                    dailyCopyCount = data.dailyCopyCount || 0;
+                } else {
+                    dailyCancellationsInput.value = 0;
+                    protocolosAnalisadosInput.value = 0;
+                    dailyCopyCount = 0;
+                }
+                previousDailyCancellations = parseInt(dailyCancellationsInput.value) || 0;
+                atendimentosInput.value = data.atendimentosCount || '';
+                logbookTextarea.value = dailyLogbook[todayStr] || '';
+                
             } else {
-                 dailyCancellationsInput.value = 0;
-                 protocolosAnalisadosInput.value = 0;
-                 dailyCopyCount = 0;
+                console.log("Nenhum documento encontrado para este utilizador, a usar dados padrão.");
             }
-            previousDailyCancellations = parseInt(dailyCancellationsInput.value) || 0;
-            atendimentosInput.value = data.atendimentosCount || '';
-            logbookTextarea.value = dailyLogbook[todayStr] || '';
-            
-        } else {
-            console.log("Nenhum documento encontrado para este utilizador, a criar um novo.");
-            // Keep default values for a new user
+        } catch (error) {
+             console.error("Erro ao carregar dados do Firestore:", error);
+             showToast("Falha ao carregar dados da nuvem.", "danger");
+        } finally {
+            isDataLoaded = true; // Marca que o carregamento (ou tentativa) terminou
+            updateAll(); // Atualiza a interface com os dados carregados ou os padrão
+            scheduleReminder();
         }
-        updateAll();
-        scheduleReminder();
     }
     // *** FIM: FUNÇÕES DO FIRESTORE ***
 
@@ -2004,6 +2006,10 @@
         }
     }
     function exportData() {
+        if (!isDataLoaded) {
+            showToast('Aguarde o carregamento dos dados antes de exportar.', 'warning');
+            return;
+        }
         unlockAchievement('achieve-export', 'Primeiro backup realizado!');
         vibrate();
 
@@ -2430,7 +2436,6 @@
         const newTheme = themes[nextIndex];
         
         applyTheme(newTheme);
-        // localStorage.setItem('appTheme', newTheme);
         showToast(`Tema alterado para ${newTheme}!`, 'info');
         unlockAchievement('achieve-change-theme', 'Novo visual!');
     });
@@ -2753,15 +2758,16 @@
         vibrate();
     });
     // --- FIM: NOVAS FUNCIONALIDADES ---
-
-
+    
     // --- INICIALIZAÇÃO e AUTENTICAÇÃO ---
     onAuthStateChanged(auth, (user) => {
         if (user) {
             // Utilizador está logado (anonimamente ou não)
-            userId = user.uid;
-            console.log("Utilizador autenticado com ID:", userId);
-            loadDataFromFirestore();
+            if (userId !== user.uid) { // Evita recarregamentos desnecessários
+                userId = user.uid;
+                console.log("Utilizador autenticado com ID:", userId);
+                loadDataFromFirestore();
+            }
         } else {
             // Utilizador não está logado, tenta fazer login anónimo
             signInAnonymously(auth).catch((error) => {
@@ -2775,3 +2781,4 @@
 </script>
 </body>
 </html>
+

@@ -887,13 +887,6 @@
 
             <div id="tab-cancelamentos" class="tab-content">
                 <div class="metas-grid">
-                    <!-- HISTÓRICO DE ENTRADAS -->
-                    <div class="meta-card">
-                        <div class="card-header"><h2 id="title-historico" data-editable="true">Histórico de Entradas</h2></div>
-                        <div class="card-body">
-                            <ul id="history-list"></ul>
-                        </div>
-                    </div>
                     <!-- PROJEÇÃO -->
                     <div class="meta-card">
                         <div class="card-header"><h2 id="title-projecao" data-editable="true">Projeção de Cancelamentos</h2></div>
@@ -948,6 +941,13 @@
                                 <button id="compareMonthsBtn" class="button secondary-button"><span id="btn-comp-month-text" data-editable="true">Comparar</span></button>
                             </div>
                             <div id="report-output"></div>
+                        </div>
+                    </div>
+                    <!-- HISTÓRICO DE ENTRADAS -->
+                    <div class="meta-card">
+                        <div class="card-header"><h2 id="title-historico" data-editable="true">Histórico de Entradas</h2></div>
+                        <div class="card-body">
+                            <ul id="history-list"></ul>
                         </div>
                     </div>
                     <!-- DIÁRIO DE BORDO -->
@@ -1177,15 +1177,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const categorySummaryList = document.getElementById('category-summary-list');
     const achievementList = document.getElementById('achievement-list');
     const saveButton = document.getElementById('saveButton');
-    const resetButton = document.getElementById('resetButton');
-    const exportButton = document.getElementById('exportButton');
-    const importButton = document.getElementById('importButton');
     const settingsButton = document.getElementById('settings-button');
     const settingsModal = document.getElementById('settings-modal');
     const closeSettingsModal = document.getElementById('close-settings-modal');
-    const settingsForm = document.getElementById('settings-form');
-    const baseSalaryInput = document.getElementById('baseSalaryInput');
-    const settingsMetasContainer = document.getElementById('settings-metas-container');
     const bonusValueEl = document.getElementById('bonus-value');
     const bonusFormulaEl = document.getElementById('bonus-formula');
     const historyListEl = document.getElementById('history-list');
@@ -1194,12 +1188,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const tierProjectionContainer = document.getElementById('tier-projection-container');
     const trendChartCanvas = document.getElementById('trendChart');
     const categoryPieChartCanvas = document.getElementById('categoryPieChart');
-    const installAppButton = document.getElementById('installAppButton');
     const toastContainer = document.getElementById('toast-container');
     const editButton = document.getElementById('editButton');
     const respostasContainer = document.getElementById('respostas-container');
-    const reminderEnabledInput = document.getElementById('reminderEnabled');
-    const reminderTimeInput = document.getElementById('reminderTime');
     const casesListContainer = document.getElementById('cases-list-container');
     const addCaseButton = document.getElementById('addCaseButton');
     const clearCasesButton = document.getElementById('clearCasesButton');
@@ -1211,7 +1202,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const senhasModal = document.getElementById('senhas-modal');
     const closeSenhasModal = document.getElementById('close-senhas-modal');
     const senhasContainer = document.getElementById('senhas-container');
-    const clearCacheButton = document.getElementById('clearCacheButton');
     const dailyMissionList = document.getElementById('daily-mission-list');
     const logbookTextarea = document.getElementById('logbook-textarea');
     const saveLogbookButton = document.getElementById('saveLogbookButton');
@@ -1361,12 +1351,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     el.setAttribute('contenteditable', 'true'); 
                 }
             });
-            editButton.innerHTML = "✅ Guardar Textos";
+            editButton.querySelector('span').textContent = "✅ Guardar Textos";
             editButton.classList.add('save-button');
             showToast("Modo de edição ativado!", 'info');
         } else {
             editables.forEach(el => el.setAttribute('contenteditable', 'false'));
-            editButton.innerHTML = "✏️ Editar Textos";
+            editButton.querySelector('span').textContent = "✏️ Editar Textos";
             editButton.classList.remove('save-button');
             saveCustomTexts();
             unlockAchievement('achieve-customize', 'Interface personalizada!');
@@ -1591,7 +1581,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentMonth = new Date().getMonth();
         const monthlyProtocols = history
             .filter(h => parseDate(h.date).getMonth() === currentMonth)
-            .reduce((sum, h) => sum + (h.protocols || 0), 0);
+            .reduce((sum, h) => sum + (h.protocols || 0), 0) + dailyProtocols;
 
         const dailyPercent = DAILY_PROTOCOL_GOAL > 0 ? Math.min(100, (dailyProtocols / DAILY_PROTOCOL_GOAL) * 100) : 0;
         const monthlyPercent = MONTHLY_PROTOCOL_GOAL > 0 ? Math.min(100, (monthlyProtocols / MONTHLY_PROTOCOL_GOAL) * 100) : 0;
@@ -1861,10 +1851,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('lastUsedDate', todayStr);
 
         atendimentosInput.value = localStorage.getItem('atendimentosCount') || '';
-        if(baseSalaryInput) baseSalaryInput.value = baseSalary > 0 ? baseSalary : '';
-        if(reminderEnabledInput) reminderEnabledInput.checked = reminderSettings.enabled;
-        if(reminderTimeInput) reminderTimeInput.value = reminderSettings.time;
-
+        
         logbookTextarea.value = dailyLogbook[todayStr] || '';
         
         updateAll();
@@ -1988,8 +1975,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="form-group"><input type="number" id="baseSalaryInput" value="${baseSalary}" step="0.01"></div>
                 <h4 data-editable="true">Metas de Cancelamento</h4>
                 <div id="settings-metas-container"></div>
+                <hr style="border-color: var(--border-color); margin: 20px 0;">
+                <h4 data-editable="true">Notificações</h4>
+                <div class="form-group" style="display: flex; align-items: center; gap: 15px; justify-content: center;">
+                    <input type="checkbox" id="reminderEnabled" style="width: auto;">
+                    <label for="reminderEnabled" style="margin: 0;" data-editable="true">Ativar lembrete diário</label>
+                    <input type="time" id="reminderTime">
+                </div>
                 <button type="submit" class="button save-button" style="width: 100%; margin-top: 20px;">Guardar Configurações</button>
             </form>
+            <div class="modal-actions">
+                <button type="button" id="notificationButton" class="button">Ativar Notificação</button>
+                <button type="button" id="installAppButton" class="button">Instalar App</button>
+                <button type="button" id="clearCacheButton" class="button reset-button">Limpar Cache</button>
+            </div>
             <div class="modal-actions">
                 <button type="button" id="importButton" class="button">Importar</button>
                 <button type="button" id="exportButton" class="button">Exportar</button>
@@ -2003,6 +2002,11 @@ document.addEventListener('DOMContentLoaded', () => {
             group.innerHTML = `<label>Faixa ${meta.id}</label><div class="indicators-grid"><input type="number" placeholder="Qtd." value="${meta.target}" data-id="${meta.id}" data-type="target"><input type="number" placeholder="Comissão %" value="${(meta.reward || 0) * 100}" data-id="${meta.id}" data-type="reward"></div>`;
             metasContainer.appendChild(group);
         });
+
+        const reminderEnabledInput = modalBody.querySelector('#reminderEnabled');
+        const reminderTimeInput = modalBody.querySelector('#reminderTime');
+        reminderEnabledInput.checked = reminderSettings.enabled;
+        reminderTimeInput.value = reminderSettings.time;
         
         modalBody.querySelector('#settings-form').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -2015,16 +2019,63 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!isNaN(id) && !isNaN(target) && !isNaN(reward)) newMetas.push({ id, target, reward });
             });
             metas = newMetas;
+            reminderSettings.enabled = reminderEnabledInput.checked;
+            reminderSettings.time = reminderTimeInput.value;
             localStorage.setItem('baseSalary', baseSalary);
             localStorage.setItem('customMetas', JSON.stringify(metas));
+            localStorage.setItem('reminderSettings', JSON.stringify(reminderSettings));
             showToast('Configurações guardadas!', 'success');
             settingsModal.style.display = 'none';
+            scheduleReminder();
             updateAll();
         });
 
         modalBody.querySelector('#importButton').onclick = importData;
         modalBody.querySelector('#exportButton').onclick = exportData;
         modalBody.querySelector('#resetButton').onclick = resetData;
+        modalBody.querySelector('#installAppButton').onclick = () => {
+             if (deferredInstallPrompt) { 
+                deferredInstallPrompt.prompt(); 
+                deferredInstallPrompt.userChoice.then(({ outcome }) => {
+                    if (outcome === 'accepted') {
+                        showToast('App instalado com sucesso!', 'success');
+                    }
+                });
+                deferredInstallPrompt = null; 
+            } else { 
+                showToast('App já instalado ou não é possível instalar agora.', 'info');
+            }
+        };
+        modalBody.querySelector('#notificationButton').onclick = () => {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    showToast('Notificações ativadas!', 'success');
+                } else {
+                    showToast('Notificações bloqueadas.', 'warning');
+                }
+            });
+        };
+        modalBody.querySelector('#clearCacheButton').onclick = () => {
+            if ('caches' in window && 'serviceWorker' in navigator) {
+                caches.keys().then(function(cacheNames) {
+                    return Promise.all(
+                        cacheNames.map(function(cacheName) {
+                            return caches.delete(cacheName);
+                        })
+                    );
+                }).then(() => {
+                    navigator.serviceWorker.getRegistrations().then(registrations => {
+                        for(let registration of registrations) {
+                            registration.unregister();
+                        }
+                        showToast('Cache limpo! A página será recarregada.', 'success');
+                        setTimeout(() => window.location.reload(true), 2000);
+                    });
+                });
+            } else {
+                showToast('Recurso não suportado neste navegador.', 'danger');
+            }
+        };
         
         settingsModal.style.display = 'flex';
     }
@@ -2266,41 +2317,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('beforeinstallprompt', e => { 
         e.preventDefault(); 
         deferredInstallPrompt = e; 
-        if(installAppButton) installAppButton.style.display = 'block';
-    });
-    if(installAppButton) installAppButton.addEventListener('click', async () => { 
-        if (deferredInstallPrompt) { 
-            deferredInstallPrompt.prompt(); 
-            const { outcome } = await deferredInstallPrompt.userChoice;
-            if (outcome === 'accepted') {
-                installAppButton.style.display = 'none';
-            }
-            deferredInstallPrompt = null; 
-        } else { 
-            showToast('App já instalado. Para reinstalar, limpe os dados do site no navegador.', 'info');
-        }
-    });
-
-    if(clearCacheButton) clearCacheButton.addEventListener('click', () => {
-        if ('caches' in window && 'serviceWorker' in navigator) {
-            caches.keys().then(function(cacheNames) {
-                return Promise.all(
-                    cacheNames.map(function(cacheName) {
-                        return caches.delete(cacheName);
-                    })
-                );
-            }).then(() => {
-                navigator.serviceWorker.getRegistrations().then(registrations => {
-                    for(let registration of registrations) {
-                        registration.unregister();
-                    }
-                    showToast('Cache limpo! A página será recarregada.', 'success');
-                    setTimeout(() => window.location.reload(true), 2000);
-                });
-            });
-        } else {
-            showToast('Recurso não suportado neste navegador.', 'danger');
-        }
+        const installBtn = document.getElementById('installAppButton');
+        if(installBtn) installBtn.style.display = 'block';
     });
 
     themeToggleButton.addEventListener('click', () => {
